@@ -1,6 +1,6 @@
 /*!
  * STGraphX Embedded Player Bundle
- * Generated: 2026-09-15T19:30:47.543Z
+ * Generated: 2026-09-19T16:49:06.175Z
  */
 
 /* --- i18n-inline.js --- */
@@ -9,25 +9,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 window.STGraphXAppMeta = {
-  author: "Luca Mari",
-  releaseDate: "2026.09.15",
+  author: "Luca Mari (original work); Francesco Bertolotti (modifications)",
+  releaseDate: "2026.09.19",
   license: "MPL-2.0",
-  copyright: "Copyright (c) 2026 Luca Mari",
+  copyright: "Original work Copyright (c) 2026 Luca Mari; Modifications and additional features Copyright (c) 2026 Francesco Bertolotti",
 };
 
 window.STGraphXI18nBundles = {
   "it": {
     // Application
     "about.authorLabel": "Autore",
-    "about.body": "Versione sperimentale con shell web ed Electron.",
+    "about.body": "DSGraph, based on STGraphX. Luca Mari e il progetto originale STGraphX non sono necessariamente responsabili, manutentori o sostenitori di DSGraph.",
     "about.copyrightLabel": "Copyright",
-    "about.iconAlt": "Icona di STGraphX",
+    "about.iconAlt": "Icona di DSGraph",
     "about.licenseLabel": "Licenza",
     "about.subtitle": "Ambiente di lavoro per il variable-based modeling",
-    "about.title": "About STGraphX",
+    "about.title": "About DSGraph",
     "about.versionLabel": "Ultimo aggiornamento",
     "action.addMapping": "Aggiungi mappatura",
     "action.addOption": "Aggiungi opzione",
@@ -56,7 +57,7 @@ window.STGraphXI18nBundles = {
     "action.tabletCanvasPan": "Modalità pan canvas",
     "action.timedStart": "Avvia temporizzata",
     "action.timedStop": "Ferma temporizzata",
-    "app.title": "STGraphX",
+    "app.title": "DSGraph",
     "aria.close": "Chiudi",
     "aria.graphCanvas": "Canvas del grafo",
     "color.blue": "Blu",
@@ -89,6 +90,7 @@ window.STGraphXI18nBundles = {
     "context.bg.newText": "Testo",
     "context.bg.newTextWidget": "Testo output",
     "context.bg.newXYChartWidget": "Grafico x-y",
+    "context.bg.newBarPlotWidget": "Grafico a barre",
     "context.edge.addCp": "Aggiungi punto controllo qui",
     "context.edge.clearCp": "Rimuovi tutti i punti controllo",
     "context.edge.delete": "Elimina freccia",
@@ -148,6 +150,7 @@ window.STGraphXI18nBundles = {
     "menu.insert.text": "Testo",
     "menu.insert.textWidget": "Testo output",
     "menu.insert.xyChartWidget": "Grafico x-y",
+    "menu.insert.barPlotWidget": "Grafico a barre",
     "menu.run": "Esegui",
     "menu.run.analyze": "Analizza modello...",
     "menu.run.execute": "Completo",
@@ -235,6 +238,7 @@ window.STGraphXI18nBundles = {
     "panel.widget": "Widget",
     "panel.widgetButton": "Pulsante",
     "panel.widgetChart": "Grafico x-y",
+    "panel.widgetBarPlot": "Grafico a barre",
     "panel.widgetLed": "LED",
     "panel.widgetMatrix": "Matrice",
     "panel.widgetSelect": "Selettore",
@@ -265,6 +269,8 @@ window.STGraphXI18nBundles = {
     "shape.rect": "stato",
     "shape.submodel": "sottomodello",
     "sidebar.properties": "Proprietà",
+    "sidebar.collapse": "Riduci pannello proprietà",
+    "sidebar.expand": "Espandi pannello proprietà",
     "view.btn.hideGraph": "Nascondi grafo",
     "view.btn.hideWidgets": "Nascondi widget",
     "view.btn.showGraph": "Mostra grafo",
@@ -343,10 +349,12 @@ window.STGraphXI18nBundles = {
     "expr.help.kind.function": "Funzioni generali",
     "expr.help.kind.local": "Funzioni locali",
     "expr.help.kind.math": "Funzioni matematiche e logiche",
+    "expr.help.kind.linkedNode": "Nodi collegati e globali",
     "expr.help.kind.node": "Nodi disponibili",
     "expr.help.kind.probability": "Funzioni statistiche e probabilistiche",
     "expr.help.kind.variable": "Variabili disponibili",
     "expr.help.log": "Logaritmo naturale di `x`. Esempio: `log(1) -> 0`.",
+    "expr.help.logBase": "Logaritmo di `x` in base `b`. Esempio: `logBase(2, 8) -> 3`.",
     "expr.help.log2": "Logaritmo in base `2` di `x`. Esempio: `log2(8) -> 3`.",
     "expr.help.log10": "Logaritmo in base `10` di `x`. Esempio: `log10(100) -> 2`.",
     "expr.help.map": "Trasformazione elemento per elemento di un vettore o di una matrice. Dentro expr, $value è il valore corrente e $0, $1, ... sono gli indici locali. Esempi: map($value*2, [1,2,3]) ; map($0+$value, [10,20,30]) ; map($0+$1, [[1,2],[3,4]]).",
@@ -610,11 +618,24 @@ window.STGraphXI18nBundles = {
     "widget.binaryLabelPlaceholder": "Lascia vuoto per nessun testo",
     "widget.binaryTrueLabel": "Testo per 1",
     "widget.buttonSourceLabel": "Nodo",
+    "widget.buttonModeLabel": "Comportamento",
+    "widget.buttonMode.toggle": "Alterna al clic",
+    "widget.buttonMode.momentary": "Attivo quando premuto",
     "widget.buttonState.false": "Falso",
     "widget.buttonState.true": "Vero",
     "widget.buttonTitle": "Pulsante {id}",
     "widget.buttonValueLabel": "Valore iniziale vero",
     "widget.chartTitle": "Grafico x-y {id}",
+    "widget.barPlotTitle": "Grafico a barre {id}",
+    "widget.barPlotHelp": "Scegli due array paralleli: ogni coppia X[i], Y[i] viene disegnata come una barra.",
+    "widget.barPlotArrays": "Array X e Y",
+    "widget.barXSource": "Array X",
+    "widget.barYSource": "Array Y",
+    "widget.barColor": "Colore barre",
+    "widget.barWidth": "Larghezza",
+    "widget.barShowXTicks": "Mostra tick asse X",
+    "widget.barTickLabels": "Etichette asse X",
+    "widget.addTickLabel": "Aggiungi etichetta",
     "widget.clear": "Svuota",
     "widget.columnEmpty": "(nessun nodo)",
     "widget.customTitleLabel": "Titolo",
@@ -708,10 +729,16 @@ window.STGraphXI18nBundles = {
     "widget.tableAlign.center": "Centro",
     "widget.tableAlign.left": "Sinistra",
     "widget.tableAlign.right": "Destra",
+    "widget.tableColumnProperties": "Proprietà colonne",
+    "widget.tableDisplayName": "Nome visualizzato",
+    "widget.tableUseDefault": "Generale tabella",
     "widget.tableDecimals": "Decimali",
     "widget.tableDecimalsModel": "Modello",
     "widget.tableFontSize": "Font valori",
     "widget.tableNodes": "Nodi",
+    "widget.tableScrolling": "Scorrimento",
+    "widget.tableScrolling.first": "Mantieni visibile la prima riga",
+    "widget.tableScrolling.last": "Mantieni visibile l'ultima riga",
     "widget.tableTitle": "Tabella {id}",
     "widget.textMappings": "Mappature testo",
     "widget.textSourceLabel": "Nodo",
@@ -801,6 +828,7 @@ window.STGraphXI18nBundles = {
     "status.undo": "Undo eseguito.",
     "status.widgetButtonCreated": "Widget pulsante creato.",
     "status.widgetChartCreated": "Widget grafico x-y creato.",
+    "status.widgetBarPlotCreated": "Widget grafico a barre creato.",
     "status.widgetCopied": "Contenuto del widget copiato.",
     "status.widgetCreated": "Widget tabella creato.",
     "status.widgetDeleted": "Widget eliminato.",
@@ -860,6 +888,13 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.insert": "Inserisce nuovi nodi o widget nel modello.",
     "tooltip.menu.insert.button": "Inserisce un widget pulsante per pilotare ingressi booleani.",
     "tooltip.menu.insert.chart": "Inserisce un widget grafico x-y.",
+    "tooltip.menu.insert.barPlot": "Inserisce un widget grafico a barre usando due array: X e Y.",
+    "tooltip.widget.barXSource": "Array con le posizioni X delle barre; deve avere la stessa lunghezza dell'array Y.",
+    "tooltip.widget.barYSource": "Array con le altezze Y delle barre; deve avere la stessa lunghezza dell'array X.",
+    "tooltip.widget.barColor": "Colore usato per tutte le barre.",
+    "tooltip.widget.barWidth": "Larghezza relativa delle barre: 1 occupa tutto lo spazio disponibile tra le posizioni X.",
+    "tooltip.widget.barShowXTicks": "Mostra un tick e la relativa etichetta per ogni valore presente nell'array X.",
+    "tooltip.widget.addTickLabel": "Associa un valore numerico dell'asse X a un'etichetta di testo.",
     "tooltip.menu.insert.diamond": "Inserisce un nuovo parametro.",
     "tooltip.menu.insert.ellipse": "Inserisce una nuova variabile algebrica.",
     "tooltip.menu.insert.led": "Inserisce un widget LED per visualizzare un valore booleano.",
@@ -935,6 +970,7 @@ window.STGraphXI18nBundles = {
     "tooltip.widget.binaryFalseLabel": "Testo sovrapposto al widget quando il valore booleano e 0 o falso. Lascia vuoto per non mostrare testo.",
     "tooltip.widget.binaryTrueLabel": "Testo sovrapposto al widget quando il valore booleano e 1 o vero. Lascia vuoto per non mostrare testo.",
     "tooltip.widget.buttonInitialValue": "Imposta il valore del pulsante al reset del modello; non modifica l'esecuzione in corso.",
+    "tooltip.widget.buttonMode": "Alterna cambia valore a ogni clic; Attivo quando premuto usa il valore opposto solo mentre il pulsante è premuto, poi torna al valore iniziale.",
     "tooltip.widget.customTitle": "Titolo visualizzato nel widget. Se vuoto, viene generato dal tipo di widget e dal nodo selezionato.",
     "tooltip.widget.expandNonScalarValues": "Mostra vettori e matrici distribuendone i valori in celle separate. Alternativo alla serie storica.",
     "tooltip.widget.fontSize": "Dimensione del testo visualizzato dal widget, in pixel.",
@@ -981,9 +1017,10 @@ window.STGraphXI18nBundles = {
     "tooltip.widget.sliderMin": "Valore minimo selezionabile con lo slider.",
     "tooltip.widget.sliderRange": "Definisce valore minimo, passo di variazione e valore massimo dello slider.",
     "tooltip.widget.sliderStep": "Incremento applicato quando si sposta lo slider.",
-    "tooltip.widget.tableAlign": "Allineamento orizzontale del testo nelle celle della tabella.",
+    "tooltip.widget.tableAlign": "Allineamento orizzontale del testo nelle celle della tabella. È l'impostazione generale quando una singola colonna non ne specifica una propria.",
     "tooltip.widget.tableColumn": "Nodo o variabile di sistema da visualizzare in questa colonna.",
-    "tooltip.widget.tableDecimals": "Numero di cifre decimali da mostrare; 'Modello' usa la precisione generale del modello.",
+    "tooltip.widget.tableColumnProperties": "Apre le proprietà specifiche di questa colonna.",
+    "tooltip.widget.tableDecimals": "Numero di cifre decimali da mostrare; 'Modello' usa la precisione generale del modello. È l'impostazione generale quando una singola colonna non ne specifica una propria.",
     "tooltip.widget.xSource": "Nodo o tempo da usare come coordinata orizzontale della coppia selezionata.",
     "tooltip.widget.ySource": "Nodo o tempo da usare come coordinata verticale della coppia selezionata.",
 
@@ -1135,8 +1172,10 @@ window.STGraphXI18nBundles = {
     "error.submodelRecursiveReference": "Riferimento ricorsivo tra sottomodelli non supportato.",
     "error.submodelRk4Unsupported": "RK4 non è ancora supportato in presenza di sottomodelli.",
     "error.timeDelayInvalid": "Ritardo temporizzato non valido.",
+    "error.timeEndAfterStart": "t1 deve essere maggiore di t0.",
     "error.timeDirection": "Con i parametri inseriti il tempo non raggiunge t1.",
     "error.timeInvalid": "Parametri temporali non validi.",
+    "error.timeStepNegative": "Il passo temporale (delta t) non può essere negativo.",
     "error.timeStepZero": "Il passo temporale (delta t) non puo essere zero.",
     "error.timeTooManySteps": "Troppi passi temporali (massimo {max}).",
 
@@ -1144,12 +1183,12 @@ window.STGraphXI18nBundles = {
   "en": {
     // Application
     "about.authorLabel": "Author",
-    "about.body": "Experimental release with web and Electron shells.",
+    "about.body": "DSGraph, based on STGraphX. Luca Mari and the original STGraphX project are not necessarily responsible for, maintainers of, or endorsers of DSGraph.",
     "about.copyrightLabel": "Copyright",
-    "about.iconAlt": "STGraphX icon",
+    "about.iconAlt": "DSGraph icon",
     "about.licenseLabel": "License",
-    "about.subtitle": "Variable-based modeling workbench",
-    "about.title": "About STGraphX",
+    "about.subtitle": "Equation-based modeling workbench",
+    "about.title": "About DSGraph",
     "about.versionLabel": "Last update",
     "action.addMapping": "Add mapping",
     "action.addOption": "Add option",
@@ -1178,7 +1217,7 @@ window.STGraphXI18nBundles = {
     "action.tabletCanvasPan": "Canvas pan mode",
     "action.timedStart": "Start timed",
     "action.timedStop": "Stop timed",
-    "app.title": "STGraphX",
+    "app.title": "DSGraph",
     "aria.close": "Close",
     "aria.graphCanvas": "Graph canvas",
     "color.blue": "Blue",
@@ -1211,6 +1250,7 @@ window.STGraphXI18nBundles = {
     "context.bg.newText": "Text",
     "context.bg.newTextWidget": "Text output",
     "context.bg.newXYChartWidget": "X-Y chart",
+    "context.bg.newBarPlotWidget": "Bar plot",
     "context.edge.addCp": "Add control point here",
     "context.edge.clearCp": "Remove all control points",
     "context.edge.delete": "Delete edge",
@@ -1270,6 +1310,7 @@ window.STGraphXI18nBundles = {
     "menu.insert.text": "Text",
     "menu.insert.textWidget": "Text output",
     "menu.insert.xyChartWidget": "X-Y chart",
+    "menu.insert.barPlotWidget": "Bar plot",
     "menu.run": "Run",
     "menu.run.analyze": "Analyze model...",
     "menu.run.execute": "Full",
@@ -1357,6 +1398,7 @@ window.STGraphXI18nBundles = {
     "panel.widget": "Widget",
     "panel.widgetButton": "Button",
     "panel.widgetChart": "X-Y chart",
+    "panel.widgetBarPlot": "Bar plot",
     "panel.widgetLed": "LED",
     "panel.widgetMatrix": "Matrix",
     "panel.widgetSelect": "Selector",
@@ -1387,6 +1429,8 @@ window.STGraphXI18nBundles = {
     "shape.rect": "state",
     "shape.submodel": "submodel",
     "sidebar.properties": "Properties",
+    "sidebar.collapse": "Collapse properties panel",
+    "sidebar.expand": "Expand properties panel",
     "view.btn.hideGraph": "Hide graph",
     "view.btn.hideWidgets": "Hide widgets",
     "view.btn.showGraph": "Show graph",
@@ -1465,10 +1509,12 @@ window.STGraphXI18nBundles = {
     "expr.help.kind.function": "General functions",
     "expr.help.kind.local": "Local functions",
     "expr.help.kind.math": "Math functions",
+    "expr.help.kind.linkedNode": "Connected and global nodes",
     "expr.help.kind.node": "Available nodes",
     "expr.help.kind.probability": "Statistical and probabilistic functions",
     "expr.help.kind.variable": "Available variables",
     "expr.help.log": "Natural logarithm. Example: `log(1) -> 0`.",
+    "expr.help.logBase": "Logarithm of `x` with base `b`. Example: `logBase(2, 8) -> 3`.",
     "expr.help.log2": "Base-2 logarithm. Example: `log2(8) -> 3`.",
     "expr.help.log10": "Base-10 logarithm. Example: `log10(100) -> 2`.",
     "expr.help.map": "Element-by-element transformation of a vector or matrix. Inside expr, $value is the current value and $0, $1, ... are local indices. Examples: map($value*2, [1,2,3]) ; map($0+$value, [10,20,30]) ; map($0+$1, [[1,2],[3,4]]).",
@@ -1732,11 +1778,24 @@ window.STGraphXI18nBundles = {
     "widget.binaryLabelPlaceholder": "Leave empty for no text",
     "widget.binaryTrueLabel": "Text for 1",
     "widget.buttonSourceLabel": "Node",
+    "widget.buttonModeLabel": "Behavior",
+    "widget.buttonMode.toggle": "Toggle on click",
+    "widget.buttonMode.momentary": "Active while pressed",
     "widget.buttonState.false": "False",
     "widget.buttonState.true": "True",
     "widget.buttonTitle": "Button {id}",
     "widget.buttonValueLabel": "Initial true value",
     "widget.chartTitle": "x-y Chart {id}",
+    "widget.barPlotTitle": "Bar plot {id}",
+    "widget.barPlotHelp": "Choose two parallel arrays: each X[i], Y[i] pair is drawn as a bar.",
+    "widget.barPlotArrays": "X and Y arrays",
+    "widget.barXSource": "X array",
+    "widget.barYSource": "Y array",
+    "widget.barColor": "Bar color",
+    "widget.barWidth": "Width",
+    "widget.barShowXTicks": "Show X-axis ticks",
+    "widget.barTickLabels": "X-axis labels",
+    "widget.addTickLabel": "Add label",
     "widget.clear": "Clear",
     "widget.columnEmpty": "(no node)",
     "widget.customTitleLabel": "Title",
@@ -1830,10 +1889,16 @@ window.STGraphXI18nBundles = {
     "widget.tableAlign.center": "Center",
     "widget.tableAlign.left": "Left",
     "widget.tableAlign.right": "Right",
+    "widget.tableColumnProperties": "Column properties",
+    "widget.tableDisplayName": "Displayed name",
+    "widget.tableUseDefault": "Table default",
     "widget.tableDecimals": "Decimals",
     "widget.tableDecimalsModel": "Model",
     "widget.tableFontSize": "Value font",
     "widget.tableNodes": "Nodes",
+    "widget.tableScrolling": "Scrolling",
+    "widget.tableScrolling.first": "Keep first row visible",
+    "widget.tableScrolling.last": "Keep last row visible",
     "widget.tableTitle": "Table {id}",
     "widget.textMappings": "Text mappings",
     "widget.textSourceLabel": "Node",
@@ -1923,6 +1988,7 @@ window.STGraphXI18nBundles = {
     "status.undo": "Undo executed.",
     "status.widgetButtonCreated": "Button widget created.",
     "status.widgetChartCreated": "x-y chart widget created.",
+    "status.widgetBarPlotCreated": "Bar plot widget created.",
     "status.widgetCopied": "Widget content copied.",
     "status.widgetCreated": "Table widget created.",
     "status.widgetDeleted": "Widget deleted.",
@@ -1982,6 +2048,13 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.insert": "Inserts new nodes or widgets into the model.",
     "tooltip.menu.insert.button": "Inserts a button widget to drive boolean inputs.",
     "tooltip.menu.insert.chart": "Inserts an x-y chart widget.",
+    "tooltip.menu.insert.barPlot": "Inserts a bar plot widget using two arrays: X and Y.",
+    "tooltip.widget.barXSource": "Array containing the X positions of the bars; it must have the same length as the Y array.",
+    "tooltip.widget.barYSource": "Array containing the Y heights of the bars; it must have the same length as the X array.",
+    "tooltip.widget.barColor": "Color used for all bars.",
+    "tooltip.widget.barWidth": "Relative bar width: 1 fills all available space between X positions.",
+    "tooltip.widget.barShowXTicks": "Shows a tick and its label for every value in the X array.",
+    "tooltip.widget.addTickLabel": "Associates a numeric X-axis value with a text label.",
     "tooltip.menu.insert.diamond": "Inserts a new parameter.",
     "tooltip.menu.insert.ellipse": "Inserts a new algebraic variable.",
     "tooltip.menu.insert.led": "Inserts an LED widget to display a boolean value.",
@@ -2057,6 +2130,7 @@ window.STGraphXI18nBundles = {
     "tooltip.widget.binaryFalseLabel": "Text overlaid on the widget when the Boolean value is 0 or false. Leave blank to show no text.",
     "tooltip.widget.binaryTrueLabel": "Text overlaid on the widget when the Boolean value is 1 or true. Leave blank to show no text.",
     "tooltip.widget.buttonInitialValue": "Sets the button value when the model is reset; it does not change an ongoing execution.",
+    "tooltip.widget.buttonMode": "Toggle changes value on each click; Active while pressed uses the opposite value only while the button is pressed, then returns to its initial value.",
     "tooltip.widget.customTitle": "Title displayed by the widget. If empty, it is generated from the widget type and selected node.",
     "tooltip.widget.expandNonScalarValues": "Shows vectors and matrices in separate cells. Alternative to history series.",
     "tooltip.widget.fontSize": "Size of the text displayed by the widget, in pixels.",
@@ -2103,9 +2177,10 @@ window.STGraphXI18nBundles = {
     "tooltip.widget.sliderMin": "Minimum value selectable with the slider.",
     "tooltip.widget.sliderRange": "Defines the slider minimum, increment, and maximum value.",
     "tooltip.widget.sliderStep": "Increment applied when moving the slider.",
-    "tooltip.widget.tableAlign": "Horizontal alignment of text in table cells.",
+    "tooltip.widget.tableAlign": "Horizontal alignment of text in table cells. It is the general setting when an individual column does not specify its own.",
     "tooltip.widget.tableColumn": "Node or system variable displayed in this column.",
-    "tooltip.widget.tableDecimals": "Number of decimal digits to show; 'Model' uses the model-wide precision.",
+    "tooltip.widget.tableColumnProperties": "Opens the properties specific to this column.",
+    "tooltip.widget.tableDecimals": "Number of decimal digits to show; 'Model' uses the model-wide precision. It is the general setting when an individual column does not specify its own.",
     "tooltip.widget.xSource": "Node or time to use as the horizontal coordinate of the selected pair.",
     "tooltip.widget.ySource": "Node or time to use as the vertical coordinate of the selected pair.",
 
@@ -2257,8 +2332,10 @@ window.STGraphXI18nBundles = {
     "error.submodelRecursiveReference": "Recursive submodel references are not supported.",
     "error.submodelRk4Unsupported": "RK4 is not supported yet when submodels are present.",
     "error.timeDelayInvalid": "Invalid timed delay.",
+    "error.timeEndAfterStart": "t1 must be greater than t0.",
     "error.timeDirection": "With current parameters, time does not reach t1.",
     "error.timeInvalid": "Invalid time parameters.",
+    "error.timeStepNegative": "Time step (delta t) cannot be negative.",
     "error.timeStepZero": "Time step (delta t) cannot be zero.",
     "error.timeTooManySteps": "Too many time steps (max {max}).",
 
@@ -2272,6 +2349,7 @@ window.STGraphXI18nBundles = {
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function attachGraphFunctions(global) {
@@ -4039,6 +4117,7 @@ window.STGraphXI18nBundles = {
       floor: vectorizeFunction(Math.floor),
       int: vectorizeFunction(Math.trunc),
       log: vectorizeFunction(Math.log),
+      logBase: vectorizeFunction((base, value) => Math.log(value) / Math.log(base)),
       log10: vectorizeFunction(Math.log10),
       log2: vectorizeFunction(Math.log2),
       max: vectorizeFunction(Math.max),
@@ -4243,6 +4322,7 @@ window.STGraphXI18nBundles = {
       floor: { kind: "math", signature: "floor(x)", descriptionKey: "expr.help.floor", insertText: "floor()", cursorOffset: 6 },
       int: { kind: "math", signature: "int(x)", descriptionKey: "expr.help.int", insertText: "int()", cursorOffset: 4 },
       log: { kind: "math", signature: "log(x)", descriptionKey: "expr.help.log", insertText: "log()", cursorOffset: 4 },
+      logBase: { kind: "math", signature: "logBase(b, x)", descriptionKey: "expr.help.logBase", insertText: "logBase()", cursorOffset: 8 },
       log10: { kind: "math", signature: "log10(x)", descriptionKey: "expr.help.log10", insertText: "log10()", cursorOffset: 6 },
       log2: { kind: "math", signature: "log2(x)", descriptionKey: "expr.help.log2", insertText: "log2()", cursorOffset: 5 },
       max: { kind: "math", signature: "max(x1, x2, ...)", descriptionKey: "expr.help.max", insertText: "max()", cursorOffset: 4 },
@@ -7143,6 +7223,7 @@ window.STGraphXI18nBundles = {
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initRuntimeShared(global) {
@@ -7173,11 +7254,14 @@ window.STGraphXI18nBundles = {
       const integrator = String(raw?.integrator ?? "euler").toLowerCase();
       const strictDefinitions = Boolean(raw?.strictDefinitions);
       const currentTime = raw?.currentTime;
+      const normalizedT0 = Number.isFinite(t0) ? t0 : 0;
+      const normalizedDt = Number.isFinite(dt) && dt >= 0 ? dt : 1;
+      const normalizedT1 = Number.isFinite(t1) && t1 > normalizedT0 ? t1 : normalizedT0 + 10;
       return {
-        t0: Number.isFinite(t0) ? t0 : 0,
-        dt: Number.isFinite(dt) && dt !== 0 ? dt : 1,
-        t1: Number.isFinite(t1) ? t1 : 10,
-        delayMs: Number.isFinite(delayMs) && delayMs > 0 ? Math.round(delayMs) : 1000,
+        t0: normalizedT0,
+        dt: normalizedDt,
+        t1: normalizedT1,
+        delayMs: Number.isFinite(delayMs) && delayMs > 0 ? Math.round(delayMs) : 100,
         renderEverySteps: Number.isFinite(renderEverySteps) && renderEverySteps >= 1
           ? Math.round(renderEverySteps)
           : 1,
@@ -8644,6 +8728,7 @@ window.STGraphXI18nBundles = {
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initRuntimeController(global) {
@@ -8692,12 +8777,16 @@ window.STGraphXI18nBundles = {
         setStatusKey?.("error.timeInvalid");
         return null;
       }
-      if (dt === 0) {
-        setStatusKey?.("error.timeStepZero");
+      if (dt < 0) {
+        setStatusKey?.("error.timeStepNegative");
         return null;
       }
-      if ((dt > 0 && t0 > t1) || (dt < 0 && t0 < t1)) {
-        setStatusKey?.("error.timeDirection");
+      if (t1 <= t0) {
+        setStatusKey?.("error.timeEndAfterStart");
+        return null;
+      }
+      if (dt === 0) {
+        setStatusKey?.("error.timeStepZero");
         return null;
       }
       return { t0, dt, t1 };
@@ -10064,11 +10153,14 @@ window.STGraphXI18nBundles = {
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initPlayerShell(global) {
   const SVG_NS = "http://www.w3.org/2000/svg";
   const PLAYER_LANGS = new Set(["it", "en"]);
+  const MIN_GRAPH_WIDTH = 600;
+  const MIN_GRAPH_HEIGHT = 400;
 
   function fillTemplate(template, vars = {}) {
     return String(template).replace(/\{([a-zA-Z0-9_]+)\}/g, (_match, name) => (
@@ -10245,12 +10337,17 @@ window.STGraphXI18nBundles = {
     }
   }
 
-  function formatTableValue(execution, widget, value) {
-    if (typeof value === "number" && Number.isFinite(value) && widget?.tableDecimalDigits != null) {
-      return value.toFixed(widget.tableDecimalDigits);
+  function tableColumnOptions(widget, column) {
+    return widget?.tableColumnOptions?.[column] || { label: "", align: "", decimalDigits: null };
+  }
+
+  function formatTableValue(execution, widget, value, column = "") {
+    const decimalDigits = tableColumnOptions(widget, column).decimalDigits ?? widget?.tableDecimalDigits;
+    if (typeof value === "number" && Number.isFinite(value) && decimalDigits != null) {
+      return value.toFixed(decimalDigits);
     }
     if (Array.isArray(value)) {
-      return `[${value.map((item) => formatTableValue(execution, widget, item)).join(", ")}]`;
+      return `[${value.map((item) => formatTableValue(execution, widget, item, column)).join(", ")}]`;
     }
     return formatValue(execution, value);
   }
@@ -10324,6 +10421,14 @@ window.STGraphXI18nBundles = {
       tableDecimalDigits: Number.isInteger(Number(widget?.tableDecimalDigits)) && Number(widget.tableDecimalDigits) >= 0 && Number(widget.tableDecimalDigits) <= 12
         ? Number(widget.tableDecimalDigits)
         : null,
+      tableScrolling: widget?.tableScrolling === "first" ? "first" : "last",
+      tableColumnOptions: Object.fromEntries(Object.entries(widget?.tableColumnOptions || {}).map(([name, options]) => [String(name), {
+        label: String(options?.label ?? "").trim(),
+        align: ["left", "center", "right"].includes(String(options?.align ?? "")) ? String(options.align) : "",
+        decimalDigits: Number.isInteger(Number(options?.decimalDigits)) && Number(options.decimalDigits) >= 0 && Number(options.decimalDigits) <= 12
+          ? Number(options.decimalDigits)
+          : null,
+      }])),
       source: String(widget?.source ?? ""),
       showNumericValues: widget?.showNumericValues !== false,
       showIndices: widget?.showIndices !== false,
@@ -10345,6 +10450,8 @@ window.STGraphXI18nBundles = {
       value: widget?.type === "button"
         ? Boolean(widget?.value)
         : (Number.isFinite(Number(widget?.value)) ? Number(widget.value) : 0),
+      initialValue: widget?.type === "button" ? Boolean(widget?.initialValue ?? widget?.value) : undefined,
+      buttonMode: widget?.type === "button" && widget?.buttonMode === "momentary" ? "momentary" : "toggle",
       options: Array.isArray(widget?.options)
         ? widget.options.map((option) => ({
           label: String(option?.label ?? ""),
@@ -10508,6 +10615,7 @@ window.STGraphXI18nBundles = {
     return {
       table: t("menu.insert.tableWidget"),
       xychart: t("menu.insert.xyChartWidget"),
+      barplot: t("menu.insert.barPlotWidget"),
       matrix: t("menu.insert.matrixWidget"),
       text: t("menu.insert.textWidget"),
       led: t("menu.insert.ledWidget"),
@@ -10677,6 +10785,23 @@ window.STGraphXI18nBundles = {
         ctx.fillText(item.label.slice(0, 22), left + 32, y + 4);
       });
     }
+  }
+
+  function drawSimpleBarPlot(canvas, pairs, execution, fontSize) {
+    const ctx = canvas.getContext("2d");
+    const bars = pairs.flatMap((pair, index) => (pair.points || []).map((point) => ({ x: Number(point.x), y: Number(point.y), color: pair.color || ["#2d7ff9", "#e67e22", "#20a464"][index % 3] }))).filter((bar) => Number.isFinite(bar.x) && Number.isFinite(bar.y));
+    if (!ctx || !bars.length) return;
+    const width = canvas.width; const height = canvas.height; const pad = 22;
+    let minX = Math.min(...bars.map((bar) => bar.x)); let maxX = Math.max(...bars.map((bar) => bar.x));
+    let minY = Math.min(0, ...bars.map((bar) => bar.y)); let maxY = Math.max(0, ...bars.map((bar) => bar.y));
+    if (minX === maxX) { minX -= 1; maxX += 1; } if (minY === maxY) { minY -= 1; maxY += 1; }
+    const sx = (value) => pad + (value - minX) / (maxX - minX) * (width - pad * 2);
+    const sy = (value) => height - pad - (value - minY) / (maxY - minY) * (height - pad * 2);
+    ctx.strokeStyle = "#9fb0c0"; ctx.strokeRect(pad, pad, width - pad * 2, height - pad * 2);
+    const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(pad, zeroY); ctx.lineTo(width - pad, zeroY); ctx.stroke();
+    const barWidth = Math.max(2, (width - pad * 2) / Math.max(1, bars.length) * 0.75);
+    bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - barWidth / 2, Math.min(y, zeroY), barWidth, Math.abs(y - zeroY)); });
+    ctx.fillStyle = "#506070"; ctx.font = `${Math.max(8, fontSize)}px sans-serif`; ctx.fillText(formatNumberValue(execution, minX), pad, height - 4); ctx.fillText(formatNumberValue(execution, maxX), width - pad - 24, height - 4);
   }
 
   function drawMatrixWidgetCanvas(canvas, widget, matrix, execution, zoom) {
@@ -10875,6 +11000,7 @@ window.STGraphXI18nBundles = {
         controls: "full",
         showGraph: true,
         showWidgets: true,
+        showVariableValues: false,
         autostart: false,
       };
       this._timedState = {
@@ -10956,6 +11082,8 @@ window.STGraphXI18nBundles = {
             min-height: 420px;
           }
           .toolbar {
+            position: relative;
+            z-index: 2;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -10976,6 +11104,14 @@ window.STGraphXI18nBundles = {
           .status.error {
             color: #b33a3a;
           }
+          .options-wrap { position: relative; margin-left: auto; }
+          .options-button { width: 34px; padding: 5px !important; font-size: 18px !important; line-height: 1; }
+          .options-panel { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; width: 245px; padding: 14px; border: 1px solid #b7c7d8; border-radius: 10px; background: #fff; box-shadow: 0 12px 28px rgba(31, 53, 65, .16); color: #203040; font-family: system-ui, sans-serif; font-size: 13px; }
+          .options-panel[hidden] { display: none; }
+          .options-panel label { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
+          .options-panel label:last-child { margin-bottom: 0; }
+          .options-panel input[type="number"] { width: 78px; padding: 4px 6px; border: 1px solid #b7c7d8; border-radius: 5px; font: inherit; }
+          .options-panel .checkbox-label { justify-content: flex-start; }
           .toolbar button {
             border: 1px solid #b7c7d8;
             background: white;
@@ -10990,6 +11126,8 @@ window.STGraphXI18nBundles = {
             cursor: default;
           }
           .surface {
+            position: relative;
+            z-index: 1;
             display: grid;
             grid-template-columns: minmax(320px, 1fr);
             gap: 16px;
@@ -11240,10 +11378,15 @@ window.STGraphXI18nBundles = {
             color: #193247;
           }
           .input-wrap input[type="range"] {
-            width: 100%;
-            margin: 0;
-            min-height: 20px;
+            width: 100%; margin: 0; min-height: 20px; height: 20px; padding: 0;
+            appearance: none; -webkit-appearance: none; border-radius: 999px;
+            background: linear-gradient(to right, #1681df 0 var(--slider-progress, 0%), #d5dce3 var(--slider-progress, 0%) 100%) center / 100% 6px no-repeat;
           }
+          .input-wrap input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: transparent; }
+          .input-wrap input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -5px; appearance: none; -webkit-appearance: none; border: 0; border-radius: 50%; background: #1681df; }
+          .input-wrap input[type="range"]::-moz-range-track { height: 6px; border: 0; border-radius: 999px; background: #d5dce3; }
+          .input-wrap input[type="range"]::-moz-range-progress { height: 6px; border-radius: 999px; background: #1681df; }
+          .input-wrap input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #1681df; }
           .toggle-btn {
             border: 1px solid #b8c8d8;
             background: white;
@@ -11311,6 +11454,7 @@ window.STGraphXI18nBundles = {
             stroke: #c14747;
             stroke-width: 2;
           }
+          .node-value { fill: #52687d; font-size: 11px; }
           .edge {
             fill: none;
             stroke: #6e8398;
@@ -11361,7 +11505,13 @@ window.STGraphXI18nBundles = {
             <button type="button" data-action="step"></button>
             <button type="button" data-action="timed"></button>
             <button type="button" data-action="reset"></button>
-            <div class="status" data-role="status"></div>
+            <div class="options-wrap">
+              <button class="options-button" type="button" data-action="options" aria-label="Options" aria-expanded="false">⚙</button>
+              <div class="options-panel" data-role="optionsPanel" hidden>
+                <label>Simulation speed <span><input data-role="timedDelay" type="number" min="1" step="10" /> ms</span></label>
+                <label class="checkbox-label"><input data-role="showVariableValues" type="checkbox" /> <span>View variable values</span></label>
+              </div>
+            </div>
           </div>
           <div class="surface">
             <div class="canvas">
@@ -11374,7 +11524,6 @@ window.STGraphXI18nBundles = {
         </div>
       `;
       this.$title = this.shadowRoot.querySelector('[data-role="title"]');
-      this.$status = this.shadowRoot.querySelector('[data-role="status"]');
       this.$svg = this.shadowRoot.querySelector('[data-role="svg"]');
       this.$widgets = this.shadowRoot.querySelector('[data-role="widgets"]');
       this.$canvasContent = this.shadowRoot.querySelector('[data-role="canvasContent"]');
@@ -11383,6 +11532,10 @@ window.STGraphXI18nBundles = {
       this.$step = this.shadowRoot.querySelector('[data-action="step"]');
       this.$timed = this.shadowRoot.querySelector('[data-action="timed"]');
       this.$reset = this.shadowRoot.querySelector('[data-action="reset"]');
+      this.$optionsButton = this.shadowRoot.querySelector('[data-action="options"]');
+      this.$optionsPanel = this.shadowRoot.querySelector('[data-role="optionsPanel"]');
+      this.$timedDelay = this.shadowRoot.querySelector('[data-role="timedDelay"]');
+      this.$showVariableValues = this.shadowRoot.querySelector('[data-role="showVariableValues"]');
       this.refreshStaticTexts();
       this.applyViewOptions();
     }
@@ -11397,7 +11550,8 @@ window.STGraphXI18nBundles = {
         ? this.t("action.timedStart")
         : this.t("action.timedStop");
       this.$reset.textContent = this.t("menu.run.reset");
-      this.$title.textContent = this._state.rawModel?.modelTitle || "STGraphX";
+      this.$title.textContent = this._state.rawModel?.modelTitle || "DSGraph";
+      this.refreshOptions();
     }
 
     bindShell() {
@@ -11413,6 +11567,36 @@ window.STGraphXI18nBundles = {
       this.$reset.addEventListener("click", () => {
         void this.reset();
       });
+      this.$optionsButton.addEventListener("click", () => {
+        const open = this.$optionsPanel.hidden;
+        this.$optionsPanel.hidden = !open;
+        this.$optionsButton.setAttribute("aria-expanded", String(open));
+      });
+      this.$timedDelay.addEventListener("change", () => this.setTimedDelay(this.$timedDelay.value));
+      this.$showVariableValues.addEventListener("change", () => {
+        this._view.showVariableValues = this.$showVariableValues.checked;
+        this.renderAll();
+      });
+    }
+
+    refreshOptions() {
+      if (!this.$timedDelay) return;
+      const delay = Number(this._state.runtimeModel?.execution?.delayMs);
+      if (document.activeElement !== this.$timedDelay) this.$timedDelay.value = String(Number.isFinite(delay) && delay > 0 ? Math.round(delay) : 100);
+      this.$showVariableValues.checked = this._view.showVariableValues;
+    }
+
+    setTimedDelay(value) {
+      const delay = Math.max(1, Math.round(Number(value) || 100));
+      const execution = this._state.runtimeModel?.execution;
+      if (!execution) return;
+      execution.delayMs = delay;
+      if (this._state.rawModel?.execution) this._state.rawModel.execution.delayMs = delay;
+      this.$timedDelay.value = String(delay);
+      if (this._timedState.timedRunHandle != null) {
+        this._state.runtimeController.stopTimedExecution(false, "settings");
+        void this.toggleTimed();
+      }
     }
 
     async reload() {
@@ -11771,7 +11955,7 @@ window.STGraphXI18nBundles = {
         if (widget.type === "slider" || widget.type === "select") {
           this._state.inputValues.set(widget.source, Number(widget.value));
         } else if (widget.type === "button") {
-          this._state.inputValues.set(widget.source, widget.value ? 1 : 0);
+          this._state.inputValues.set(widget.source, widget.initialValue ? 1 : 0);
         }
       });
     }
@@ -11804,7 +11988,12 @@ window.STGraphXI18nBundles = {
             const node = nodeMap.get(name);
             row[name] = node ? node.computedValue : null;
           });
-          state.rows.push({ time: timeValue, values: row });
+          const lastRow = state.rows[state.rows.length - 1];
+          if (lastRow && Number(lastRow.time) === Number(timeValue)) {
+            lastRow.values = row;
+          } else {
+            state.rows.push({ time: timeValue, values: row });
+          }
           this._state.widgetState.set(widget.id, state);
         } else if (widget.type === "xychart") {
           const state = this._state.widgetState.get(widget.id) || {
@@ -12147,19 +12336,30 @@ window.STGraphXI18nBundles = {
     graphBounds() {
       const model = this._state.rawModel;
       const visibleNodeIds = this.visibleGraphNodeIds();
-      let minX = 0;
-      let minY = 0;
-      let maxX = 800;
-      let maxY = 600;
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
       (model?.nodes || []).filter((node) => visibleNodeIds.has(node.id)).forEach((node) => {
         const w = Number(node?.width) || 120;
         const h = Number(node?.height) || 70;
         const x = Number(node?.x) || 0;
         const y = Number(node?.y) || 0;
-        minX = Math.min(minX, x - w / 2 - 40);
-        minY = Math.min(minY, y - h / 2 - 40);
-        maxX = Math.max(maxX, x + w / 2 + 40);
-        maxY = Math.max(maxY, y + h / 2 + 40);
+        minX = Math.min(minX, x - w / 2);
+        minY = Math.min(minY, y - h / 2);
+        maxX = Math.max(maxX, x + w / 2);
+        maxY = Math.max(maxY, y + h / 2);
+      });
+      (model?.edges || []).filter((edge) => visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to)).forEach((edge) => {
+        (edge.controlPoints || []).forEach((point) => {
+          const x = Number(point?.x);
+          const y = Number(point?.y);
+          if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        });
       });
       (model?.widgets || []).forEach((widget) => {
         if (!this.isDashboardItemVisible(widget)) return;
@@ -12184,7 +12384,35 @@ window.STGraphXI18nBundles = {
         maxX = Math.max(maxX, (Number(dashboard.x) || 0) + (Number(dashboard.width) || 760));
         maxY = Math.max(maxY, (Number(dashboard.y) || 0) + (Number(dashboard.height) || 520));
       }
-      return { minX, minY, width: maxX - minX, height: maxY - minY };
+      if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+        minX = 0;
+        minY = 0;
+        maxX = 0;
+        maxY = 0;
+      }
+      const margin = 180;
+      minX -= margin;
+      minY -= margin;
+      maxX += margin;
+      maxY += margin;
+      const width = maxX - minX;
+      const height = maxY - minY;
+      if (width < MIN_GRAPH_WIDTH) {
+        const extra = (MIN_GRAPH_WIDTH - width) / 2;
+        minX -= extra;
+        maxX += extra;
+      }
+      if (height < MIN_GRAPH_HEIGHT) {
+        const extra = (MIN_GRAPH_HEIGHT - height) / 2;
+        minY -= extra;
+        maxY += extra;
+      }
+      return {
+        minX,
+        minY,
+        width: Math.max(MIN_GRAPH_WIDTH, maxX - minX),
+        height: Math.max(MIN_GRAPH_HEIGHT, maxY - minY),
+      };
     }
 
     renderAll() {
@@ -12419,6 +12647,14 @@ window.STGraphXI18nBundles = {
         label.textContent = node.name;
         g.appendChild(shape);
         g.appendChild(label);
+        if (this._view.showVariableValues) {
+          const value = document.createElementNS(SVG_NS, "text");
+          value.setAttribute("class", "node-value");
+          value.setAttribute("x", node.x);
+          value.setAttribute("y", node.y + 16);
+          value.textContent = node.__runtimeError ? "!" : formatValue(this._state.runtimeModel?.execution, node.__runtimeValue);
+          g.appendChild(value);
+        }
         this.$svg.appendChild(g);
       });
 
@@ -12603,6 +12839,10 @@ window.STGraphXI18nBundles = {
         const displayedColumns = widget.outputOnly
           ? widget.columns.filter((name) => name === "time" || nodeMap.get(name)?.output)
           : widget.columns.slice();
+        const columnLabel = (name) => tableColumnOptions(widget, name).label || name;
+        const applyColumnStyle = (cell, name) => {
+          cell.style.textAlign = tableColumnOptions(widget, name).align || widget.tableTextAlign;
+        };
         const matrixNode = widget.expandNonScalarValues && displayedColumns.length === 1 && displayedColumns[0] !== "time"
           ? nodeMap.get(displayedColumns[0])
           : null;
@@ -12616,7 +12856,7 @@ window.STGraphXI18nBundles = {
           const thead = document.createElement("thead");
           const headRow = document.createElement("tr");
           const corner = document.createElement("th");
-          corner.textContent = displayedColumns[0];
+          corner.textContent = columnLabel(displayedColumns[0]);
           headRow.appendChild(corner);
           for (let column = 0; column < matrixValue[0].length; column += 1) {
             const th = document.createElement("th");
@@ -12633,7 +12873,8 @@ window.STGraphXI18nBundles = {
             tr.appendChild(rowHeader);
             matrixRow.forEach((value) => {
               const td = document.createElement("td");
-              td.textContent = formatTableValue(execution, widget, value);
+              applyColumnStyle(td, displayedColumns[0]);
+              td.textContent = formatTableValue(execution, widget, value, displayedColumns[0]);
               tr.appendChild(td);
             });
             tbody.appendChild(tr);
@@ -12673,27 +12914,33 @@ window.STGraphXI18nBundles = {
         const headRow = document.createElement("tr");
         (cells || displayedColumns).forEach((entry) => {
           const th = document.createElement("th");
-          th.textContent = cells ? entry.label : entry;
+          const name = cells ? String(entry.label).replace(/\[.*$/, "") : entry;
+          th.textContent = cells ? entry.label : columnLabel(entry);
+          applyColumnStyle(th, name);
           headRow.appendChild(th);
         });
         thead.appendChild(headRow);
         table.appendChild(thead);
         const tbody = document.createElement("tbody");
-        const renderedRows = widget.showHistory ? rows.slice(-50) : [{ values: {} }];
+        const renderedRows = widget.showHistory
+          ? (widget.tableScrolling === "first" ? rows.slice(0, 50) : rows.slice(-50))
+          : [{ values: {} }];
         renderedRows.forEach((row) => {
           const tr = document.createElement("tr");
           (cells || displayedColumns).forEach((entry) => {
             const td = document.createElement("td");
+            const name = cells ? String(entry.label).replace(/\[.*$/, "") : entry;
+            applyColumnStyle(td, name);
             if (cells) {
               td.textContent = entry.error
                 ? this.t(`error.evalReason.${entry.error || "runtime"}`)
-                : (entry.empty || entry.missing ? "-" : formatTableValue(execution, widget, entry.value));
+                : (entry.empty || entry.missing ? "-" : formatTableValue(execution, widget, entry.value, name));
             } else {
               td.textContent = entry === "time"
-                ? formatTableValue(execution, widget, Number(widget.showHistory ? row.time : this.currentDisplayTime()))
+                ? formatTableValue(execution, widget, Number(widget.showHistory ? row.time : this.currentDisplayTime()), entry)
                 : (widget.showHistory
-                  ? formatTableValue(execution, widget, row.values?.[entry])
-                  : formatTableValue(execution, widget, nodeMap.get(entry)?.computedValue));
+                  ? formatTableValue(execution, widget, row.values?.[entry], entry)
+                  : formatTableValue(execution, widget, nodeMap.get(entry)?.computedValue, entry));
             }
             tr.appendChild(td);
           });
@@ -12701,6 +12948,11 @@ window.STGraphXI18nBundles = {
         });
         table.appendChild(tbody);
         body.appendChild(table);
+        if (widget.showHistory) {
+          requestAnimationFrame(() => {
+            body.scrollTop = widget.tableScrolling === "first" ? 0 : body.scrollHeight;
+          });
+        }
         return;
       }
       if (widget.type === "xychart") {
@@ -12709,6 +12961,21 @@ window.STGraphXI18nBundles = {
         canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
         canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
         drawSimpleXYChart(canvas, widgetState?.pairs || widget.xyPairs || [], execution, widget.fontSize);
+        body.appendChild(canvas);
+        return;
+      }
+      if (widget.type === "barplot") {
+        const flatten = (value) => Array.isArray(value) ? value.flat(Infinity).map(Number) : [Number(value)];
+        const pairs = (widget.xyPairs || []).map((pair) => {
+          const xs = flatten(nodeMap.get(pair.xSource)?.computedValue);
+          const ys = flatten(nodeMap.get(pair.ySource)?.computedValue);
+          return { ...pair, points: xs.slice(0, ys.length).map((x, index) => ({ x, y: ys[index] })) };
+        });
+        const canvas = document.createElement("canvas");
+        canvas.style.display = "block";
+        canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
+        canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
+        drawSimpleBarPlot(canvas, pairs, execution, widget.fontSize);
         body.appendChild(canvas);
         return;
       }
@@ -12739,8 +13006,12 @@ window.STGraphXI18nBundles = {
           this._state.inputValues.set(widget.source, numeric);
           widget.value = numeric;
           range.value = String(numeric);
+          const span = Number(widget.max) - Number(widget.min);
+          const progress = span > 0 ? ((numeric - Number(widget.min)) / span) * 100 : 0;
+          range.style.setProperty("--slider-progress", `${Math.max(0, Math.min(100, progress))}%`);
           number.value = String(numeric);
         };
+        commit(range.value);
         const commitAndRefresh = (nextValue) => {
           commit(nextValue);
           this.queuePreviewRefresh("input");
@@ -12792,14 +13063,28 @@ window.STGraphXI18nBundles = {
         button.className = `button-widget-toggle${current ? " is-on" : " is-off"}`;
         button.textContent = widgetBinaryStateLabel(widget, current, this.t.bind(this));
         button.disabled = false;
-        button.addEventListener("click", () => {
-          const next = current ? 0 : 1;
+        const momentary = widget.buttonMode === "momentary";
+        const setValue = (next) => {
           this._state.inputValues.set(widget.source, next);
           widget.value = next === 1;
           button.classList.toggle("is-on", next === 1);
           button.classList.toggle("is-off", next !== 1);
           button.textContent = widgetBinaryStateLabel(widget, next === 1, this.t.bind(this));
           this.queuePreviewRefresh("input");
+        };
+        button.addEventListener("pointerdown", (event) => {
+          if (!momentary) return;
+          button.setPointerCapture?.(event.pointerId);
+          setValue(widget.initialValue ? 0 : 1);
+        });
+        const release = () => { if (momentary) setValue(widget.initialValue ? 1 : 0); };
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("blur", release);
+        button.addEventListener("click", () => {
+          if (momentary) return;
+          const next = current ? 0 : 1;
+          setValue(next);
         });
         wrap.appendChild(button);
         body.appendChild(wrap);

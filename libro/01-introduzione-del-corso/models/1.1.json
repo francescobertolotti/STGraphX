@@ -1,0 +1,487 @@
+{
+  "version": 1,
+  "modelTitle": "",
+  "localFunctions": [],
+  "view": {
+    "zoom": 1.05,
+    "showGrid": true,
+    "highlightNodeEdges": false,
+    "showNodeValues": true,
+    "gridSize": 20,
+    "tooltipDelayMs": 300,
+    "scrollLeft": 10,
+    "scrollTop": 0
+  },
+  "debug": {
+    "watches": [],
+    "breakpointEnabled": false,
+    "breakpointExpression": ""
+  },
+  "modelProperties": [],
+  "nodeCounter": 9,
+  "edgeCounter": 7,
+  "widgetCounter": 7,
+  "textItemCounter": 3,
+  "presentationGroupCounter": 3,
+  "presentationGroups": [],
+  "dashboard": {
+    "visible": false,
+    "x": 300,
+    "y": -280,
+    "width": 979.609375,
+    "height": 483.05803571428567,
+    "activePageId": 1,
+    "nextPageId": 3,
+    "pages": [
+      {
+        "id": 1,
+        "title": "Beer Provider"
+      }
+    ]
+  },
+  "execution": {
+    "t0": 0,
+    "dt": 1,
+    "t1": 30,
+    "delayMs": 100,
+    "renderEverySteps": 1,
+    "decimals": 3,
+    "integrator": "euler",
+    "strictDefinitions": false
+  },
+  "nodes": [
+    {
+      "id": 1,
+      "name": "beer_level",
+      "output": true,
+      "global": false,
+      "type": "state",
+      "x": -140,
+      "y": -260,
+      "width": 120,
+      "height": 70,
+      "fillColor": "#dff2ff",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": "The status indicating the amount of beer still present in the bar"
+        }
+      ],
+      "stateTransition": "max(if(style==1, this * (1 - r_prog),this - r_fix),0)",
+      "initialState": "x0"
+    },
+    {
+      "id": 2,
+      "name": "r_prog",
+      "output": false,
+      "global": false,
+      "type": "parameter",
+      "x": -200,
+      "y": -400,
+      "width": 120,
+      "height": 70,
+      "fillColor": "#fff7d8",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "valueExpression": "0.1"
+    },
+    {
+      "id": 3,
+      "name": "x0",
+      "output": false,
+      "global": false,
+      "type": "parameter",
+      "x": -140,
+      "y": -120,
+      "width": 120,
+      "height": 70,
+      "fillColor": "#ffe1e6",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "valueExpression": ""
+    },
+    {
+      "id": 4,
+      "name": "obs_point",
+      "output": true,
+      "global": false,
+      "type": "parameter",
+      "x": 20,
+      "y": -120,
+      "width": 120,
+      "height": 70,
+      "fillColor": "#fff7d8",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": "The observation point of the observed variable, which is the amount of beer we want to know when has been achieved"
+        }
+      ],
+      "valueExpression": "20"
+    },
+    {
+      "id": 6,
+      "name": "style",
+      "output": false,
+      "global": false,
+      "type": "parameter",
+      "x": 20,
+      "y": -260,
+      "width": 120,
+      "height": 70,
+      "fillColor": "#ffe1e6",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "valueExpression": ""
+    },
+    {
+      "id": 7,
+      "name": "r_fix",
+      "output": false,
+      "global": false,
+      "type": "parameter",
+      "x": -60,
+      "y": -400,
+      "width": 120,
+      "height": 70,
+      "fillColor": "#fff7d8",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "valueExpression": "10"
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 2,
+      "to": 1,
+      "controlPoints": []
+    },
+    {
+      "id": 2,
+      "from": 3,
+      "to": 1,
+      "controlPoints": []
+    },
+    {
+      "id": 4,
+      "from": 6,
+      "to": 1,
+      "controlPoints": []
+    },
+    {
+      "id": 5,
+      "from": 7,
+      "to": 1,
+      "controlPoints": []
+    }
+  ],
+  "textItems": [],
+  "widgets": [
+    {
+      "id": 1,
+      "type": "table",
+      "customTitle": "Table",
+      "x": 580,
+      "y": -360,
+      "width": 300,
+      "height": 280,
+      "dashboardPageId": null,
+      "minimized": false,
+      "showTitleBar": true,
+      "fontSize": 13,
+      "outputOnly": false,
+      "showHistory": true,
+      "expandNonScalarValues": false,
+      "tableTextAlign": "left",
+      "tableDecimalDigits": 2,
+      "tableScrolling": "last",
+      "xMin": "auto",
+      "xMax": "auto",
+      "yMin": "auto",
+      "yMax": "auto",
+      "showGrid": true,
+      "legendPosition": "top-right",
+      "barWidth": 0.8,
+      "showXTicks": true,
+      "xTickLabels": [],
+      "source": "",
+      "showNumericValues": true,
+      "showIndices": true,
+      "autoFitCells": true,
+      "cellSize": 28,
+      "valueMin": "auto",
+      "valueMax": "auto",
+      "displayRows": null,
+      "displayCols": null,
+      "colorScheme": "blue",
+      "viewMode": "grid",
+      "surfaceStyle": "solid",
+      "surfaceAzimuth": 45,
+      "surfaceElevation": 32,
+      "surfaceHeightScale": 1,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "value": 0,
+      "buttonMode": "toggle",
+      "falseLabel": "",
+      "trueLabel": "",
+      "options": [],
+      "mappings": [],
+      "columns": [
+        "time",
+        "beer_level"
+      ],
+      "tableColumnOptions": {},
+      "xyPairs": []
+    },
+    {
+      "id": 2,
+      "type": "xychart",
+      "customTitle": "Outflow",
+      "x": 160,
+      "y": -360,
+      "width": 400,
+      "height": 280,
+      "dashboardPageId": null,
+      "minimized": false,
+      "showTitleBar": true,
+      "fontSize": 13,
+      "outputOnly": false,
+      "showHistory": false,
+      "expandNonScalarValues": false,
+      "tableTextAlign": "left",
+      "tableDecimalDigits": 0,
+      "tableScrolling": "last",
+      "xMin": "auto",
+      "xMax": "auto",
+      "yMin": "auto",
+      "yMax": "auto",
+      "showGrid": true,
+      "legendPosition": "top-right",
+      "barWidth": 0.8,
+      "showXTicks": true,
+      "xTickLabels": [],
+      "source": "",
+      "showNumericValues": true,
+      "showIndices": true,
+      "autoFitCells": true,
+      "cellSize": 28,
+      "valueMin": "auto",
+      "valueMax": "auto",
+      "displayRows": null,
+      "displayCols": null,
+      "colorScheme": "blue",
+      "viewMode": "grid",
+      "surfaceStyle": "solid",
+      "surfaceAzimuth": 45,
+      "surfaceElevation": 32,
+      "surfaceHeightScale": 1,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "value": 0,
+      "buttonMode": "toggle",
+      "falseLabel": "",
+      "trueLabel": "",
+      "options": [],
+      "mappings": [],
+      "columns": [],
+      "tableColumnOptions": {},
+      "xyPairs": [
+        {
+          "xSource": "time",
+          "ySource": "beer_level",
+          "showTimeSeries": true,
+          "showInstantProfile": false,
+          "color": "#082030",
+          "pointColor": "#f56bb5",
+          "showLine": true,
+          "lineWidth": 2.2,
+          "lineStyle": "solid",
+          "pointMode": "last",
+          "pointSize": 5.4
+        },
+        {
+          "xSource": "time",
+          "ySource": "obs_point",
+          "showTimeSeries": true,
+          "showInstantProfile": false,
+          "color": "#f76969",
+          "pointColor": "#e67e22",
+          "showLine": true,
+          "lineWidth": 1,
+          "lineStyle": "dotted",
+          "pointMode": "none",
+          "pointSize": 2.4
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "slider",
+      "customTitle": "",
+      "x": 160,
+      "y": -460,
+      "width": 400,
+      "height": 82,
+      "dashboardPageId": null,
+      "minimized": false,
+      "showTitleBar": true,
+      "fontSize": 13,
+      "outputOnly": false,
+      "showHistory": false,
+      "expandNonScalarValues": false,
+      "tableTextAlign": "left",
+      "tableDecimalDigits": 0,
+      "tableScrolling": "last",
+      "xMin": "auto",
+      "xMax": "auto",
+      "yMin": "auto",
+      "yMax": "auto",
+      "showGrid": true,
+      "legendPosition": "top-right",
+      "barWidth": 0.8,
+      "showXTicks": true,
+      "xTickLabels": [],
+      "source": "x0",
+      "showNumericValues": true,
+      "showIndices": true,
+      "autoFitCells": true,
+      "cellSize": 28,
+      "valueMin": "auto",
+      "valueMax": "auto",
+      "displayRows": null,
+      "displayCols": null,
+      "colorScheme": "blue",
+      "viewMode": "grid",
+      "surfaceStyle": "solid",
+      "surfaceAzimuth": 45,
+      "surfaceElevation": 32,
+      "surfaceHeightScale": 1,
+      "min": 0,
+      "max": 200,
+      "step": 1,
+      "value": 165,
+      "buttonMode": "toggle",
+      "falseLabel": "",
+      "trueLabel": "",
+      "options": [],
+      "mappings": [],
+      "columns": [],
+      "tableColumnOptions": {},
+      "xyPairs": []
+    },
+    {
+      "id": 5,
+      "type": "select",
+      "customTitle": "",
+      "x": 580,
+      "y": -460,
+      "width": 300,
+      "height": 82,
+      "dashboardPageId": null,
+      "minimized": false,
+      "showTitleBar": true,
+      "fontSize": 13,
+      "outputOnly": false,
+      "showHistory": false,
+      "expandNonScalarValues": false,
+      "tableTextAlign": "left",
+      "tableDecimalDigits": 0,
+      "tableScrolling": "last",
+      "xMin": "auto",
+      "xMax": "auto",
+      "yMin": "auto",
+      "yMax": "auto",
+      "showGrid": true,
+      "legendPosition": "top-right",
+      "barWidth": 0.8,
+      "showXTicks": true,
+      "xTickLabels": [],
+      "source": "style",
+      "showNumericValues": true,
+      "showIndices": true,
+      "autoFitCells": true,
+      "cellSize": 28,
+      "valueMin": "auto",
+      "valueMax": "auto",
+      "displayRows": null,
+      "displayCols": null,
+      "colorScheme": "blue",
+      "viewMode": "grid",
+      "surfaceStyle": "solid",
+      "surfaceAzimuth": 45,
+      "surfaceElevation": 32,
+      "surfaceHeightScale": 1,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "value": 1,
+      "buttonMode": "toggle",
+      "falseLabel": "",
+      "trueLabel": "",
+      "options": [
+        {
+          "label": "fixed",
+          "value": 0
+        },
+        {
+          "label": "proportional",
+          "value": 1
+        }
+      ],
+      "mappings": [],
+      "columns": [],
+      "tableColumnOptions": {},
+      "xyPairs": []
+    }
+  ]
+}

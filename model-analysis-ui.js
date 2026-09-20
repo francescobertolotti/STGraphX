@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initModelAnalysisUiModule(globalScope, factory) {
@@ -223,11 +224,13 @@
       const issues = analyzeModelStaticIssues();
       renderModelAnalysisReport(issues);
       modelAnalysisModal.classList.remove("hidden");
+      const errors = issues.filter((issue) => issue.severity === "error").length;
+      const warnings = issues.filter((issue) => issue.severity === "warning").length;
       setStatusKey("status.modelAnalyzed", {
         count: issues.length,
-        errors: issues.filter((issue) => issue.severity === "error").length,
-        warnings: issues.filter((issue) => issue.severity === "warning").length,
-      });
+        errors,
+        warnings,
+      }, errors > 0 ? "error" : (warnings > 0 ? "warning" : "info"));
     }
 
     function closeModelAnalysis() {

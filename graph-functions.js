@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function attachGraphFunctions(global) {
@@ -1770,6 +1771,7 @@
       floor: vectorizeFunction(Math.floor),
       int: vectorizeFunction(Math.trunc),
       log: vectorizeFunction(Math.log),
+      logBase: vectorizeFunction((base, value) => Math.log(value) / Math.log(base)),
       log10: vectorizeFunction(Math.log10),
       log2: vectorizeFunction(Math.log2),
       max: vectorizeFunction(Math.max),
@@ -1974,6 +1976,7 @@
       floor: { kind: "math", signature: "floor(x)", descriptionKey: "expr.help.floor", insertText: "floor()", cursorOffset: 6 },
       int: { kind: "math", signature: "int(x)", descriptionKey: "expr.help.int", insertText: "int()", cursorOffset: 4 },
       log: { kind: "math", signature: "log(x)", descriptionKey: "expr.help.log", insertText: "log()", cursorOffset: 4 },
+      logBase: { kind: "math", signature: "logBase(b, x)", descriptionKey: "expr.help.logBase", insertText: "logBase()", cursorOffset: 8 },
       log10: { kind: "math", signature: "log10(x)", descriptionKey: "expr.help.log10", insertText: "log10()", cursorOffset: 6 },
       log2: { kind: "math", signature: "log2(x)", descriptionKey: "expr.help.log2", insertText: "log2()", cursorOffset: 5 },
       max: { kind: "math", signature: "max(x1, x2, ...)", descriptionKey: "expr.help.max", insertText: "max()", cursorOffset: 4 },

@@ -1,10 +1,24 @@
-# STGraphX: Quick start
+# DSGraph: Quick start
 
 versione 12 settembre 2026
 
 Copyright (c) 2026 Luca Mari
 
-I quick start di STGraphX sono separati in due file:
+## Attribution
+
+DSGraph is a modified version of STGraphX, originally created by Luca Mari.
+
+Original work:
+Copyright (c) 2026 Luca Mari
+
+Modifications and additional features:
+Copyright (c) 2026 Francesco Bertolotti
+
+DSGraph is distributed under the Mozilla Public License, version 2.0.
+
+Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.
+
+I quick start di DSGraph sono separati in due file:
 
 - `QUICK-START-DEVELOPERS.md`
 - `QUICK-START-USERS.md`

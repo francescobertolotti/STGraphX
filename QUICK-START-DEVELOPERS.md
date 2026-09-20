@@ -1,10 +1,25 @@
-# STGraphX: Quick start per sviluppatori
+# DSGraph: Quick start per sviluppatori
 
 versione 12 settembre 2026
 
 Copyright (c) 2026 Luca Mari
+Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
 
-Questa guida include le informazioni basilari per sviluppare e distribuire STGraphX.
+## Attribution
+
+DSGraph is a modified version of STGraphX, originally created by Luca Mari.
+
+Original work:
+Copyright (c) 2026 Luca Mari
+
+Modifications and additional features:
+Copyright (c) 2026 Francesco Bertolotti
+
+DSGraph is distributed under the Mozilla Public License, version 2.0.
+
+Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.
+
+Questa guida include le informazioni basilari per sviluppare e distribuire DSGraph.
 
 Le modalità di distribuzione sono:
 
@@ -537,6 +552,17 @@ npm run start:web
 ```bash
 node tests/headless-demo.js
 ```
+
+## 6. Registro obbligatorio delle modifiche
+
+Ogni modifica al repository deve includere l'aggiornamento di `CHANGELOG.md`,
+nella sezione `Unreleased` e nella categoria `Added`, `Changed`, `Fixed`,
+`Removed` o `Security`. La regola vale anche per documentazione, build,
+packaging, test e strumenti di sviluppo, non solo per il codice.
+
+Prima di creare una release, spostare le voci di `Unreleased` sotto una nuova
+sezione con versione e data. Non considerare completa una modifica finche'
+codice, test, documentazione pertinente e changelog non sono coerenti.
 
 ## 7. Versione e data di rilascio
 

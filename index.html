@@ -3,14 +3,15 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
   Copyright (c) 2026 Luca Mari
+  Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
 -->
 <!doctype html>
-<html lang="it">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <title data-i18n="app.title">STGraphX</title>
+    <title data-i18n="app.title">DSGraph</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -76,6 +77,7 @@
             <button id="addMatrixWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.matrix"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">▦</span><span data-i18n="menu.insert.matrixWidget"></span></span></button>
             <button id="addTableWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.table"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">▤</span><span data-i18n="menu.insert.tableWidget"></span></span></button>
             <button id="addXYChartWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.chart"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">⌁</span><span data-i18n="menu.insert.xyChartWidget"></span></span></button>
+            <button id="addBarPlotWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.barPlot"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">▥</span><span data-i18n="menu.insert.barPlotWidget"></span></span></button>
             <hr class="menu-sep" />
             <div class="menu-section-title" data-i18n="menu.insert.group.content"></div>
             <button id="addTextItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.text"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">T</span><span data-i18n="menu.insert.text"></span></span></button>
@@ -130,13 +132,13 @@
         <div class="menu-run-toolbar" id="topRunToolbar">
           <button id="topRunEvalBtn" class="icon-btn menu-run-btn" type="button">▶▶</button>
           <button id="topRunStepBtn" class="icon-btn menu-run-btn" type="button">▶</button>
-          <button id="topRunTimedBtn" class="icon-btn menu-run-btn" type="button">⏱</button>
+          <button id="topRunTimedBtn" class="icon-btn menu-run-btn" type="button"><span class="timed-start-icon" aria-hidden="true"><span class="timed-start-play">▶</span><span class="timed-start-clock">⏱</span></span></button>
           <button id="topRunResetBtn" class="icon-btn menu-run-btn" type="button">↺</button>
         </div>
 
         <div class="menu-time" id="menuTimeText"></div>
-        <div class="menu-file-status" id="fileStatusText"></div>
-        <div class="menu-status" id="statusText" data-i18n="status.ready"></div>
+        <div class="menu-status-hidden" id="fileStatusText" aria-live="polite"></div>
+        <div class="menu-status menu-status-notice" id="statusText" aria-live="assertive"></div>
       </header>
 
       <div class="workspace-tabs" id="workspaceTabs">
@@ -155,7 +157,12 @@
           </div>
         </section>
 
+        <button id="sidebarExpandBtn" class="sidebar-expand-btn" type="button">◀</button>
         <aside class="sidebar" id="sidebar">
+          <div class="sidebar-desktop-header">
+            <span data-i18n="sidebar.properties"></span>
+            <button id="sidebarCollapseBtn" class="sidebar-collapse-btn" type="button">▶</button>
+          </div>
           <div id="tabletSidebarHeader" class="tablet-sidebar-header">
             <div id="tabletSidebarGrip" class="tablet-sidebar-grip" aria-hidden="true"></div>
             <div class="tablet-sidebar-header-actions">
@@ -180,7 +187,7 @@
                 </div>
                 <div>
                   <label for="timeStepInput" data-i18n="label.timeStep" data-title-i18n="tooltip.model.dt"></label>
-                  <input id="timeStepInput" type="number" step="any" data-title-i18n="tooltip.model.dt" />
+                  <input id="timeStepInput" type="number" min="0" step="any" data-title-i18n="tooltip.model.dt" />
                 </div>
                 <div>
                   <label for="timeEndInput" data-i18n="label.timeEnd" data-title-i18n="tooltip.model.t1"></label>
@@ -218,7 +225,7 @@
               <div class="run-icons-row">
                 <button id="runFullModelBtn" class="icon-btn" type="button">▶▶</button>
                 <button id="manualStepBtn" class="icon-btn" type="button">▶</button>
-                <button id="timedToggleBtn" class="icon-btn" type="button">⏱</button>
+                <button id="timedToggleBtn" class="icon-btn" type="button"><span class="timed-start-icon" aria-hidden="true"><span class="timed-start-play">▶</span><span class="timed-start-clock">⏱</span></span></button>
                 <button id="resetExecBtn" class="icon-btn" type="button">↺</button>
               </div>
               <div class="row2-exec">
@@ -409,6 +416,18 @@
         <div class="expression-editor-layout">
           <div id="expressionEditorMain" class="expression-editor-main">
             <div id="expressionEditorCore" class="expression-editor-core">
+            <div id="expressionNodeOptions" class="expression-node-options hidden">
+              <label for="expressionNodeShape" data-i18n="label.shape"></label>
+              <select id="expressionNodeShape"></select>
+              <label id="expressionNodeOutputLabel" class="expression-node-option-flag">
+                <input id="expressionNodeOutput" type="checkbox" />
+                <span data-i18n="label.output"></span>
+              </label>
+              <label id="expressionNodeGlobalLabel" class="expression-node-option-flag">
+                <input id="expressionNodeGlobal" type="checkbox" />
+                <span data-i18n="label.global"></span>
+              </label>
+            </div>
             <div id="expressionStateInitialBlock" class="expression-state-initial hidden">
               <div class="expression-field-head">
                 <label for="expressionStateInitialInput" class="expression-preview-label" data-i18n="label.initialState" data-title-i18n="tooltip.node.initialState"></label>
@@ -518,7 +537,7 @@
           <div class="about-app-hero">
             <img class="about-app-icon" src="icon.svg" data-i18n-alt="about.iconAlt" alt="" />
             <div class="about-app-copy">
-              <div class="about-app-name">STGraphX</div>
+              <div class="about-app-name">DSGraph</div>
               <div class="about-app-subtitle" data-i18n="about.subtitle"></div>
             </div>
           </div>
@@ -667,7 +686,7 @@
               <span data-i18n="menu.view.snap"></span>
             </label>
             <label class="option-check" for="showGridInput" data-title-i18n="tooltip.menu.view.showGrid">
-              <input id="showGridInput" type="checkbox" checked />
+              <input id="showGridInput" type="checkbox" />
               <span data-i18n="menu.view.showGrid"></span>
             </label>
             <label class="option-check" for="highlightNodeEdgesInput" data-title-i18n="tooltip.menu.view.highlightNodeEdges">

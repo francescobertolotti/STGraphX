@@ -1,8 +1,8 @@
 [package]
 name = "stgraphx-tauri"
 version = "0.1.0"
-description = "STGraphX desktop shell powered by Tauri"
-authors = ["Luca Mari"]
+description = "DSGraph, based on STGraphX: desktop shell powered by Tauri"
+authors = ["Luca Mari (original work)", "Francesco Bertolotti (modifications and additional features)"]
 edition = "2021"
 rust-version = "1.77.2"
 

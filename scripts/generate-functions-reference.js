@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 const fs = require("fs");
@@ -77,8 +78,8 @@ const entries = [
 }));
 
 const title = lang === "it"
-  ? "STGraphX - Riferimento rapido alle funzioni"
-  : "STGraphX - Quick Function Reference";
+  ? "DSGraph - Riferimento rapido alle funzioni"
+  : "DSGraph - Quick Function Reference";
 const generated = lang === "it" ? "Generato automaticamente" : "Generated automatically";
 const lines = [
   `# ${title}`,
@@ -88,6 +89,20 @@ const lines = [
   lang === "it"
     ? "Rigenerare con \`npm run docs:functions\`."
     : "Regenerate with \`npm run docs:functions\`.",
+  "",
+  "## Attribution",
+  "",
+  "DSGraph is a modified version of STGraphX, originally created by Luca Mari.",
+  "",
+  "Original work:",
+  "Copyright (c) 2026 Luca Mari",
+  "",
+  "Modifications and additional features:",
+  "Copyright (c) 2026 Francesco Bertolotti",
+  "",
+  "DSGraph is distributed under the Mozilla Public License, version 2.0.",
+  "",
+  "Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.",
   "",
   copy("help.intro"),
 ];

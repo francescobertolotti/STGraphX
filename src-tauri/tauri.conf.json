@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "STGraphX",
+  "productName": "DSGraph",
   "version": "0.1.0",
   "identifier": "org.lmari.stgraphx",
   "build": {
@@ -17,7 +17,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "STGraphX",
+        "title": "DSGraph",
         "width": 1600,
         "height": 980,
         "minWidth": 1100,

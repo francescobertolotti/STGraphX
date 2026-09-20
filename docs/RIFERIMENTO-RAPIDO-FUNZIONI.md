@@ -1,8 +1,22 @@
-# STGraphX - Riferimento rapido alle funzioni
+# DSGraph - Riferimento rapido alle funzioni
 
-Generato automaticamente da `i18n-inline.js` e `graph-functions.js` (release 2026.09.12).
+Generato automaticamente da `i18n-inline.js` e `graph-functions.js` (release 2026.09.19).
 
 Rigenerare con `npm run docs:functions`.
+
+## Attribution
+
+DSGraph is a modified version of STGraphX, originally created by Luca Mari.
+
+Original work:
+Copyright (c) 2026 Luca Mari
+
+Modifications and additional features:
+Copyright (c) 2026 Francesco Bertolotti
+
+DSGraph is distributed under the Mozilla Public License, version 2.0.
+
+Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.
 
 Elenco delle funzioni, delle variabili di sistema e delle utility disponibili nelle espressioni.
 
@@ -725,6 +739,17 @@ Logaritmo in base `2` di `x`.
 
 **Esempi**
 - `log2(8) -> 3`
+
+---
+
+### `logBase`
+
+`logBase(b, x)`
+
+Logaritmo di `x` in base `b`.
+
+**Esempi**
+- `logBase(2, 8) -> 3`
 
 ---
 

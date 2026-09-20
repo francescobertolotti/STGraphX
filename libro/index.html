@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dynamical System Design</title>
+    <link rel="stylesheet" href="styles_book.css" />
+    <link rel="stylesheet" href="book-viewer.css" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+        options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] },
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../player-runtime-loader.js"></script>
+  </head>
+  <body class="book-page">
+    <header class="book-mobile-header">
+      <a class="book-brand" href="#capitolo-1">An Introduction to Dynamical System Design</a>
+      <button class="book-menu-button" type="button" aria-expanded="false" aria-controls="book-sidebar">Indice</button>
+    </header>
+    <div class="book-layout">
+      <aside class="book-sidebar" id="book-sidebar" aria-label="Indice del libro">
+        <a class="book-brand" href="#capitolo-1">An Introduction to Dynamical System Design</a>
+        <p class="book-kicker">Indice</p>
+        <nav id="book-chapters"></nav>
+        <label class="book-search-label" for="book-search">Cerca nei capitoli</label>
+        <input id="book-search" type="search" placeholder="Cerca un capitolo" />
+      </aside>
+      <main class="book-content" id="book-content" tabindex="-1" aria-live="polite">
+        <p class="book-loading">Caricamento del libro…</p>
+      </main>
+    </div>
+    <aside class="book-note-popover" id="book-note-popover" role="dialog" aria-label="Nota a piè di pagina" hidden>
+      <button class="book-note-close" type="button" aria-label="Chiudi nota">×</button>
+      <div id="book-note-popover-content"></div>
+    </aside>
+    <script src="book-viewer.js"></script>
+  </body>
+</html>

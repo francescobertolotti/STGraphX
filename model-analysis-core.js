@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initModelAnalysisCoreModule(globalScope, factory) {
@@ -123,11 +124,14 @@
       if (!Number.isFinite(t0) || !Number.isFinite(dt) || !Number.isFinite(t1)) {
         return t("error.timeInvalid");
       }
+      if (dt < 0) {
+        return t("error.timeStepNegative");
+      }
+      if (t1 <= t0) {
+        return t("error.timeEndAfterStart");
+      }
       if (dt === 0) {
         return t("error.timeStepZero");
-      }
-      if ((dt > 0 && t0 > t1) || (dt < 0 && t0 < t1)) {
-        return t("error.timeDirection");
       }
       return "";
     }

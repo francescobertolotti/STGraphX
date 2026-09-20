@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initRuntimeShared(global) {
@@ -33,11 +34,14 @@
       const integrator = String(raw?.integrator ?? "euler").toLowerCase();
       const strictDefinitions = Boolean(raw?.strictDefinitions);
       const currentTime = raw?.currentTime;
+      const normalizedT0 = Number.isFinite(t0) ? t0 : 0;
+      const normalizedDt = Number.isFinite(dt) && dt >= 0 ? dt : 1;
+      const normalizedT1 = Number.isFinite(t1) && t1 > normalizedT0 ? t1 : normalizedT0 + 10;
       return {
-        t0: Number.isFinite(t0) ? t0 : 0,
-        dt: Number.isFinite(dt) && dt !== 0 ? dt : 1,
-        t1: Number.isFinite(t1) ? t1 : 10,
-        delayMs: Number.isFinite(delayMs) && delayMs > 0 ? Math.round(delayMs) : 1000,
+        t0: normalizedT0,
+        dt: normalizedDt,
+        t1: normalizedT1,
+        delayMs: Number.isFinite(delayMs) && delayMs > 0 ? Math.round(delayMs) : 100,
         renderEverySteps: Number.isFinite(renderEverySteps) && renderEverySteps >= 1
           ? Math.round(renderEverySteps)
           : 1,

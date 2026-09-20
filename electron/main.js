@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 const { app, BrowserWindow, clipboard, dialog, ipcMain } = require('electron');
@@ -26,12 +27,12 @@ function resolveStartupLang() {
   if (cliArg) {
     return resolveSupportedLang(cliArg.split('=').slice(1).join('='));
   }
-  return resolveSupportedLang(app.getLocale());
+  return 'en';
 }
 
 function createWindow() {
   const win = new BrowserWindow({
-    title: 'STGraphX',
+    title: 'DSGraph',
     icon: path.join(__dirname, '..', 'icon.png'),
     show: false,
     width: 1600,
@@ -109,7 +110,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  app.setName('STGraphX');
+  app.setName('DSGraph');
   ipcMain.handle('stgraphx:read-clipboard-text', () => clipboard.readText());
   ipcMain.handle('stgraphx:write-clipboard-text', (_event, text) => {
     clipboard.writeText(String(text ?? ''));

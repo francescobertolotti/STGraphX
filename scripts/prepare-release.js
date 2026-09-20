@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 "use strict";
@@ -13,12 +14,12 @@ const path = require("path");
 const { releaseArtifactPrefix } = require("./release-metadata.js");
 
 const GENERIC_ARTIFACTS = [
-  { versionedSuffix: ".AppImage", genericName: "STGraphX.AppImage" },
-  { versionedSuffix: ".tar.gz", genericName: "STGraphX.tar.gz" },
-  { versionedSuffix: ".dmg", genericName: "STGraphX.dmg" },
-  { versionedSuffix: ".zip", genericName: "STGraphX.zip" },
-  { versionedSuffix: "-setup.exe", genericName: "STGraphX-setup.exe" },
-  { versionedSuffix: "-portable.exe", genericName: "STGraphX-portable.exe" },
+  { versionedSuffix: ".AppImage", genericName: "DSGraph.AppImage" },
+  { versionedSuffix: ".tar.gz", genericName: "DSGraph.tar.gz" },
+  { versionedSuffix: ".dmg", genericName: "DSGraph.dmg" },
+  { versionedSuffix: ".zip", genericName: "DSGraph.zip" },
+  { versionedSuffix: "-setup.exe", genericName: "DSGraph-setup.exe" },
+  { versionedSuffix: "-portable.exe", genericName: "DSGraph-portable.exe" },
 ];
 
 function sha256(filePath) {

@@ -1,12 +1,26 @@
-# STGraphX: Readme tecnico
+# DSGraph: Readme tecnico
 
 versione 31 agosto 2026
 
 Copyright (c) 2026 Luca Mari
 
+## Attribution
+
+DSGraph is a modified version of STGraphX, originally created by Luca Mari.
+
+Original work:
+Copyright (c) 2026 Luca Mari
+
+Modifications and additional features:
+Copyright (c) 2026 Francesco Bertolotti
+
+DSGraph is distributed under the Mozilla Public License, version 2.0.
+
+Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.
+
 ## Architettura
 
-STGraphX mantiene un unico codice applicativo per tre shell:
+DSGraph mantiene un unico codice applicativo per tre shell:
 
 - web, per accesso da browser via `http:` (e con qualche limitazione anche `file:`);
 - desktop, mediante `Electron`.

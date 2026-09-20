@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initRuntimeController(global) {
@@ -51,12 +52,16 @@
         setStatusKey?.("error.timeInvalid");
         return null;
       }
-      if (dt === 0) {
-        setStatusKey?.("error.timeStepZero");
+      if (dt < 0) {
+        setStatusKey?.("error.timeStepNegative");
         return null;
       }
-      if ((dt > 0 && t0 > t1) || (dt < 0 && t0 < t1)) {
-        setStatusKey?.("error.timeDirection");
+      if (t1 <= t0) {
+        setStatusKey?.("error.timeEndAfterStart");
+        return null;
+      }
+      if (dt === 0) {
+        setStatusKey?.("error.timeStepZero");
         return null;
       }
       return { t0, dt, t1 };

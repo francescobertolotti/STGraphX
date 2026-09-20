@@ -1,12 +1,27 @@
-# STGraphX: Readme
+# DSGraph: Readme
 
 versione 16 settembre 2026
 
 Copyright (c) 2026 Luca Mari
 
+## Attribution
+
+DSGraph is a modified version of STGraphX, originally created by Luca Mari.
+
+Original work:
+Copyright (c) 2026 Luca Mari
+
+Modifications and additional features:
+Copyright (c) 2026 Francesco Bertolotti
+
+DSGraph is distributed under the Mozilla Public License, version 2.0.
+
+Luca Mari and the original STGraphX project are not necessarily responsible,
+maintainers, or endorsers of DSGraph.
+
 ## Contesto
 
-STGraphX è un editor ed esecutore di modelli dinamici a grafo orientato.
+DSGraph, based on STGraphX, è un editor ed esecutore di modelli dinamici a grafo orientato.
 
 È una reimplementazione di STGraph, da Java a JavaScript, realizzata interamente in _vibe coding_ con GPT-Codex-5.x (ho guardato ma mai toccato il codice generato, che al momento è di circa 1k linee HTML, 5k linee CSS, 40k linee JS).
 

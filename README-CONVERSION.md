@@ -1,8 +1,22 @@
-# STGraphX: Manuale di uso del convertitore da STGraph
+# DSGraph: Manuale di uso del convertitore da STGraph
 
 versione 31 agosto 2026
 
 Copyright (c) 2026 Luca Mari
+
+## Attribution
+
+DSGraph is a modified version of STGraphX, originally created by Luca Mari.
+
+Original work:
+Copyright (c) 2026 Luca Mari
+
+Modifications and additional features:
+Copyright (c) 2026 Francesco Bertolotti
+
+DSGraph is distributed under the Mozilla Public License, version 2.0.
+
+Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.
 
 `scripts/convert-stgraph-xml.js` converte la parte strutturale di un modello XML legacy di STGraph (`.stg`) nel formato JSON di STGraphX.
 

@@ -3,11 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initPlayerShell(global) {
   const SVG_NS = "http://www.w3.org/2000/svg";
   const PLAYER_LANGS = new Set(["it", "en"]);
+  const MIN_GRAPH_WIDTH = 600;
+  const MIN_GRAPH_HEIGHT = 400;
 
   function fillTemplate(template, vars = {}) {
     return String(template).replace(/\{([a-zA-Z0-9_]+)\}/g, (_match, name) => (
@@ -184,12 +187,17 @@
     }
   }
 
-  function formatTableValue(execution, widget, value) {
-    if (typeof value === "number" && Number.isFinite(value) && widget?.tableDecimalDigits != null) {
-      return value.toFixed(widget.tableDecimalDigits);
+  function tableColumnOptions(widget, column) {
+    return widget?.tableColumnOptions?.[column] || { label: "", align: "", decimalDigits: null };
+  }
+
+  function formatTableValue(execution, widget, value, column = "") {
+    const decimalDigits = tableColumnOptions(widget, column).decimalDigits ?? widget?.tableDecimalDigits;
+    if (typeof value === "number" && Number.isFinite(value) && decimalDigits != null) {
+      return value.toFixed(decimalDigits);
     }
     if (Array.isArray(value)) {
-      return `[${value.map((item) => formatTableValue(execution, widget, item)).join(", ")}]`;
+      return `[${value.map((item) => formatTableValue(execution, widget, item, column)).join(", ")}]`;
     }
     return formatValue(execution, value);
   }
@@ -263,6 +271,14 @@
       tableDecimalDigits: Number.isInteger(Number(widget?.tableDecimalDigits)) && Number(widget.tableDecimalDigits) >= 0 && Number(widget.tableDecimalDigits) <= 12
         ? Number(widget.tableDecimalDigits)
         : null,
+      tableScrolling: widget?.tableScrolling === "first" ? "first" : "last",
+      tableColumnOptions: Object.fromEntries(Object.entries(widget?.tableColumnOptions || {}).map(([name, options]) => [String(name), {
+        label: String(options?.label ?? "").trim(),
+        align: ["left", "center", "right"].includes(String(options?.align ?? "")) ? String(options.align) : "",
+        decimalDigits: Number.isInteger(Number(options?.decimalDigits)) && Number(options.decimalDigits) >= 0 && Number(options.decimalDigits) <= 12
+          ? Number(options.decimalDigits)
+          : null,
+      }])),
       source: String(widget?.source ?? ""),
       showNumericValues: widget?.showNumericValues !== false,
       showIndices: widget?.showIndices !== false,
@@ -284,6 +300,8 @@
       value: widget?.type === "button"
         ? Boolean(widget?.value)
         : (Number.isFinite(Number(widget?.value)) ? Number(widget.value) : 0),
+      initialValue: widget?.type === "button" ? Boolean(widget?.initialValue ?? widget?.value) : undefined,
+      buttonMode: widget?.type === "button" && widget?.buttonMode === "momentary" ? "momentary" : "toggle",
       options: Array.isArray(widget?.options)
         ? widget.options.map((option) => ({
           label: String(option?.label ?? ""),
@@ -447,6 +465,7 @@
     return {
       table: t("menu.insert.tableWidget"),
       xychart: t("menu.insert.xyChartWidget"),
+      barplot: t("menu.insert.barPlotWidget"),
       matrix: t("menu.insert.matrixWidget"),
       text: t("menu.insert.textWidget"),
       led: t("menu.insert.ledWidget"),
@@ -616,6 +635,23 @@
         ctx.fillText(item.label.slice(0, 22), left + 32, y + 4);
       });
     }
+  }
+
+  function drawSimpleBarPlot(canvas, pairs, execution, fontSize) {
+    const ctx = canvas.getContext("2d");
+    const bars = pairs.flatMap((pair, index) => (pair.points || []).map((point) => ({ x: Number(point.x), y: Number(point.y), color: pair.color || ["#2d7ff9", "#e67e22", "#20a464"][index % 3] }))).filter((bar) => Number.isFinite(bar.x) && Number.isFinite(bar.y));
+    if (!ctx || !bars.length) return;
+    const width = canvas.width; const height = canvas.height; const pad = 22;
+    let minX = Math.min(...bars.map((bar) => bar.x)); let maxX = Math.max(...bars.map((bar) => bar.x));
+    let minY = Math.min(0, ...bars.map((bar) => bar.y)); let maxY = Math.max(0, ...bars.map((bar) => bar.y));
+    if (minX === maxX) { minX -= 1; maxX += 1; } if (minY === maxY) { minY -= 1; maxY += 1; }
+    const sx = (value) => pad + (value - minX) / (maxX - minX) * (width - pad * 2);
+    const sy = (value) => height - pad - (value - minY) / (maxY - minY) * (height - pad * 2);
+    ctx.strokeStyle = "#9fb0c0"; ctx.strokeRect(pad, pad, width - pad * 2, height - pad * 2);
+    const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(pad, zeroY); ctx.lineTo(width - pad, zeroY); ctx.stroke();
+    const barWidth = Math.max(2, (width - pad * 2) / Math.max(1, bars.length) * 0.75);
+    bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - barWidth / 2, Math.min(y, zeroY), barWidth, Math.abs(y - zeroY)); });
+    ctx.fillStyle = "#506070"; ctx.font = `${Math.max(8, fontSize)}px sans-serif`; ctx.fillText(formatNumberValue(execution, minX), pad, height - 4); ctx.fillText(formatNumberValue(execution, maxX), width - pad - 24, height - 4);
   }
 
   function drawMatrixWidgetCanvas(canvas, widget, matrix, execution, zoom) {
@@ -814,6 +850,7 @@
         controls: "full",
         showGraph: true,
         showWidgets: true,
+        showVariableValues: false,
         autostart: false,
       };
       this._timedState = {
@@ -895,6 +932,8 @@
             min-height: 420px;
           }
           .toolbar {
+            position: relative;
+            z-index: 2;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -915,6 +954,14 @@
           .status.error {
             color: #b33a3a;
           }
+          .options-wrap { position: relative; margin-left: auto; }
+          .options-button { width: 34px; padding: 5px !important; font-size: 18px !important; line-height: 1; }
+          .options-panel { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; width: 245px; padding: 14px; border: 1px solid #b7c7d8; border-radius: 10px; background: #fff; box-shadow: 0 12px 28px rgba(31, 53, 65, .16); color: #203040; font-family: system-ui, sans-serif; font-size: 13px; }
+          .options-panel[hidden] { display: none; }
+          .options-panel label { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
+          .options-panel label:last-child { margin-bottom: 0; }
+          .options-panel input[type="number"] { width: 78px; padding: 4px 6px; border: 1px solid #b7c7d8; border-radius: 5px; font: inherit; }
+          .options-panel .checkbox-label { justify-content: flex-start; }
           .toolbar button {
             border: 1px solid #b7c7d8;
             background: white;
@@ -929,6 +976,8 @@
             cursor: default;
           }
           .surface {
+            position: relative;
+            z-index: 1;
             display: grid;
             grid-template-columns: minmax(320px, 1fr);
             gap: 16px;
@@ -1179,10 +1228,15 @@
             color: #193247;
           }
           .input-wrap input[type="range"] {
-            width: 100%;
-            margin: 0;
-            min-height: 20px;
+            width: 100%; margin: 0; min-height: 20px; height: 20px; padding: 0;
+            appearance: none; -webkit-appearance: none; border-radius: 999px;
+            background: linear-gradient(to right, #1681df 0 var(--slider-progress, 0%), #d5dce3 var(--slider-progress, 0%) 100%) center / 100% 6px no-repeat;
           }
+          .input-wrap input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: transparent; }
+          .input-wrap input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -5px; appearance: none; -webkit-appearance: none; border: 0; border-radius: 50%; background: #1681df; }
+          .input-wrap input[type="range"]::-moz-range-track { height: 6px; border: 0; border-radius: 999px; background: #d5dce3; }
+          .input-wrap input[type="range"]::-moz-range-progress { height: 6px; border-radius: 999px; background: #1681df; }
+          .input-wrap input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #1681df; }
           .toggle-btn {
             border: 1px solid #b8c8d8;
             background: white;
@@ -1250,6 +1304,7 @@
             stroke: #c14747;
             stroke-width: 2;
           }
+          .node-value { fill: #52687d; font-size: 11px; }
           .edge {
             fill: none;
             stroke: #6e8398;
@@ -1300,7 +1355,13 @@
             <button type="button" data-action="step"></button>
             <button type="button" data-action="timed"></button>
             <button type="button" data-action="reset"></button>
-            <div class="status" data-role="status"></div>
+            <div class="options-wrap">
+              <button class="options-button" type="button" data-action="options" aria-label="Options" aria-expanded="false">⚙</button>
+              <div class="options-panel" data-role="optionsPanel" hidden>
+                <label>Simulation speed <span><input data-role="timedDelay" type="number" min="1" step="10" /> ms</span></label>
+                <label class="checkbox-label"><input data-role="showVariableValues" type="checkbox" /> <span>View variable values</span></label>
+              </div>
+            </div>
           </div>
           <div class="surface">
             <div class="canvas">
@@ -1313,7 +1374,6 @@
         </div>
       `;
       this.$title = this.shadowRoot.querySelector('[data-role="title"]');
-      this.$status = this.shadowRoot.querySelector('[data-role="status"]');
       this.$svg = this.shadowRoot.querySelector('[data-role="svg"]');
       this.$widgets = this.shadowRoot.querySelector('[data-role="widgets"]');
       this.$canvasContent = this.shadowRoot.querySelector('[data-role="canvasContent"]');
@@ -1322,6 +1382,10 @@
       this.$step = this.shadowRoot.querySelector('[data-action="step"]');
       this.$timed = this.shadowRoot.querySelector('[data-action="timed"]');
       this.$reset = this.shadowRoot.querySelector('[data-action="reset"]');
+      this.$optionsButton = this.shadowRoot.querySelector('[data-action="options"]');
+      this.$optionsPanel = this.shadowRoot.querySelector('[data-role="optionsPanel"]');
+      this.$timedDelay = this.shadowRoot.querySelector('[data-role="timedDelay"]');
+      this.$showVariableValues = this.shadowRoot.querySelector('[data-role="showVariableValues"]');
       this.refreshStaticTexts();
       this.applyViewOptions();
     }
@@ -1336,7 +1400,8 @@
         ? this.t("action.timedStart")
         : this.t("action.timedStop");
       this.$reset.textContent = this.t("menu.run.reset");
-      this.$title.textContent = this._state.rawModel?.modelTitle || "STGraphX";
+      this.$title.textContent = this._state.rawModel?.modelTitle || "DSGraph";
+      this.refreshOptions();
     }
 
     bindShell() {
@@ -1352,6 +1417,36 @@
       this.$reset.addEventListener("click", () => {
         void this.reset();
       });
+      this.$optionsButton.addEventListener("click", () => {
+        const open = this.$optionsPanel.hidden;
+        this.$optionsPanel.hidden = !open;
+        this.$optionsButton.setAttribute("aria-expanded", String(open));
+      });
+      this.$timedDelay.addEventListener("change", () => this.setTimedDelay(this.$timedDelay.value));
+      this.$showVariableValues.addEventListener("change", () => {
+        this._view.showVariableValues = this.$showVariableValues.checked;
+        this.renderAll();
+      });
+    }
+
+    refreshOptions() {
+      if (!this.$timedDelay) return;
+      const delay = Number(this._state.runtimeModel?.execution?.delayMs);
+      if (document.activeElement !== this.$timedDelay) this.$timedDelay.value = String(Number.isFinite(delay) && delay > 0 ? Math.round(delay) : 100);
+      this.$showVariableValues.checked = this._view.showVariableValues;
+    }
+
+    setTimedDelay(value) {
+      const delay = Math.max(1, Math.round(Number(value) || 100));
+      const execution = this._state.runtimeModel?.execution;
+      if (!execution) return;
+      execution.delayMs = delay;
+      if (this._state.rawModel?.execution) this._state.rawModel.execution.delayMs = delay;
+      this.$timedDelay.value = String(delay);
+      if (this._timedState.timedRunHandle != null) {
+        this._state.runtimeController.stopTimedExecution(false, "settings");
+        void this.toggleTimed();
+      }
     }
 
     async reload() {
@@ -1710,7 +1805,7 @@
         if (widget.type === "slider" || widget.type === "select") {
           this._state.inputValues.set(widget.source, Number(widget.value));
         } else if (widget.type === "button") {
-          this._state.inputValues.set(widget.source, widget.value ? 1 : 0);
+          this._state.inputValues.set(widget.source, widget.initialValue ? 1 : 0);
         }
       });
     }
@@ -1743,7 +1838,12 @@
             const node = nodeMap.get(name);
             row[name] = node ? node.computedValue : null;
           });
-          state.rows.push({ time: timeValue, values: row });
+          const lastRow = state.rows[state.rows.length - 1];
+          if (lastRow && Number(lastRow.time) === Number(timeValue)) {
+            lastRow.values = row;
+          } else {
+            state.rows.push({ time: timeValue, values: row });
+          }
           this._state.widgetState.set(widget.id, state);
         } else if (widget.type === "xychart") {
           const state = this._state.widgetState.get(widget.id) || {
@@ -2086,19 +2186,30 @@
     graphBounds() {
       const model = this._state.rawModel;
       const visibleNodeIds = this.visibleGraphNodeIds();
-      let minX = 0;
-      let minY = 0;
-      let maxX = 800;
-      let maxY = 600;
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
       (model?.nodes || []).filter((node) => visibleNodeIds.has(node.id)).forEach((node) => {
         const w = Number(node?.width) || 120;
         const h = Number(node?.height) || 70;
         const x = Number(node?.x) || 0;
         const y = Number(node?.y) || 0;
-        minX = Math.min(minX, x - w / 2 - 40);
-        minY = Math.min(minY, y - h / 2 - 40);
-        maxX = Math.max(maxX, x + w / 2 + 40);
-        maxY = Math.max(maxY, y + h / 2 + 40);
+        minX = Math.min(minX, x - w / 2);
+        minY = Math.min(minY, y - h / 2);
+        maxX = Math.max(maxX, x + w / 2);
+        maxY = Math.max(maxY, y + h / 2);
+      });
+      (model?.edges || []).filter((edge) => visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to)).forEach((edge) => {
+        (edge.controlPoints || []).forEach((point) => {
+          const x = Number(point?.x);
+          const y = Number(point?.y);
+          if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        });
       });
       (model?.widgets || []).forEach((widget) => {
         if (!this.isDashboardItemVisible(widget)) return;
@@ -2123,7 +2234,35 @@
         maxX = Math.max(maxX, (Number(dashboard.x) || 0) + (Number(dashboard.width) || 760));
         maxY = Math.max(maxY, (Number(dashboard.y) || 0) + (Number(dashboard.height) || 520));
       }
-      return { minX, minY, width: maxX - minX, height: maxY - minY };
+      if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+        minX = 0;
+        minY = 0;
+        maxX = 0;
+        maxY = 0;
+      }
+      const margin = 180;
+      minX -= margin;
+      minY -= margin;
+      maxX += margin;
+      maxY += margin;
+      const width = maxX - minX;
+      const height = maxY - minY;
+      if (width < MIN_GRAPH_WIDTH) {
+        const extra = (MIN_GRAPH_WIDTH - width) / 2;
+        minX -= extra;
+        maxX += extra;
+      }
+      if (height < MIN_GRAPH_HEIGHT) {
+        const extra = (MIN_GRAPH_HEIGHT - height) / 2;
+        minY -= extra;
+        maxY += extra;
+      }
+      return {
+        minX,
+        minY,
+        width: Math.max(MIN_GRAPH_WIDTH, maxX - minX),
+        height: Math.max(MIN_GRAPH_HEIGHT, maxY - minY),
+      };
     }
 
     renderAll() {
@@ -2358,6 +2497,14 @@
         label.textContent = node.name;
         g.appendChild(shape);
         g.appendChild(label);
+        if (this._view.showVariableValues) {
+          const value = document.createElementNS(SVG_NS, "text");
+          value.setAttribute("class", "node-value");
+          value.setAttribute("x", node.x);
+          value.setAttribute("y", node.y + 16);
+          value.textContent = node.__runtimeError ? "!" : formatValue(this._state.runtimeModel?.execution, node.__runtimeValue);
+          g.appendChild(value);
+        }
         this.$svg.appendChild(g);
       });
 
@@ -2542,6 +2689,10 @@
         const displayedColumns = widget.outputOnly
           ? widget.columns.filter((name) => name === "time" || nodeMap.get(name)?.output)
           : widget.columns.slice();
+        const columnLabel = (name) => tableColumnOptions(widget, name).label || name;
+        const applyColumnStyle = (cell, name) => {
+          cell.style.textAlign = tableColumnOptions(widget, name).align || widget.tableTextAlign;
+        };
         const matrixNode = widget.expandNonScalarValues && displayedColumns.length === 1 && displayedColumns[0] !== "time"
           ? nodeMap.get(displayedColumns[0])
           : null;
@@ -2555,7 +2706,7 @@
           const thead = document.createElement("thead");
           const headRow = document.createElement("tr");
           const corner = document.createElement("th");
-          corner.textContent = displayedColumns[0];
+          corner.textContent = columnLabel(displayedColumns[0]);
           headRow.appendChild(corner);
           for (let column = 0; column < matrixValue[0].length; column += 1) {
             const th = document.createElement("th");
@@ -2572,7 +2723,8 @@
             tr.appendChild(rowHeader);
             matrixRow.forEach((value) => {
               const td = document.createElement("td");
-              td.textContent = formatTableValue(execution, widget, value);
+              applyColumnStyle(td, displayedColumns[0]);
+              td.textContent = formatTableValue(execution, widget, value, displayedColumns[0]);
               tr.appendChild(td);
             });
             tbody.appendChild(tr);
@@ -2612,27 +2764,33 @@
         const headRow = document.createElement("tr");
         (cells || displayedColumns).forEach((entry) => {
           const th = document.createElement("th");
-          th.textContent = cells ? entry.label : entry;
+          const name = cells ? String(entry.label).replace(/\[.*$/, "") : entry;
+          th.textContent = cells ? entry.label : columnLabel(entry);
+          applyColumnStyle(th, name);
           headRow.appendChild(th);
         });
         thead.appendChild(headRow);
         table.appendChild(thead);
         const tbody = document.createElement("tbody");
-        const renderedRows = widget.showHistory ? rows.slice(-50) : [{ values: {} }];
+        const renderedRows = widget.showHistory
+          ? (widget.tableScrolling === "first" ? rows.slice(0, 50) : rows.slice(-50))
+          : [{ values: {} }];
         renderedRows.forEach((row) => {
           const tr = document.createElement("tr");
           (cells || displayedColumns).forEach((entry) => {
             const td = document.createElement("td");
+            const name = cells ? String(entry.label).replace(/\[.*$/, "") : entry;
+            applyColumnStyle(td, name);
             if (cells) {
               td.textContent = entry.error
                 ? this.t(`error.evalReason.${entry.error || "runtime"}`)
-                : (entry.empty || entry.missing ? "-" : formatTableValue(execution, widget, entry.value));
+                : (entry.empty || entry.missing ? "-" : formatTableValue(execution, widget, entry.value, name));
             } else {
               td.textContent = entry === "time"
-                ? formatTableValue(execution, widget, Number(widget.showHistory ? row.time : this.currentDisplayTime()))
+                ? formatTableValue(execution, widget, Number(widget.showHistory ? row.time : this.currentDisplayTime()), entry)
                 : (widget.showHistory
-                  ? formatTableValue(execution, widget, row.values?.[entry])
-                  : formatTableValue(execution, widget, nodeMap.get(entry)?.computedValue));
+                  ? formatTableValue(execution, widget, row.values?.[entry], entry)
+                  : formatTableValue(execution, widget, nodeMap.get(entry)?.computedValue, entry));
             }
             tr.appendChild(td);
           });
@@ -2640,6 +2798,11 @@
         });
         table.appendChild(tbody);
         body.appendChild(table);
+        if (widget.showHistory) {
+          requestAnimationFrame(() => {
+            body.scrollTop = widget.tableScrolling === "first" ? 0 : body.scrollHeight;
+          });
+        }
         return;
       }
       if (widget.type === "xychart") {
@@ -2648,6 +2811,21 @@
         canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
         canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
         drawSimpleXYChart(canvas, widgetState?.pairs || widget.xyPairs || [], execution, widget.fontSize);
+        body.appendChild(canvas);
+        return;
+      }
+      if (widget.type === "barplot") {
+        const flatten = (value) => Array.isArray(value) ? value.flat(Infinity).map(Number) : [Number(value)];
+        const pairs = (widget.xyPairs || []).map((pair) => {
+          const xs = flatten(nodeMap.get(pair.xSource)?.computedValue);
+          const ys = flatten(nodeMap.get(pair.ySource)?.computedValue);
+          return { ...pair, points: xs.slice(0, ys.length).map((x, index) => ({ x, y: ys[index] })) };
+        });
+        const canvas = document.createElement("canvas");
+        canvas.style.display = "block";
+        canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
+        canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
+        drawSimpleBarPlot(canvas, pairs, execution, widget.fontSize);
         body.appendChild(canvas);
         return;
       }
@@ -2678,8 +2856,12 @@
           this._state.inputValues.set(widget.source, numeric);
           widget.value = numeric;
           range.value = String(numeric);
+          const span = Number(widget.max) - Number(widget.min);
+          const progress = span > 0 ? ((numeric - Number(widget.min)) / span) * 100 : 0;
+          range.style.setProperty("--slider-progress", `${Math.max(0, Math.min(100, progress))}%`);
           number.value = String(numeric);
         };
+        commit(range.value);
         const commitAndRefresh = (nextValue) => {
           commit(nextValue);
           this.queuePreviewRefresh("input");
@@ -2731,14 +2913,28 @@
         button.className = `button-widget-toggle${current ? " is-on" : " is-off"}`;
         button.textContent = widgetBinaryStateLabel(widget, current, this.t.bind(this));
         button.disabled = false;
-        button.addEventListener("click", () => {
-          const next = current ? 0 : 1;
+        const momentary = widget.buttonMode === "momentary";
+        const setValue = (next) => {
           this._state.inputValues.set(widget.source, next);
           widget.value = next === 1;
           button.classList.toggle("is-on", next === 1);
           button.classList.toggle("is-off", next !== 1);
           button.textContent = widgetBinaryStateLabel(widget, next === 1, this.t.bind(this));
           this.queuePreviewRefresh("input");
+        };
+        button.addEventListener("pointerdown", (event) => {
+          if (!momentary) return;
+          button.setPointerCapture?.(event.pointerId);
+          setValue(widget.initialValue ? 0 : 1);
+        });
+        const release = () => { if (momentary) setValue(widget.initialValue ? 1 : 0); };
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("blur", release);
+        button.addEventListener("click", () => {
+          if (momentary) return;
+          const next = current ? 0 : 1;
+          setValue(next);
         });
         wrap.appendChild(button);
         body.appendChild(wrap);

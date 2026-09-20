@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 (function initModelLoadingModule(globalScope, factory) {
@@ -43,14 +44,8 @@
     const showOpenFilePickerCompat = typeof options.showOpenFilePickerCompat === "function"
       ? options.showOpenFilePickerCompat
       : async () => [];
-    const pickSubmodelFilesWithInput = typeof options.pickSubmodelFilesWithInput === "function"
-      ? options.pickSubmodelFilesWithInput
-      : async () => [];
     const notifyMissingRecentModelEntry = typeof options.notifyMissingRecentModelEntry === "function"
       ? options.notifyMissingRecentModelEntry
-      : () => {};
-    const removeRecentModelEntry = typeof options.removeRecentModelEntry === "function"
-      ? options.removeRecentModelEntry
       : () => {};
     const isLoadCancelledError = typeof options.isLoadCancelledError === "function"
       ? options.isLoadCancelledError
@@ -131,37 +126,16 @@
               rootEntry.directoryHandle = directoryHandle;
             }
           } catch (_err) {
-            // A moved or revoked file can be relinked through the picker below.
+            // A moved or revoked file must not open a file picker from Recent
+            // models: this entry is a direct reference, not an open command.
             rootEntry = null;
           }
         }
-        let relinked = false;
-        if (!rootEntry && supportsOpenFilePicker()) {
-          const handles = await showOpenFilePickerCompat({
-            multiple: true,
-            types: [{
-              description: "JSON",
-              accept: { "application/json": [".json"] },
-            }],
-          });
-          if (!handles || handles.length === 0) {
-            return false;
-          }
-          rootEntry = await prepareSelectedJsonEntries(handles);
-          relinked = Boolean(rootEntry);
-        } else if (!rootEntry) {
-          const files = await pickSubmodelFilesWithInput();
-          rootEntry = await prepareSelectedJsonEntries(files);
-          relinked = Boolean(rootEntry);
-        }
         if (!rootEntry) {
+          notifyMissingRecentModelEntry(entry);
           return false;
         }
-        const opened = await openPreparedJsonEntryInNewTab(rootEntry);
-        if (opened && relinked) {
-          removeRecentModelEntry(entry);
-        }
-        return opened;
+        return openPreparedJsonEntryInNewTab(rootEntry);
       } catch (err) {
         if (isLoadCancelledError(err)) {
           return false;

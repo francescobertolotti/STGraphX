@@ -106,6 +106,8 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
 
 ### Fixed
 
+- GitHub Pages non esegue più Jekyll/Liquid sulla repository: i capitoli del
+  libro e le direttive del player embedded vengono pubblicati come file statici.
 - Il lettore HTML del libro interpreta ora correttamente il markup Pandoc
   `.underline`, anche sui collegamenti, e non mostra più linee verticali nere
   nella navigazione né attorno ai riquadri del testo.

@@ -18,6 +18,7 @@
       isSubmodelNode,
       getSubmodelTemplate,
       getDirectoryHandleForModel,
+      getLinkedReadDataFile = null,
     } = options;
 
     if (
@@ -70,13 +71,19 @@
       if (!referencedPaths.size) {
         return;
       }
-      const directoryHandle = await getDirectoryHandleForModel(model);
+      let directoryHandle = null;
       for (const relativePath of referencedPaths) {
         let fileHandle;
         let file;
         try {
-          fileHandle = await directoryHandle.getFileHandle(relativePath);
-          file = await fileHandle.getFile();
+          file = typeof getLinkedReadDataFile === "function"
+            ? await getLinkedReadDataFile(model, relativePath)
+            : null;
+          if (!file) {
+            directoryHandle = directoryHandle || await getDirectoryHandleForModel(model);
+            fileHandle = await directoryHandle.getFileHandle(relativePath);
+            file = await fileHandle.getFile();
+          }
         } catch (_err) {
           throw new Error(`readData file is unavailable: ${relativePath}`);
         }

@@ -18,6 +18,24 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
 
 ### Added
 
+- Aggiunta la procedura guidata **Qualitative Graph Building** in
+  Inserisci > Grafo: raccoglie fino a dieci variabili, una matrice di relazioni
+  dirette e le variabili di stato, quindi genera nodi vuoti e frecce con un
+  layout a dispersione interno. La matrice usa selettori vuoti/0/1, rossi se
+  non impostati e verdi dopo una scelta. La metodologia è documentata in
+  italiano e inglese.
+- Il layout generato da Qualitative Graph Building aumenta ora del 20% la
+  distanza minima e quella desiderata tra nodi per ogni nodo oltre i primi due,
+  riducendo le sovrapposizioni nei grafi più grandi.
+- Le frecce possono ora avere un'etichetta testuale: dal menu contestuale si
+  crea, modifica, ruota o elimina; l'etichetta è trascinabile, salvata nel
+  modello e può essere rimossa anche con Canc/Backspace.
+- Le proprietà della freccia includono ora testo e sfondo trasparente
+  dell'etichetta, con checkbox allineata alla relativa voce; l'etichetta
+  selezionata espone una maniglia circolare per ruotarla direttamente sul canvas.
+- Il menu File consente ora di collegare CSV esterni al modello senza
+  incorporarne il contenuto; i riferimenti sono suggeriti durante la scrittura
+  di `readData("…")` nei parametri.
 - Il primo capitolo del libro incorpora ora il modello `models/1.1.json` nel
   punto in cui presenta la matrice dei quattro problemi, tramite il player
   interattivo DSGraph.
@@ -38,6 +56,23 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
 
 ### Changed
 
+- Nel capitolo 2 del libro, le immagini delle quattro strutture elementari
+  (catena, fusione, fork e loop) sono sostituite dai rispettivi modelli DSGraph
+  interattivi presenti nella cartella del capitolo.
+- I percorsi e gli identificatori dei dati CSV collegati sono conservati nel
+  JSON del modello; l'editor ripristina automaticamente gli handle autorizzati
+  oppure cerca nella cartella del modello, mostrando un warning solo per i file
+  non disponibili.
+- Le funzioni `appendRow`, `col`, `ncols`, `nrows`, `removeRow`, `row`,
+  `setCol` e `setRow` sono ora classificate tra le funzioni per array e
+  matrici, anziché tra quelle per agenti; il riferimento rapido è aggiornato.
+- I suggerimenti dei CSV collegati in `readData("…")` mostrano ora la chiamata
+  completa e indicano chiaramente l'azione di completamento; la guida utente e
+  il riferimento rapido descrivono il collegamento, il ricollegamento e il
+  requisito di una tabella CSV rettangolare.
+- Il menu File riunisce la gestione dei CSV esterni in `Manage data links`:
+  la finestra mostra ogni riferimento, segnala quelli da ricollegare e consente
+  di aggiungere o rimuovere singoli file.
 - Il player embedded usa ora inglese e il marchio DSGraph per impostazione
   predefinita; il testo di stato è sostituito da un pulsante Opzioni che
   permette di impostare la velocità temporizzata e di mostrare, su richiesta,
@@ -106,6 +141,12 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
 
 ### Fixed
 
+- Il player web incorporato disegna ora frecce esplicite, indipendenti dal
+  supporto del browser ai marker SVG, e visualizza anche le etichette dei link
+  con posizione, rotazione e trasparenza salvate nel modello.
+- I parametri basati su `readData` non vengono più valutati contro una cache
+  CSV vuota durante l'apertura del modello: i nodi collegati non appaiono più
+  erroneamente in rosso prima del ripristino dei dati.
 - GitHub Pages non esegue più Jekyll/Liquid sulla repository: i capitoli del
   libro e le direttive del player embedded vengono pubblicati come file statici.
 - Il lettore HTML del libro interpreta ora correttamente il markup Pandoc

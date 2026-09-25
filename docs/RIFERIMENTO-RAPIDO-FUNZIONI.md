@@ -151,7 +151,7 @@ Una successione numerica con estremo finale escluso.
 
 `readData(path)`
 
-Matrice di valori numerici e/o testuali letta da un file CSV relativo alla cartella del modello. Disponibile solo nei parametri.
+Matrice di valori numerici e/o testuali letta da un file CSV. Disponibile solo nei parametri. Per collegare un file senza includerlo nel JSON usa File > Gestisci collegamenti dati: percorso e identificatore sono salvati nel modello e cercati automaticamente alla riapertura. Digita quindi `readData("` e scegli il CSV suggerito. Le righe del CSV devono avere tutte lo stesso numero di colonne.
 
 **Esempi**
 - `readData("data/values.csv")`
@@ -191,7 +191,7 @@ Assegnazione di una proprietà custom del nodo, con restituzione del valore asse
 **Esempi**
 - `setProperty("unit", "kg")`
 
-## Funzioni per array
+## Funzioni per array e matrici
 
 ### `append`
 
@@ -204,6 +204,17 @@ Aggiunge o antepone un elemento a un vettore, concatena due vettori, oppure aggi
 - `append(1, [2,3])`
 - `append([1,2], [3,4])`
 - `append([[1,2],[3,4]], [5,6])`
+
+---
+
+### `appendRow`
+
+`appendRow(matrix, row)`
+
+Una copia della matrice con una nuova riga aggiunta in fondo. Per matrici agents aggiunge un nuovo agente.
+
+**Esempi**
+- `appendRow(agents, [3,1])`
 
 ---
 
@@ -239,6 +250,17 @@ Array ottenuto valutando expr per ogni combinazione degli axis. Un axis puo esse
 
 **Esempi**
 - `array(range(-2,3), $0^2)`
+
+---
+
+### `col`
+
+`col(matrix, j)`
+
+La colonna j-esima della matrice come vettore.
+
+**Esempi**
+- `col(agents, ENERGY)`
 
 ---
 
@@ -316,6 +338,17 @@ Gli elementi presenti in entrambi i vettori, senza duplicati e mantenendo l'ordi
 
 ---
 
+### `ncols`
+
+`ncols(matrix)`
+
+Il numero di colonne della matrice. Per una popolazione di agenti coincide con il numero di proprietà.
+
+**Esempi**
+- `ncols(agents)`
+
+---
+
 ### `neighbors`
 
 `neighbors(matrix, row, col[, diagonals[, toroidal]])`
@@ -329,6 +362,17 @@ I valori delle celle vicine a quella indicata. Con `diagonals=true` usa il vicin
 
 ---
 
+### `nrows`
+
+`nrows(matrix)`
+
+Il numero di righe della matrice. Per una popolazione di agenti coincide con il numero di agenti.
+
+**Esempi**
+- `nrows(agents)`
+
+---
+
 ### `removeAt`
 
 `removeAt(vector, index) | removeAt(matrix, index[, axis])`
@@ -339,6 +383,28 @@ Una copia senza l'elemento indicato del vettore oppure senza la riga o la colonn
 - `removeAt([1,2,3], 1) -> [1,3]`
 - `removeAt([[1,2],[3,4]], 0) -> [[3,4]]`
 - `removeAt([[1,2],[3,4]], 1, 1) -> [[1],[3]]`
+
+---
+
+### `removeRow`
+
+`removeRow(matrix, i)`
+
+Una copia della matrice senza la riga i. Per matrici agents elimina l'agente i.
+
+**Esempi**
+- `removeRow(agents, 2)`
+
+---
+
+### `row`
+
+`row(matrix, i)`
+
+La riga i-esima della matrice. Se la matrice rappresenta agenti, restituisce il vettore proprietà dell'agente i.
+
+**Esempi**
+- `row(agents, 0)`
 
 ---
 
@@ -362,6 +428,28 @@ Una copia con l'elemento o la riga sostituiti.
 **Esempi**
 - `setAt([1,2,3], 1, 9) -> [1,9,3]`
 - `setAt([[1,2],[3,4]], [1,0], 8) -> [[1,2],[8,4]]`
+
+---
+
+### `setCol`
+
+`setCol(matrix, j, vector)`
+
+Una copia della matrice con la colonna j sostituita dai valori del vettore. Il vettore deve avere una voce per ogni riga.
+
+**Esempi**
+- `setCol(agents, ENERGY, newEnergy)`
+
+---
+
+### `setRow`
+
+`setRow(matrix, i, row)`
+
+Una copia della matrice con la riga i sostituita da riga.
+
+**Esempi**
+- `setRow(agents, 3, [10,1,4,7])`
 
 ---
 
@@ -991,28 +1079,6 @@ Un vettore con il numero di vicini di ogni agente.
 
 ---
 
-### `appendRow`
-
-`appendRow(matrix, row)`
-
-Una copia della matrice con una nuova riga aggiunta in fondo. Per matrici agents aggiunge un nuovo agente.
-
-**Esempi**
-- `appendRow(agents, [3,1])`
-
----
-
-### `col`
-
-`col(matrix, j)`
-
-La colonna j-esima della matrice come vettore.
-
-**Esempi**
-- `col(agents, ENERGY)`
-
----
-
 ### `filterAgents`
 
 `filterAgents(cond, agents)`
@@ -1032,17 +1098,6 @@ Trasformazione riga per riga di tutti gli agenti. expr deve restituire per ogni 
 
 **Esempi**
 - `mapAgents(setAt(self, ENERGY, self[ENERGY] + 1), agents)`
-
----
-
-### `ncols`
-
-`ncols(matrix)`
-
-Il numero di colonne della matrice. Per una popolazione di agenti coincide con il numero di proprietà.
-
-**Esempi**
-- `ncols(agents)`
 
 ---
 
@@ -1068,66 +1123,11 @@ I riferimenti degli agenti vicini all'agente di riga i, usando lo spazio costrui
 
 ---
 
-### `nrows`
-
-`nrows(matrix)`
-
-Il numero di righe della matrice. Per una popolazione di agenti coincide con il numero di agenti.
-
-**Esempi**
-- `nrows(agents)`
-
----
-
-### `removeRow`
-
-`removeRow(matrix, i)`
-
-Una copia della matrice senza la riga i. Per matrici agents elimina l'agente i.
-
-**Esempi**
-- `removeRow(agents, 2)`
-
----
-
-### `row`
-
-`row(matrix, i)`
-
-La riga i-esima della matrice. Se la matrice rappresenta agenti, restituisce il vettore proprietà dell'agente i.
-
-**Esempi**
-- `row(agents, 0)`
-
----
-
 ### `self`
 
 `self`
 
 Valore locale corrente del nodo. In esecuzione scalare coincide con il valore del nodo; in esecuzione vettoriale indica la componente dell'agente corrente; nei contesti matriciali agent-based coincide con il valore della cella corrente.
-
----
-
-### `setCol`
-
-`setCol(matrix, j, vector)`
-
-Una copia della matrice con la colonna j sostituita dai valori del vettore. Il vettore deve avere una voce per ogni riga.
-
-**Esempi**
-- `setCol(agents, ENERGY, newEnergy)`
-
----
-
-### `setRow`
-
-`setRow(matrix, i, row)`
-
-Una copia della matrice con la riga i sostituita da riga.
-
-**Esempi**
-- `setRow(agents, 3, [10,1,4,7])`
 
 ---
 

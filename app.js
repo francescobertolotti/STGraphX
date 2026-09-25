@@ -46,6 +46,7 @@ const addMatrixWidgetItem = document.getElementById("addMatrixWidgetItem");
 const addTableWidgetItem = document.getElementById("addTableWidgetItem");
 const addXYChartWidgetItem = document.getElementById("addXYChartWidgetItem");
 const addBarPlotWidgetItem = document.getElementById("addBarPlotWidgetItem");
+const qualitativeGraphBuilderItem = document.getElementById("qualitativeGraphBuilderItem");
 const fitContentItem = document.getElementById("fitContentItem");
 const zoomInItem = document.getElementById("zoomInItem");
 const zoomOutItem = document.getElementById("zoomOutItem");
@@ -79,6 +80,7 @@ const saveJsonBtn = document.getElementById("saveJsonBtn");
 const saveAsJsonBtn = document.getElementById("saveAsJsonBtn");
 const closeModelBtn = document.getElementById("closeModelBtn");
 const exportCsvBtn = document.getElementById("exportCsvBtn");
+const manageDataLinksBtn = document.getElementById("manageDataLinksBtn");
 const loadJsonBtn = document.getElementById("loadJsonBtn");
 const recentModelsMenuRoot = document.getElementById("recentModelsMenuRoot");
 const recentModelsSep = document.getElementById("recentModelsSep");
@@ -231,6 +233,18 @@ const functionsHelpDismissBtn = document.getElementById("functionsHelpDismissBtn
 const functionsHelpContent = document.getElementById("functionsHelpContent");
 const functionsHelpSearch = document.getElementById("functionsHelpSearch");
 const functionsHelpTypeFilter = document.getElementById("functionsHelpTypeFilter");
+const dataLinksModal = document.getElementById("dataLinksModal");
+const dataLinksCloseBtn = document.getElementById("dataLinksCloseBtn");
+const dataLinksDismissBtn = document.getElementById("dataLinksDismissBtn");
+const dataLinksList = document.getElementById("dataLinksList");
+const addLinkedDataBtn = document.getElementById("addLinkedDataBtn");
+const qualitativeGraphWizardModal = document.getElementById("qualitativeGraphWizardModal");
+const qualitativeGraphCloseBtn = document.getElementById("qualitativeGraphCloseBtn");
+const qualitativeGraphSteps = document.getElementById("qualitativeGraphSteps");
+const qualitativeGraphContent = document.getElementById("qualitativeGraphContent");
+const qualitativeGraphBackBtn = document.getElementById("qualitativeGraphBackBtn");
+const qualitativeGraphCancelBtn = document.getElementById("qualitativeGraphCancelBtn");
+const qualitativeGraphNextBtn = document.getElementById("qualitativeGraphNextBtn");
 const eightTupleModal = document.getElementById("eightTupleModal");
 const eightTupleCloseBtn = document.getElementById("eightTupleCloseBtn");
 const eightTupleDismissBtn = document.getElementById("eightTupleDismissBtn");
@@ -476,6 +490,7 @@ const recentModelsStore = globalThis.STGraphXRecentModels?.createRecentModelsSto
   },
   unnamedLabel: () => t("file.unnamed"),
 });
+const linkedDataHandleStore = globalThis.STGraphXRecentModels?.createIndexedDbHandleStore?.("dsgraph.linkedData.v1") || null;
 
 if (!recentModelsStore) {
   throw new Error("STGraphX recent models helpers are unavailable");
@@ -814,6 +829,7 @@ const workspace = {
 const submodelTemplateCache = new Map();
 const submodelFileHandleCache = new Map();
 const submodelSourceCache = new Map();
+const linkedReadDataFileHandles = new Map();
 const READ_DATA_CALL_PATTERN = /\breadData\s*\(/;
 const READ_DATA_LITERAL_CALL_PATTERN = /\breadData\s*\(\s*(['"])((?:\\.|(?!\1).)*)\1\s*\)/g;
 function descriptionPropertyKey() {
@@ -854,6 +870,7 @@ const graph = {
   modelTitle: "",
   properties: [],
   localFunctions: [],
+  externalData: [],
   nodes: [],
   edges: [],
   textItems: [],
@@ -881,6 +898,13 @@ const graph = {
   },
 };
 
+const qualitativeGraphWizard = {
+  step: 1,
+  variables: [""],
+  matrix: [],
+  stateNames: new Set(),
+};
+
 const ui = {
   selected: null,
   selectedNodes: new Set(),
@@ -892,6 +916,8 @@ const ui = {
   edgeCreateHoverId: null,
   edgeCreateLastPoint: null,
   controlPointDrag: null,
+  edgeLabelDrag: null,
+  edgeLabelRotate: null,
   marquee: null,
   snapToGrid: true,
   showGrid: false,
@@ -3292,6 +3318,16 @@ function renderExpressionLibrary() {
 
   expressionLibrary.innerHTML = "";
   expressionSidebar?.classList.remove("hidden");
+  if (ui.expressionEditor?.readDataCompletion) {
+    const context = document.createElement("div");
+    context.className = "expression-linked-data-context";
+    const title = document.createElement("strong");
+    title.textContent = t("expr.help.linkedDataCompletionTitle");
+    const hint = document.createElement("span");
+    hint.textContent = t("expr.help.linkedDataCompletionHint");
+    context.append(title, hint);
+    expressionLibrary.appendChild(context);
+  }
   const groups = new Map();
   filteredEntries.forEach((entry) => {
     const key = entry.linkedNode || entry.globalNode ? "linkedNode" : (entry.kind || "function");
@@ -3324,7 +3360,14 @@ function renderExpressionLibrary() {
           item.tabIndex = 0;
           const name = document.createElement("div");
           name.className = "expression-library-name";
-          if (filter) {
+          if (entry.kind === "externalData") {
+            item.classList.add("expression-library-data-item");
+            name.textContent = entry.signature || `readData(\"${entry.name}\")`;
+            const hint = document.createElement("div");
+            hint.className = "expression-library-data-hint";
+            hint.textContent = t("expr.help.linkedDataInsertHint");
+            item.append(name, hint);
+          } else if (filter) {
             const lowerName = entry.name.toLowerCase();
             const idx = lowerName.indexOf(filter);
             if (idx >= 0) {
@@ -3346,7 +3389,9 @@ function renderExpressionLibrary() {
           } else {
             name.textContent = entry.name;
           }
-          item.appendChild(name);
+          if (entry.kind !== "externalData") {
+            item.appendChild(name);
+          }
           const selectEntry = () => {
             setSelectedLibraryEntry(entry.name, entry);
           };
@@ -4252,6 +4297,18 @@ function expressionCatalogForEditor() {
     });
   });
 
+  graph.externalData.forEach((entry) => {
+    const path = normalizeReadDataPath(entry?.path);
+    if (!path) return;
+    pushEntry(path, {
+      kind: "externalData",
+      signature: `readData(\"${path}\")`,
+      description: t("expr.help.linkedData", { path }),
+      insertText: `readData(\"${path}\")`,
+      cursorOffset: `readData(\"${path}\")`.length,
+    });
+  });
+
   if (node) {
     pushEntry("self", {
       kind: "variable",
@@ -4357,6 +4414,8 @@ function expressionEntryKindOrder(kind) {
       return 8;
     case "agent":
       return 9;
+    case "externalData":
+      return 10;
     default:
       return 99;
   }
@@ -4814,6 +4873,26 @@ function renderExpressionAutocomplete() {
   const exactToken = identifierAtCaret(inputEl.value, caret);
   const allEntries = expressionCatalogForEditor();
   ui.expressionEditor.catalog = allEntries;
+  const linkedArgument = linkedReadDataArgumentAtCaret(inputEl.value, caret);
+  if (linkedArgument) {
+    ui.expressionEditor.readDataCompletion = true;
+    const prefixLower = linkedArgument.prefix.toLowerCase();
+    const entries = allEntries.filter((entry) => entry.kind === "externalData" && entry.name.toLowerCase().startsWith(prefixLower));
+    ui.expressionEditor.autoFilter = linkedArgument.prefix;
+    ui.expressionEditor.completion = entries.length ? {
+      tokenStart: linkedArgument.start,
+      tokenEnd: caret,
+      entries: entries.slice(0, 8),
+      activeIndex: 0,
+    } : null;
+    const helpEntry = ui.expressionEditor.completion?.entries[0] || null;
+    if (helpEntry) ui.expressionEditor.librarySelectedName = helpEntry.name;
+    setExpressionHelp(helpEntry);
+    setExpressionEntryTooltip(helpEntry);
+    renderExpressionLibrary();
+    return;
+  }
+  ui.expressionEditor.readDataCompletion = false;
   ui.expressionEditor.autoFilter = tokenInfo?.prefix || exactToken || "";
 
   let helpEntry = null;
@@ -4874,11 +4953,19 @@ function insertSelectedLibraryEntry() {
   if (!entry) {
     return false;
   }
-  const replacement = entry.insertText || entry.name;
   const caret = inputEl.selectionStart ?? 0;
+  const linkedArgument = entry.kind === "externalData" ? linkedReadDataArgumentAtCaret(inputEl.value, caret) : null;
+  const replacement = linkedArgument ? entry.name : (entry.insertText || entry.name);
   const tokenInfo = identifierPrefixAtCaret(inputEl.value, caret);
   const tokenAtCaret = identifierAtCaret(inputEl.value, caret);
-  if (tokenInfo && (tokenInfo.prefix || tokenAtCaret)) {
+  if (linkedArgument) {
+    const before = inputEl.value.slice(0, linkedArgument.start);
+    const after = inputEl.value.slice(caret);
+    inputEl.value = `${before}${replacement}${after}`;
+    const nextCaret = linkedArgument.start + replacement.length;
+    inputEl.focus();
+    inputEl.setSelectionRange(nextCaret, nextCaret);
+  } else if (tokenInfo && (tokenInfo.prefix || tokenAtCaret)) {
     const tokenEnd = tokenInfo.end + Math.max(0, tokenAtCaret.length - tokenInfo.prefix.length);
     const before = inputEl.value.slice(0, tokenInfo.start);
     const after = inputEl.value.slice(tokenEnd);
@@ -7060,8 +7147,31 @@ function extractReadDataPaths(expression) {
   return paths;
 }
 
+function linkedReadDataArgumentAtCaret(text, caret) {
+  const before = String(text ?? "").slice(0, Math.max(0, Number(caret) || 0));
+  const match = before.match(/\breadData\s*\(\s*(["'])([^"']*)$/u);
+  return match ? { start: before.length - match[2].length, prefix: match[2] } : null;
+}
+
 function normalizeReadDataPath(value) {
   return runtimeShared.normalizeReadDataPath(value);
+}
+
+function createLinkedDataId() {
+  if (typeof crypto?.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `linked-data-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function normalizeExternalDataEntries(entries) {
+  return Array.isArray(entries)
+    ? entries.map((entry) => ({
+      id: String(entry?.id || createLinkedDataId()),
+      path: normalizeReadDataPath(entry?.path),
+      type: "csv",
+    })).filter((entry) => entry.path)
+    : [];
 }
 
 function validateReadDataExpressionUsage(expression, options = {}) {
@@ -7141,6 +7251,148 @@ function parseCsvMatrix(text, sourcePath = "") {
     throw new Error("readData CSV must be rectangular");
   }
   return matrix;
+}
+
+function pickLinkedCsvFilesWithInput() {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv,text/csv";
+    input.multiple = true;
+    input.style.position = "fixed";
+    input.style.left = "-9999px";
+    input.addEventListener("change", () => {
+      const files = Array.from(input.files || []);
+      input.remove();
+      files.length ? resolve(files.map(createPseudoFileHandle)) : reject(new Error("Aborted"));
+    }, { once: true });
+    document.body.appendChild(input);
+    input.click();
+  });
+}
+
+async function persistLinkedDataHandle(id, handle, file) {
+  if (!id || !linkedDataHandleStore || !handle) {
+    return;
+  }
+  try {
+    await linkedDataHandleStore.put(id, handle);
+  } catch (_err) {
+    // Legacy input fallbacks do not provide clonable handles. Persisting the
+    // selected File still permits restoring this link in the same browser.
+    try {
+      await linkedDataHandleStore.put(id, file);
+    } catch (_ignored) {
+      // Native desktop paths and the model-folder lookup remain available.
+    }
+  }
+}
+
+async function linkExternalCsvFiles() {
+  let handles;
+  try {
+    handles = supportsOpenFilePicker()
+      ? await showOpenFilePickerCompat({ multiple: true, types: [{ description: "CSV", accept: { "text/csv": [".csv"] } }] })
+      : await pickLinkedCsvFilesWithInput();
+  } catch (err) {
+    if (err?.name !== "AbortError") setStatusKey("status.readError");
+    return false;
+  }
+  let changed = false;
+  for (const handle of handles || []) {
+    const file = await handle.getFile();
+    const path = normalizeReadDataPath(file.name);
+    if (!path || !/\.csv$/iu.test(path)) continue;
+    try {
+      parseCsvMatrix(await file.text(), path);
+    } catch (err) {
+      setStatus(localizeExpressionErrorMessage(err?.message || ""), true);
+      continue;
+    }
+    const previous = graph.externalData.find((entry) => entry.path === path) || null;
+    const id = String(previous?.id || createLinkedDataId());
+    await persistLinkedDataHandle(id, handle, file);
+    linkedReadDataFileHandles.set(path, handle);
+    graph.externalData = graph.externalData.filter((entry) => entry.path !== path);
+    graph.externalData.push({ id, path, type: "csv" });
+    changed = true;
+  }
+  if (changed) {
+    dirtySinceLastSave = true;
+    invalidateExpressionPreviewInitializationCache();
+    render();
+  }
+  return changed;
+}
+
+function removeLinkedData(path) {
+  const normalizedPath = normalizeReadDataPath(path);
+  if (!normalizedPath || !graph.externalData.some((entry) => entry.path === normalizedPath)) {
+    return;
+  }
+  const removed = graph.externalData.find((entry) => entry.path === normalizedPath) || null;
+  graph.externalData = graph.externalData.filter((entry) => entry.path !== normalizedPath);
+  linkedReadDataFileHandles.delete(normalizedPath);
+  if (removed?.id) {
+    linkedDataHandleStore?.remove?.(removed.id).catch?.(() => {});
+  }
+  graph.__readDataCache = Object.create(null);
+  dirtySinceLastSave = true;
+  invalidateExpressionPreviewInitializationCache();
+  render();
+  renderDataLinksDialog();
+}
+
+function renderDataLinksDialog() {
+  if (!dataLinksList) {
+    return;
+  }
+  dataLinksList.innerHTML = "";
+  const entries = Array.isArray(graph.externalData) ? graph.externalData : [];
+  if (!entries.length) {
+    const empty = document.createElement("p");
+    empty.className = "data-links-empty";
+    empty.textContent = t("dataLinks.empty");
+    dataLinksList.appendChild(empty);
+    return;
+  }
+  for (const entry of entries) {
+    const path = normalizeReadDataPath(entry?.path);
+    if (!path) {
+      continue;
+    }
+    const row = document.createElement("div");
+    row.className = "data-link-row";
+    const details = document.createElement("div");
+    details.className = "data-link-details";
+    const name = document.createElement("code");
+    name.textContent = path;
+    const status = document.createElement("span");
+    const available = linkedReadDataFileHandles.has(path);
+    status.className = `data-link-status ${available ? "available" : "unavailable"}`;
+    status.textContent = t(available ? "dataLinks.available" : "dataLinks.relinkRequired");
+    details.append(name, status);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "small-btn data-link-remove";
+    remove.textContent = t("dataLinks.remove");
+    remove.addEventListener("click", () => removeLinkedData(path));
+    row.append(details, remove);
+    dataLinksList.appendChild(row);
+  }
+}
+
+async function openDataLinksDialog() {
+  if (!dataLinksModal) {
+    return;
+  }
+  await resolveLinkedReadDataFilesAfterLoad(graph, currentModelDirectoryHandle);
+  renderDataLinksDialog();
+  dataLinksModal.classList.remove("hidden");
+}
+
+function closeDataLinksDialog() {
+  dataLinksModal?.classList.add("hidden");
 }
 
 function submodelInterfaceSummary(node) {
@@ -7689,6 +7941,14 @@ function graphBounds() {
       maxX = Math.max(maxX, cp.x);
       maxY = Math.max(maxY, cp.y);
     });
+    const label = normalizeEdgeLabel(edge.label);
+    if (label) {
+      const halfWidth = Math.max(24, label.text.length * 3.8);
+      minX = Math.min(minX, label.x - halfWidth);
+      minY = Math.min(minY, label.y - 14);
+      maxX = Math.max(maxX, label.x + halfWidth);
+      maxY = Math.max(maxY, label.y + 8);
+    }
   });
 
   graph.widgets.forEach((widget) => {
@@ -7753,7 +8013,7 @@ function graphBounds() {
 }
 
 function updateCanvasSize(anchorClientX = null, anchorClientY = null, force = false) {
-  if (!force && (ui.drag || ui.resize || ui.controlPointDrag || ui.edgeCreate || ui.marquee || ui.textDrag || ui.textResize || ui.dashboardDrag || ui.dashboardResize)) {
+  if (!force && (ui.drag || ui.resize || ui.controlPointDrag || ui.edgeLabelDrag || ui.edgeLabelRotate || ui.edgeCreate || ui.marquee || ui.textDrag || ui.textResize || ui.dashboardDrag || ui.dashboardResize)) {
     return;
   }
 
@@ -8219,6 +8479,15 @@ function syncNodeSelectionFocus() {
     return;
   }
 
+  if (ui.selected?.type === "edgeLabel") {
+    const edge = getEdgeById(ui.selected.id);
+    if (!edge?.label?.text) {
+      ui.selected = null;
+    }
+    ui.selectedNodes.clear();
+    return;
+  }
+
   if (ui.selected?.type === "text") {
     const item = getTextItemById(ui.selected.id);
     if (!item) {
@@ -8245,6 +8514,42 @@ function selectEdge(id) {
     ui.selectedControlPoint = null;
     refreshSidebar();
   }, `edge:${id}`);
+}
+
+function selectEdgeLabel(id) {
+  requestExpressionEditorSelectionChange(() => {
+    ui.selected = { type: "edgeLabel", id };
+    ui.selectedNodes.clear();
+    ui.selectedControlPoint = null;
+    refreshSidebar();
+  }, `edgeLabel:${id}`);
+}
+
+function normalizeEdgeLabel(label) {
+  const text = String(label?.text ?? "").trim();
+  if (!text) return null;
+  const x = Number(label?.x);
+  const y = Number(label?.y);
+  return {
+    text,
+    x: Number.isFinite(x) ? x : 0,
+    y: Number.isFinite(y) ? y : 0,
+    rotation: Number.isFinite(Number(label?.rotation)) ? Number(label.rotation) : 0,
+    transparent: Boolean(label?.transparent),
+  };
+}
+
+function defaultEdgeLabel(edge, text = "") {
+  const points = buildEdgeGeometry(edge)?.points || [];
+  const start = points[0] || { x: 0, y: 0 };
+  const end = points[points.length - 1] || start;
+  return {
+    text: String(text).trim(),
+    x: (start.x + end.x) / 2,
+    y: (start.y + end.y) / 2 - 18,
+    rotation: 0,
+    transparent: false,
+  };
 }
 
 function selectWidget(id) {
@@ -8346,6 +8651,11 @@ function exportGraphData() {
   return {
     version: 1,
     modelTitle: String(graph.modelTitle ?? ""),
+    externalData: graph.externalData.map((entry) => ({
+      id: String(entry.id || ""),
+      path: String(entry.path),
+      type: "csv",
+    })),
     localFunctions: sanitizeLocalFunctions(graph).map((definition) => ({
       name: definition.name,
       params: definition.params.slice(),
@@ -8446,6 +8756,7 @@ function exportGraphData() {
       from: e.from,
       to: e.to,
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
+      label: normalizeEdgeLabel(e.label),
     })),
     textItems: graph.textItems.map((item) => ({
       id: item.id,
@@ -8623,14 +8934,16 @@ function hasUnsavedChanges() {
   return currentSnapshot() !== lastSavedSnapshot;
 }
 
-function applyGraphData(data) {
+function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
   stopTimedExecution(false);
   clearRuntimeSubmodelState();
   ui.submodelsPrepared = false;
   ui.localFunctionsEditor = null;
   const execCfg = normalizeExecutionConfig(data.execution);
   const savedView = data?.view && typeof data.view === "object" ? data.view : null;
+  linkedReadDataFileHandles.clear();
   graph.modelTitle = String(data?.modelTitle ?? "");
+  graph.externalData = normalizeExternalDataEntries(data?.externalData);
   graph.properties = Array.isArray(data?.modelProperties)
     ? data.modelProperties.map((p) => ({ key: String(p?.key ?? ""), value: String(p?.value ?? "") }))
     : [];
@@ -8705,6 +9018,7 @@ function applyGraphData(data) {
     from: e.from,
     to: e.to,
     controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
+    label: normalizeEdgeLabel(e.label),
   }));
   graph.textItems = Array.isArray(data.textItems)
     ? data.textItems.map((item) => {
@@ -8863,7 +9177,12 @@ function applyGraphData(data) {
   ui.gridSize = clamp(Number(savedView?.gridSize) || ui.gridSize || 20, 5, 100);
   ui.tooltipDelayMs = normalizeTooltipDelayMs(savedView?.tooltipDelayMs);
   normalizeInputNodeFlags();
-  initializeStateNodes(graph.execution.t0);
+  // readData files are restored asynchronously after a model is loaded.
+  // Do not evaluate their parameter expressions against an empty cache first:
+  // that would briefly mark otherwise valid nodes as runtime errors.
+  if (!deferReadDataInitialization || !graph.externalData.length) {
+    initializeStateNodes(graph.execution.t0);
+  }
 
   ui.drag = null;
   ui.resize = null;
@@ -9237,6 +9556,7 @@ function collectSelectedForClipboard() {
       from: e.from,
       to: e.to,
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
+      label: normalizeEdgeLabel(e.label),
     }));
   return { nodes, edges };
 }
@@ -9332,6 +9652,11 @@ async function pasteFromClipboard() {
           x: snap(cp.x + offset),
           y: snap(cp.y + offset),
         })),
+        label: e.label ? {
+          ...normalizeEdgeLabel(e.label),
+          x: snap(Number(e.label.x) + offset),
+          y: snap(Number(e.label.y) + offset),
+        } : null,
       });
     });
 
@@ -9660,6 +9985,297 @@ function addEdge(fromId, toId) {
   return edge;
 }
 
+function resetQualitativeGraphWizard() {
+  qualitativeGraphWizard.step = 1;
+  qualitativeGraphWizard.variables = [""];
+  qualitativeGraphWizard.matrix = [];
+  qualitativeGraphWizard.stateNames = new Set();
+}
+
+function qualitativeGraphNamesAreValid() {
+  const candidates = graph.nodes.map((node) => ({ id: node.id, name: node.name }));
+  for (const rawName of qualitativeGraphWizard.variables) {
+    const name = String(rawName || "").trim();
+    const validation = semantics.validateNodeName(candidates, name, null);
+    if (!validation.ok) return false;
+    candidates.push({ id: -(candidates.length + 1), name });
+  }
+  return candidates.length > graph.nodes.length;
+}
+
+function qualitativeGraphMatrixIsValid() {
+  return qualitativeGraphWizard.matrix.every((row) => row.every((value) => (
+    value === "" || value === "0" || value === "1"
+  )));
+}
+
+function initializeQualitativeGraphMatrix() {
+  const size = qualitativeGraphWizard.variables.length;
+  qualitativeGraphWizard.matrix = Array.from(
+    { length: size },
+    (_row, row) => Array.from({ length: size }, (_col, col) => (row === col ? "0" : "")),
+  );
+  qualitativeGraphWizard.stateNames = new Set(
+    [...qualitativeGraphWizard.stateNames].filter((name) => qualitativeGraphWizard.variables.includes(name)),
+  );
+}
+
+function renderQualitativeGraphWizard() {
+  if (!qualitativeGraphContent || !qualitativeGraphSteps) return;
+  const wizard = qualitativeGraphWizard;
+  qualitativeGraphSteps.innerHTML = "";
+  ["variables", "relations", "states"].forEach((name, index) => {
+    const item = document.createElement("span");
+    item.className = `qualitative-graph-step${wizard.step === index + 1 ? " active" : ""}${wizard.step > index + 1 ? " complete" : ""}`;
+    item.textContent = t(`qualitativeGraph.step.${name}`);
+    qualitativeGraphSteps.appendChild(item);
+  });
+  qualitativeGraphContent.innerHTML = "";
+
+  if (wizard.step === 1) {
+    const intro = document.createElement("p");
+    intro.className = "help-intro";
+    intro.textContent = t("qualitativeGraph.variables.intro");
+    const list = document.createElement("div");
+    list.className = "qualitative-graph-variable-list";
+    wizard.variables.forEach((value, index) => {
+      const row = document.createElement("div");
+      row.className = "qualitative-graph-variable-row";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = t("qualitativeGraph.variables.name");
+      input.value = value;
+      input.addEventListener("input", () => { wizard.variables[index] = input.value; });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "small-btn";
+      remove.textContent = t("qualitativeGraph.variables.remove");
+      remove.disabled = wizard.variables.length === 1;
+      remove.addEventListener("click", () => {
+        wizard.variables.splice(index, 1);
+        renderQualitativeGraphWizard();
+      });
+      row.append(input, remove);
+      list.appendChild(row);
+    });
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "small-btn";
+    add.textContent = t("qualitativeGraph.variables.add");
+    add.disabled = wizard.variables.length >= 10;
+    add.addEventListener("click", () => {
+      wizard.variables.push("");
+      renderQualitativeGraphWizard();
+    });
+    const limit = document.createElement("div");
+    limit.className = "qualitative-graph-limit";
+    limit.textContent = t("qualitativeGraph.variables.limit");
+    qualitativeGraphContent.append(intro, list, add, limit);
+  } else if (wizard.step === 2) {
+    const intro = document.createElement("p");
+    intro.className = "help-intro";
+    intro.textContent = t("qualitativeGraph.relations.intro");
+    const wrap = document.createElement("div");
+    wrap.className = "qualitative-graph-matrix-wrap";
+    const table = document.createElement("table");
+    table.className = "qualitative-graph-matrix";
+    const head = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    const corner = document.createElement("th");
+    corner.textContent = t("qualitativeGraph.relations.from");
+    headRow.appendChild(corner);
+    wizard.variables.forEach((name) => {
+      const cell = document.createElement("th");
+      cell.textContent = name;
+      headRow.appendChild(cell);
+    });
+    head.appendChild(headRow);
+    const body = document.createElement("tbody");
+    wizard.variables.forEach((from, row) => {
+      const tr = document.createElement("tr");
+      const name = document.createElement("th");
+      name.textContent = from;
+      tr.appendChild(name);
+      wizard.variables.forEach((_to, col) => {
+        const cell = document.createElement("td");
+        if (row === col) {
+          cell.textContent = "—";
+        } else {
+          const select = document.createElement("select");
+          select.className = "qualitative-graph-matrix-choice";
+          select.setAttribute("aria-label", `${from} → ${wizard.variables[col]}`);
+          [["", ""], ["0", "0"], ["1", "1"]].forEach(([value, label]) => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = label;
+            select.appendChild(option);
+          });
+          select.value = wizard.matrix[row]?.[col] || "";
+          select.classList.toggle("selected", Boolean(select.value));
+          select.addEventListener("change", () => {
+            wizard.matrix[row][col] = select.value;
+            select.classList.toggle("selected", Boolean(select.value));
+          });
+          cell.appendChild(select);
+        }
+        tr.appendChild(cell);
+      });
+      body.appendChild(tr);
+    });
+    table.append(head, body);
+    wrap.appendChild(table);
+    qualitativeGraphContent.append(intro, wrap);
+  } else {
+    const intro = document.createElement("p");
+    intro.className = "help-intro";
+    intro.textContent = t("qualitativeGraph.states.intro");
+    const list = document.createElement("div");
+    list.className = "qualitative-graph-state-list";
+    wizard.variables.forEach((name) => {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = wizard.stateNames.has(name);
+      input.addEventListener("change", () => {
+        if (input.checked) wizard.stateNames.add(name);
+        else wizard.stateNames.delete(name);
+      });
+      label.append(input, document.createTextNode(name));
+      list.appendChild(label);
+    });
+    const note = document.createElement("div");
+    note.className = "qualitative-graph-limit";
+    note.textContent = t("qualitativeGraph.states.empty");
+    qualitativeGraphContent.append(intro, list, note);
+  }
+
+  qualitativeGraphBackBtn.disabled = wizard.step === 1;
+  qualitativeGraphNextBtn.textContent = t(wizard.step === 3 ? "action.create" : "action.next");
+}
+
+function layoutQualitativeGraph(count, links) {
+  const center = graph.nodes.length
+    ? { x: Math.max(...graph.nodes.map((node) => node.x)) + 280, y: Math.max(220, Math.round(graph.nodes.reduce((sum, node) => sum + node.y, 0) / graph.nodes.length)) }
+    : { x: 420, y: 280 };
+  // Keep the two-node layout compact, then expand all spacing by 20% for
+  // each additional node so denser qualitative graphs remain readable.
+  const spacingScale = 1 + Math.max(0, count - 2) * 0.2;
+  const radius = Math.max(135, count * 34) * spacingScale;
+  const points = Array.from({ length: count }, (_item, index) => {
+    const angle = (Math.PI * 2 * index) / Math.max(1, count) - Math.PI / 2;
+    return { x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius };
+  });
+  const existing = graph.nodes.map((node) => ({ x: node.x, y: node.y }));
+  const minDistance = 135 * spacingScale;
+  const linkedDistance = 185 * spacingScale;
+  for (let iteration = 0; iteration < 90; iteration += 1) {
+    for (let left = 0; left < count; left += 1) {
+      for (let right = left + 1; right < count; right += 1) {
+        let dx = points[right].x - points[left].x;
+        let dy = points[right].y - points[left].y;
+        let distance = Math.hypot(dx, dy);
+        if (distance < 0.001) { dx = 1; dy = 0; distance = 1; }
+        const ux = dx / distance;
+        const uy = dy / distance;
+        const linked = links[left][right] || links[right][left];
+        const force = linked
+          ? (distance - linkedDistance) * 0.028
+          : -Math.min(18, 7200 / (distance * distance));
+        points[left].x += ux * force;
+        points[left].y += uy * force;
+        points[right].x -= ux * force;
+        points[right].y -= uy * force;
+        if (distance < minDistance) {
+          const push = (minDistance - distance) * 0.16;
+          points[left].x -= ux * push;
+          points[left].y -= uy * push;
+          points[right].x += ux * push;
+          points[right].y += uy * push;
+        }
+      }
+      existing.forEach((node) => {
+        const dx = points[left].x - node.x;
+        const dy = points[left].y - node.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        if (distance < minDistance) {
+          const push = (minDistance - distance) * 0.2;
+          points[left].x += (dx / distance) * push;
+          points[left].y += (dy / distance) * push;
+        }
+      });
+      points[left].x += (center.x - points[left].x) * 0.012;
+      points[left].y += (center.y - points[left].y) * 0.012;
+    }
+  }
+  return points.map((point) => ({ x: snap(point.x), y: snap(point.y) }));
+}
+
+function createQualitativeGraphFromWizard() {
+  const names = qualitativeGraphWizard.variables.map((name) => String(name).trim());
+  const links = qualitativeGraphWizard.matrix.map((row) => row.map((value) => value === "1"));
+  const positions = layoutQualitativeGraph(names.length, links);
+  let edgeCount = 0;
+  runAction(() => {
+    const ids = names.map((name, index) => {
+      const state = qualitativeGraphWizard.stateNames.has(name);
+      const node = {
+        id: nodeCounter++, name, input: false, output: false, global: false,
+        shape: state ? "rect" : "ellipse", x: positions[index].x, y: positions[index].y,
+        width: 120, height: 70, fillColor: "", strokeColor: "", valueExpression: "",
+        initialStateExpression: "", modelPath: "", inputBindings: {},
+        interfaceCache: emptySubmodelInterfaceCache(), submodelError: "", computedValue: null,
+        computedError: "", pendingStateValue: null, pendingStateError: "", properties: [],
+      };
+      normalizeNodeDescriptionProperty(node);
+      normalizeNodeFormulaNotesProperty(node);
+      sanitizeNodeVisualOptions(node);
+      graph.nodes.push(node);
+      return node.id;
+    });
+    links.forEach((row, from) => row.forEach((linked, to) => {
+      if (!linked || from === to) return;
+      graph.edges.push({ id: edgeCounter++, from: ids[from], to: ids[to], controlPoints: [] });
+      edgeCount += 1;
+    }));
+    setNodeSelection(ids, false);
+  });
+  closeQualitativeGraphWizard();
+  setStatusKey("status.qualitativeGraphCreated", { nodes: names.length, edges: edgeCount });
+}
+
+function openQualitativeGraphWizard() {
+  if (!qualitativeGraphWizardModal) return;
+  resetQualitativeGraphWizard();
+  renderQualitativeGraphWizard();
+  qualitativeGraphWizardModal.classList.remove("hidden");
+}
+
+function closeQualitativeGraphWizard() {
+  qualitativeGraphWizardModal?.classList.add("hidden");
+}
+
+function advanceQualitativeGraphWizard() {
+  if (qualitativeGraphWizard.step === 1) {
+    qualitativeGraphWizard.variables = qualitativeGraphWizard.variables.map((name) => String(name).trim()).filter(Boolean);
+    if (!qualitativeGraphNamesAreValid()) {
+      setStatus(t("qualitativeGraph.error.variables"), true);
+      return;
+    }
+    initializeQualitativeGraphMatrix();
+    qualitativeGraphWizard.step = 2;
+  } else if (qualitativeGraphWizard.step === 2) {
+    if (!qualitativeGraphMatrixIsValid()) {
+      setStatus(t("qualitativeGraph.error.matrix"), true);
+      return;
+    }
+    qualitativeGraphWizard.step = 3;
+  } else {
+    createQualitativeGraphFromWizard();
+    return;
+  }
+  renderQualitativeGraphWizard();
+}
+
 
 function refreshSidebar() {
   syncNodeSelectionFocus();
@@ -9691,6 +10307,46 @@ function refreshSidebar() {
     const summary = document.createElement("div");
     summary.textContent = `${from?.name || edge.from} -> ${to?.name || edge.to}`;
     edgeInfo.appendChild(summary);
+
+    const labelSection = document.createElement("section");
+    labelSection.className = "edge-label-config";
+    const labelTitle = document.createElement("h4");
+    labelTitle.textContent = t("panel.edgeLabel");
+    const labelValue = normalizeEdgeLabel(edge.label);
+    const textLabel = document.createElement("label");
+    textLabel.textContent = t("label.edgeLabel");
+    const textInput = document.createElement("input");
+    textInput.type = "text";
+    textInput.value = labelValue?.text || "";
+    textInput.addEventListener("change", () => {
+      const text = textInput.value.trim();
+      runAction(() => {
+        const target = getEdgeById(edgeId);
+        if (!target) return;
+        if (!text) {
+          target.label = null;
+          return;
+        }
+        target.label = { ...(normalizeEdgeLabel(target.label) || defaultEdgeLabel(target)), text };
+      });
+    });
+    textLabel.appendChild(textInput);
+
+    const transparentLabel = document.createElement("label");
+    transparentLabel.className = "edge-label-transparent-row";
+    const transparentInput = document.createElement("input");
+    transparentInput.type = "checkbox";
+    transparentInput.checked = Boolean(labelValue?.transparent);
+    transparentInput.disabled = !labelValue;
+    transparentInput.addEventListener("change", () => {
+      runAction(() => {
+        const target = getEdgeById(edgeId);
+        if (target?.label) target.label.transparent = transparentInput.checked;
+      });
+    });
+    transparentLabel.append(transparentInput, document.createTextNode(t("label.edgeLabelTransparent")));
+    labelSection.append(labelTitle, textLabel, transparentLabel);
+    edgeInfo.appendChild(labelSection);
 
     return;
   }
@@ -10560,6 +11216,84 @@ function render(options = {}) {
     g.appendChild(path);
     g.appendChild(hit);
 
+    const edgeLabel = normalizeEdgeLabel(edge.label);
+    if (edgeLabel) {
+      const labelGroup = document.createElementNS(SVG_NS, "g");
+      labelGroup.classList.add("edge-label");
+      if (edgeLabel.transparent) {
+        labelGroup.classList.add("transparent");
+      }
+      if (ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
+        labelGroup.classList.add("selected");
+      }
+      labelGroup.setAttribute(
+        "transform",
+        `translate(${edgeLabel.x} ${edgeLabel.y}) rotate(${edgeLabel.rotation})`,
+      );
+      const labelWidth = Math.max(42, edgeLabel.text.length * 7.4 + 12);
+      const labelHit = document.createElementNS(SVG_NS, "rect");
+      labelHit.classList.add("edge-label-hit");
+      labelHit.setAttribute("x", String(-labelWidth / 2));
+      labelHit.setAttribute("y", "-14");
+      labelHit.setAttribute("width", String(labelWidth));
+      labelHit.setAttribute("height", "22");
+      const labelText = document.createElementNS(SVG_NS, "text");
+      labelText.classList.add("edge-label-text");
+      labelText.setAttribute("text-anchor", "middle");
+      labelText.textContent = edgeLabel.text;
+      labelGroup.append(labelHit, labelText);
+
+      if (ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
+        const rotateHandle = document.createElementNS(SVG_NS, "g");
+        rotateHandle.classList.add("edge-label-rotate-handle");
+        rotateHandle.setAttribute("transform", "translate(0 -30)");
+        const rotateCircle = document.createElementNS(SVG_NS, "circle");
+        rotateCircle.setAttribute("r", "9");
+        const rotateIcon = document.createElementNS(SVG_NS, "path");
+        rotateIcon.setAttribute("d", "M 3 -4 A 5.5 5.5 0 1 0 5 2 M 3 -4 L 6 -4 L 6 -1");
+        rotateHandle.append(rotateCircle, rotateIcon);
+        rotateHandle.addEventListener("pointerdown", (evt) => {
+          if (evt.button !== 0 || isTabletCanvasPanMode() || isEditingUiLocked()) return;
+          evt.preventDefault();
+          evt.stopPropagation();
+          ui.edgeLabelRotate = { edgeId: edge.id, pointerId: evt.pointerId };
+          rotateHandle.setPointerCapture?.(evt.pointerId);
+          beginTransaction();
+        });
+        labelGroup.appendChild(rotateHandle);
+      }
+
+      labelGroup.addEventListener("contextmenu", (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        if (isEditingUiLocked()) return;
+        selectEdgeLabel(edge.id);
+        render();
+        openEdgeContextMenu(evt, edge.id, svgPointFromClient(evt.clientX, evt.clientY));
+      });
+      labelGroup.addEventListener("pointerdown", (evt) => {
+        if (evt.button !== 0 || isTabletCanvasPanMode()) return;
+        evt.preventDefault();
+        evt.stopPropagation();
+        selectEdgeLabel(edge.id);
+        if (isEditingUiLocked()) {
+          render();
+          return;
+        }
+        const p = svgPoint(evt);
+        ui.edgeLabelDrag = {
+          edgeId: edge.id,
+          pointerId: evt.pointerId,
+          offsetX: p.x - edgeLabel.x,
+          offsetY: p.y - edgeLabel.y,
+        };
+        labelGroup.setPointerCapture?.(evt.pointerId);
+        beginTransaction();
+        render();
+      });
+      g.appendChild(labelGroup);
+    }
+
     if (isSelected) {
       edge.controlPoints.forEach((cp, idx) => {
         const cpCircle = document.createElementNS(SVG_NS, "circle");
@@ -11266,6 +12000,7 @@ function importGraphData(data) {
       controlPoints: Array.isArray(e.controlPoints)
         ? e.controlPoints.filter(isValidPoint).map((cp) => ({ x: cp.x, y: cp.y }))
         : [],
+      label: normalizeEdgeLabel(e.label),
     }));
 
   const textItems = Array.isArray(data.textItems)
@@ -11450,6 +12185,7 @@ function importGraphData(data) {
   applyGraphData({
     version: 1,
     modelTitle: String(data.modelTitle ?? ""),
+    externalData: normalizeExternalDataEntries(data?.externalData),
     localFunctions: Array.isArray(data?.localFunctions)
       ? data.localFunctions.map((definition) => sanitizeLocalFunctionDefinition(definition))
       : [],
@@ -11485,7 +12221,7 @@ function importGraphData(data) {
     edges,
     textItems,
     widgets,
-  });
+  }, { deferReadDataInitialization: true });
 }
 
 function defaultGraphFilename() {
@@ -11646,6 +12382,7 @@ function loadGraphFromJsonText(jsonText, sourceName = "", fileHandle = null, dir
     history.redo = [];
     updateHistoryButtons();
     ui.submodelsPrepared = false;
+    const loadedModel = graph;
     if (effectiveDirectoryHandle) {
       const label = derivedDirectoryHandleDisplayName(effectiveDirectoryHandle);
       if (label) {
@@ -11656,6 +12393,24 @@ function loadGraphFromJsonText(jsonText, sourceName = "", fileHandle = null, dir
     } else {
       setStatusKey("status.loaded");
     }
+    void (async () => {
+      const missing = await resolveLinkedReadDataFilesAfterLoad(loadedModel, effectiveDirectoryHandle);
+      if (graph !== loadedModel) {
+        return;
+      }
+      if (missing.length) {
+        setStatusKey("status.linkedDataMissing", { paths: missing.join(", ") }, "warning");
+        return;
+      }
+      try {
+        await prepareReadDataCachesForModelTree(loadedModel);
+        initializeStateNodes(loadedModel.execution.t0);
+        invalidateExpressionPreviewInitializationCache();
+        render();
+      } catch (err) {
+        setStatus(localizeExpressionErrorMessage(String(err?.message || "")), "error");
+      }
+    })();
     window.requestAnimationFrame(() => {
       if (!data?.view || typeof data.view !== "object") {
         fitToContent();
@@ -11714,6 +12469,58 @@ async function getModelDirectoryHandleForReadData(model) {
     return window.STGraphXPlatform.createDirectoryHandleFromDirectoryPath(directoryPath);
   }
   throw new Error("readData requires access to the model folder");
+}
+
+async function getLinkedReadDataFile(model, relativePath) {
+  const path = normalizeReadDataPath(relativePath);
+  const entry = path && Array.isArray(model?.externalData)
+    ? model.externalData.find((item) => item.path === path)
+    : null;
+  if (!entry) {
+    return null;
+  }
+  let handle = linkedReadDataFileHandles.get(path) || null;
+  if (!handle && entry.id && linkedDataHandleStore) {
+    try {
+      handle = await linkedDataHandleStore.get(entry.id) || null;
+      if (handle) {
+        linkedReadDataFileHandles.set(path, typeof handle.getFile === "function" ? handle : createPseudoFileHandle(handle));
+      }
+    } catch (_err) {
+      handle = null;
+    }
+  }
+  if (!handle) {
+    return null;
+  }
+  return typeof handle.getFile === "function" ? handle.getFile() : handle;
+}
+
+async function resolveLinkedReadDataFilesAfterLoad(model, directoryHandle) {
+  const paths = Array.isArray(model?.externalData)
+    ? model.externalData.map((entry) => normalizeReadDataPath(entry?.path)).filter(Boolean)
+    : [];
+  if (!paths.length) {
+    return [];
+  }
+  const missing = [];
+  for (const path of paths) {
+    try {
+      const cachedFile = await getLinkedReadDataFile(model, path);
+      if (cachedFile) {
+        continue;
+      }
+      if (!directoryHandle?.getFileHandle) throw new Error("Model directory is unavailable");
+      const handle = await directoryHandle.getFileHandle(path);
+      await handle.getFile();
+      if (model === graph) {
+        linkedReadDataFileHandles.set(path, handle);
+      }
+    } catch (_err) {
+      missing.push(path);
+    }
+  }
+  return missing;
 }
 
 async function prepareReadDataCacheForModel(model) {
@@ -12086,6 +12893,8 @@ function resetGraphToEmptyModel() {
   graph.modelTitle = "";
   graph.properties = [];
   graph.localFunctions = [];
+  graph.externalData = [];
+  linkedReadDataFileHandles.clear();
   graph.nodes = [];
   graph.edges = [];
   graph.textItems = [];
@@ -12232,6 +13041,7 @@ const runtimeLoader = globalThis.STGraphXRuntimeLoader?.createRuntimeLoader({
     return normalized ? submodelTemplateCache.get(normalized) || null : null;
   },
   getDirectoryHandleForModel: async (model) => getModelDirectoryHandleForReadData(model),
+  getLinkedReadDataFile,
 });
 
 if (!runtimeLoader) {
@@ -13054,6 +13864,24 @@ window.addEventListener("pointermove", (evt) => {
     }
   }
 
+  if (ui.edgeLabelDrag && evt.pointerId === ui.edgeLabelDrag.pointerId) {
+    const edge = getEdgeById(ui.edgeLabelDrag.edgeId);
+    if (edge?.label) {
+      edge.label.x = ui.snapToGrid ? snap(pRaw.x - ui.edgeLabelDrag.offsetX) : pRaw.x - ui.edgeLabelDrag.offsetX;
+      edge.label.y = ui.snapToGrid ? snap(pRaw.y - ui.edgeLabelDrag.offsetY) : pRaw.y - ui.edgeLabelDrag.offsetY;
+      render();
+    }
+  }
+
+  if (ui.edgeLabelRotate && evt.pointerId === ui.edgeLabelRotate.pointerId) {
+    const edge = getEdgeById(ui.edgeLabelRotate.edgeId);
+    if (edge?.label) {
+      const angle = Math.atan2(pRaw.y - edge.label.y, pRaw.x - edge.label.x) * (180 / Math.PI);
+      edge.label.rotation = angle + 90;
+      render();
+    }
+  }
+
   if (ui.marquee && evt.pointerId === ui.marquee.pointerId) {
     ui.marquee.current = pRaw;
     const rect = marqueeRect(ui.marquee);
@@ -13259,6 +14087,18 @@ window.addEventListener("pointerup", (evt) => {
     needsRender = true;
   }
 
+  if (ui.edgeLabelDrag && evt.pointerId === ui.edgeLabelDrag.pointerId) {
+    ui.edgeLabelDrag = null;
+    commitTransaction();
+    needsRender = true;
+  }
+
+  if (ui.edgeLabelRotate && evt.pointerId === ui.edgeLabelRotate.pointerId) {
+    ui.edgeLabelRotate = null;
+    commitTransaction();
+    needsRender = true;
+  }
+
   if (ui.sliderInteraction?.mode === "range") {
     ui.sliderInteraction = null;
     needsRender = true;
@@ -13267,7 +14107,7 @@ window.addEventListener("pointerup", (evt) => {
   if (needsRender) {
     render();
   }
-  if (!ui.drag && !ui.resize && !ui.edgeCreate && !ui.controlPointDrag && !ui.marquee && !ui.widgetDrag && !ui.widgetResize && !ui.textDrag && !ui.textResize) {
+  if (!ui.drag && !ui.resize && !ui.edgeCreate && !ui.controlPointDrag && !ui.edgeLabelDrag && !ui.edgeLabelRotate && !ui.marquee && !ui.widgetDrag && !ui.widgetResize && !ui.textDrag && !ui.textResize) {
     svg.style.cursor = "";
   }
 });
@@ -13296,7 +14136,7 @@ window.addEventListener("mouseup", (evt) => {
 svg.addEventListener("pointerleave", () => {
   ui.edgeCreateHoverId = null;
   ui.edgeCreateLastPoint = null;
-  if (!ui.drag && !ui.resize && !ui.controlPointDrag && !ui.edgeCreate && !ui.marquee && !ui.widgetDrag && !ui.widgetResize && !ui.textDrag && !ui.textResize) {
+  if (!ui.drag && !ui.resize && !ui.controlPointDrag && !ui.edgeLabelDrag && !ui.edgeLabelRotate && !ui.edgeCreate && !ui.marquee && !ui.widgetDrag && !ui.widgetResize && !ui.textDrag && !ui.textResize) {
     svg.style.cursor = "";
   }
 });
@@ -13525,6 +14365,13 @@ if (addSubmodelNodeItem) {
   });
 }
 
+if (qualitativeGraphBuilderItem) {
+  qualitativeGraphBuilderItem.addEventListener("click", () => {
+    closeTopMenus();
+    openQualitativeGraphWizard();
+  });
+}
+
 if (addTextItem) {
   addTextItem.addEventListener("click", () => {
     runAction(() => {
@@ -13744,6 +14591,12 @@ if (exportCsvBtn) {
   exportCsvBtn.addEventListener("click", () => {
     closeTopMenus();
     void exportSimulationCsv();
+  });
+}
+if (manageDataLinksBtn) {
+  manageDataLinksBtn.addEventListener("click", () => {
+    closeTopMenus();
+    void openDataLinksDialog();
   });
 }
 loadJsonBtn.addEventListener("click", openGraphJson);
@@ -14790,6 +15643,7 @@ if (expressionEditorModal) {
   }
 }
 bindModalDragHandle(functionsHelpModal, ".functions-help-card");
+bindModalDragHandle(dataLinksModal, ".data-links-card");
 bindModalDragHandle(examplesHelpModal, ".examples-help-card");
 bindModalDragHandle(aboutAppModal, ".about-app-card");
 bindModalDragHandle(modelAnalysisModal, ".model-analysis-card");
@@ -14839,6 +15693,34 @@ if (functionsHelpCloseBtn) {
 }
 if (functionsHelpDismissBtn) {
   functionsHelpDismissBtn.addEventListener("click", closeFunctionsHelp);
+}
+if (dataLinksCloseBtn) {
+  dataLinksCloseBtn.addEventListener("click", closeDataLinksDialog);
+}
+if (dataLinksDismissBtn) {
+  dataLinksDismissBtn.addEventListener("click", closeDataLinksDialog);
+}
+if (addLinkedDataBtn) {
+  addLinkedDataBtn.addEventListener("click", () => {
+    void linkExternalCsvFiles().then(() => renderDataLinksDialog());
+  });
+}
+if (qualitativeGraphCloseBtn) {
+  qualitativeGraphCloseBtn.addEventListener("click", closeQualitativeGraphWizard);
+}
+if (qualitativeGraphCancelBtn) {
+  qualitativeGraphCancelBtn.addEventListener("click", closeQualitativeGraphWizard);
+}
+if (qualitativeGraphBackBtn) {
+  qualitativeGraphBackBtn.addEventListener("click", () => {
+    if (qualitativeGraphWizard.step > 1) {
+      qualitativeGraphWizard.step -= 1;
+      renderQualitativeGraphWizard();
+    }
+  });
+}
+if (qualitativeGraphNextBtn) {
+  qualitativeGraphNextBtn.addEventListener("click", advanceQualitativeGraphWizard);
 }
 if (functionsHelpSearch) {
   functionsHelpSearch.addEventListener("input", renderFunctionsHelp);
@@ -14970,6 +15852,20 @@ if (functionsHelpModal) {
   functionsHelpModal.addEventListener("pointerdown", (evt) => {
     if (evt.target === functionsHelpModal) {
       closeFunctionsHelp();
+    }
+  });
+}
+if (dataLinksModal) {
+  dataLinksModal.addEventListener("pointerdown", (evt) => {
+    if (evt.target === dataLinksModal) {
+      closeDataLinksDialog();
+    }
+  });
+}
+if (qualitativeGraphWizardModal) {
+  qualitativeGraphWizardModal.addEventListener("pointerdown", (evt) => {
+    if (evt.target === qualitativeGraphWizardModal) {
+      closeQualitativeGraphWizard();
     }
   });
 }
@@ -15258,6 +16154,22 @@ document.addEventListener("keydown", (evt) => {
     return;
   }
 
+  if (!dataLinksModal?.classList.contains("hidden")) {
+    if (evt.key === "Escape") {
+      evt.preventDefault();
+      closeDataLinksDialog();
+    }
+    return;
+  }
+
+  if (!qualitativeGraphWizardModal?.classList.contains("hidden")) {
+    if (evt.key === "Escape") {
+      evt.preventDefault();
+      closeQualitativeGraphWizard();
+    }
+    return;
+  }
+
   if (!functionsHelpModal?.classList.contains("hidden")) {
     if (evt.key === "Escape" || evt.key === "F1") {
       evt.preventDefault();
@@ -15477,7 +16389,7 @@ document.addEventListener("keydown", (evt) => {
   if (evt.key === "Escape") {
     hideContextMenu();
     closeTopMenus();
-    if (ui.drag || ui.resize || ui.edgeCreate || ui.controlPointDrag || ui.marquee) {
+    if (ui.drag || ui.resize || ui.edgeCreate || ui.controlPointDrag || ui.edgeLabelDrag || ui.edgeLabelRotate || ui.marquee) {
       cancelTransaction();
       ui.drag = null;
       ui.resize = null;
@@ -15485,6 +16397,8 @@ document.addEventListener("keydown", (evt) => {
       ui.edgeCreateHoverId = null;
       ui.edgeCreateLastPoint = null;
       ui.controlPointDrag = null;
+      ui.edgeLabelDrag = null;
+      ui.edgeLabelRotate = null;
       ui.marquee = null;
       stopTimedExecution(false);
       setStatusKey("status.cancelOp");

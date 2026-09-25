@@ -107,6 +107,13 @@
           controlPoints: Array.isArray(e.controlPoints)
             ? e.controlPoints.filter((cp) => Number.isFinite(cp?.x) && Number.isFinite(cp?.y)).map((cp) => ({ x: cp.x, y: cp.y }))
             : [],
+          label: String(e?.label?.text ?? "").trim() ? {
+            text: String(e.label.text).trim(),
+            x: Number.isFinite(Number(e.label.x)) ? Number(e.label.x) : 0,
+            y: Number.isFinite(Number(e.label.y)) ? Number(e.label.y) : 0,
+            rotation: Number.isFinite(Number(e.label.rotation)) ? Number(e.label.rotation) : 0,
+            transparent: Boolean(e.label.transparent),
+          } : null,
         }));
 
       return {
@@ -116,6 +123,9 @@
           : [],
         localFunctions: Array.isArray(data?.localFunctions)
           ? data.localFunctions.map((definition) => sanitizeLocalFunctionDefinition(definition))
+          : [],
+        externalData: Array.isArray(data?.externalData)
+          ? data.externalData.map((entry) => ({ id: String(entry?.id ?? ""), path: String(entry?.path ?? ""), type: "csv" })).filter((entry) => entry.path)
           : [],
         debug: {
           watches: Array.isArray(data?.debug?.watches) ? data.debug.watches.map((name) => String(name ?? "")) : [],

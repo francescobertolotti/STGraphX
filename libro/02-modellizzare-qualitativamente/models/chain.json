@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "modelTitle": "",
+  "externalData": [],
+  "localFunctions": [],
+  "view": {
+    "zoom": 1,
+    "showGrid": false,
+    "highlightNodeEdges": true,
+    "showNodeValues": true,
+    "gridSize": 20,
+    "tooltipDelayMs": 300,
+    "scrollLeft": 0,
+    "scrollTop": 0
+  },
+  "debug": {
+    "watches": [],
+    "breakpointEnabled": false,
+    "breakpointExpression": ""
+  },
+  "modelProperties": [],
+  "nodeCounter": 4,
+  "edgeCounter": 3,
+  "widgetCounter": 1,
+  "textItemCounter": 1,
+  "presentationGroupCounter": 1,
+  "presentationGroups": [],
+  "dashboard": null,
+  "execution": {
+    "t0": 0,
+    "dt": 1,
+    "t1": 5,
+    "delayMs": 500,
+    "renderEverySteps": 1,
+    "decimals": 3,
+    "integrator": "euler",
+    "strictDefinitions": false
+  },
+  "nodes": [
+    {
+      "id": 1,
+      "name": "x",
+      "output": false,
+      "global": false,
+      "type": "algebraic",
+      "x": 180,
+      "y": 20,
+      "width": 120,
+      "height": 70,
+      "fillColor": "",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "input": false,
+      "valueExpression": "randInt(2)"
+    },
+    {
+      "id": 2,
+      "name": "y",
+      "output": false,
+      "global": false,
+      "type": "algebraic",
+      "x": 420,
+      "y": 20,
+      "width": 120,
+      "height": 70,
+      "fillColor": "",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "input": false,
+      "valueExpression": "x+1"
+    },
+    {
+      "id": 3,
+      "name": "z",
+      "output": false,
+      "global": false,
+      "type": "algebraic",
+      "x": 660,
+      "y": 20,
+      "width": 120,
+      "height": 70,
+      "fillColor": "",
+      "strokeColor": "",
+      "properties": [
+        {
+          "key": "formula notes",
+          "value": ""
+        },
+        {
+          "key": "description",
+          "value": ""
+        }
+      ],
+      "input": false,
+      "valueExpression": "y/2"
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "from": 1,
+      "to": 2,
+      "controlPoints": [],
+      "label": null
+    },
+    {
+      "id": 2,
+      "from": 2,
+      "to": 3,
+      "controlPoints": [],
+      "label": null
+    }
+  ],
+  "textItems": [],
+  "widgets": []
+}

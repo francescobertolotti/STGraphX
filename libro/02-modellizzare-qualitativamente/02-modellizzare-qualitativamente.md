@@ -82,7 +82,7 @@ Una delle caratteristiche fondamentali dei grafi è la presenza di soli quattro 
 
 **Catena**. La struttura a catena si verifica quando una variabile $a$ influenza una variabile $b$, e a sua volta la variabile $b$ influenza una terza variabile $c$. Un esempio è l\'aumento delle vendite che porta a un incremento del fatturato, il quale a sua volta determina un aumento del profitto. Matematicamente, questa relazione può essere espressa come $c\  = \ g(f(a))$, dove $f(a)$ e $g(b)$ rappresentano le funzioni che descrivono le dipendenze tra le variabili.
 
-![Immagine 6](images/2.2.png){width="2.7916666666666665in" height="0.7325076552930884in"}
+{{dsgraph-player models/chain.json}}
 
 Altri esempi di sistemi modellabili con una struttura a catena sono:
 
@@ -105,7 +105,7 @@ Altri esempi di sistemi modellabili con una struttura a catena sono:
 
 **Collider**. La struttura di fusione si verifica quando due variabili, $a$ e $b$, influenzano entrambe una terza variabile $c$, per cui $c\  = \ f(a,b)$. In machine learning, questa configurazione è chiamata tipicamente collider. Un esempio è rappresentato da situazioni con concause, in cui una variabile dipende da più fattori, come nel caso del fatturato influenzato sia dalle vendite che dai costi contemporaneamente, e non in modo sequenziale come nel caso della catena. Nelle relazioni causa-effetto, la presenza di più cause che convergono su uno o più effetti rende complesso distinguere l\'effetto specifico di ciascuna causa. Un esempio concreto è rappresentato dall'analisi dell'efficacia delle misure di contenimento del COVID-19, come l'uso delle mascherine e i lockdown, nella riduzione dei contagi, dove è difficile isolare il contributo di ciascuna misura.
 
-![Immagine 7](images/2.3.png){width="2.1180555555555554in" height="1.3767366579177602in"}
+{{dsgraph-player models/merge.json}}
 
 Altri esempi di sistemi modellabili con una struttura a collider sono:
 
@@ -139,7 +139,7 @@ Altri esempi di sistemi modellabili con una struttura a collider sono:
 
 **Fork**. La struttura a "forchetta" si verifica quando una singola variabile $a$ causa più effetti distinti, rappresentati dalle relazioni verso le variabili $b$ e $c$. Matematicamente, questa relazione è espressa attraverso due funzioni separate, come $b\  = \ f(a)$ e $c\  = \ g(a)$. Questo schema consente il calcolo parallelo, poiché non è rilevante quale delle due funzioni venga calcolata per prima. Un esempio di tale struttura si osserva nel caso delle misure di lockdown durante la pandemia di COVID-19, che hanno avuto effetti sia sul livello dei contagi giornalieri che sull'output prodotto dall'economia.
 
-![Immagine 8](images/2.4.png){width="1.8333333333333333in" height="1.1097922134733158in"}
+{{dsgraph-player models/fork.json}}
 
 Altri esempi di sistemi modellabili con una struttura a fork sono:
 
@@ -154,7 +154,7 @@ Altri esempi di sistemi modellabili con una struttura a fork sono:
 
 **Loop**. Il loop rappresenta una delle strutture più interessanti nei sistemi dinamici. In questa configurazione, è ammesso che la variabile $b$ dipenda da $a$ e, allo stesso tempo, $a$ dipenda da $b$, creando un ciclo di retroazione[^cap2-40]. Questo è possibile solo nei sistemi dinamici, in quanto in una rappresentazione statica tale configurazione non sarebbe risolvibile matematicamente: non è possibile scrivere $b\  = \ f(a)$ e $a\  = \ g(b)$ simultaneamente senza conoscere uno dei due valori a priori[^cap2-41]. Questo schema è noto anche come feedback (o feedback loop) ed è alla base di applicazioni come i termostati e il cruise control nei sistemi di controllo automatico[^cap2-42].
 
-![Immagine 9](images/2.5.png){width="1.4375in" height="1.3503783902012247in"}
+{{dsgraph-player models/loop.json}}
 
 Altri esempi di sistemi modellabili con una struttura a loop sono:
 

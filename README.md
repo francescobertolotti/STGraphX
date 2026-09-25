@@ -29,6 +29,14 @@ Si può provare <a href="https://lmari.github.io/STGraphX" target="_blank" rel="
 
 Il file QUICK-START.md contiene informazioni sull'installazione, l'uso, e lo sviluppo di STGraphX.
 
+## Qualitative Graph Building
+
+La procedura guidata `Inserisci > Grafo > Qualitative Graph Building...` crea
+la struttura iniziale di un modello a partire da variabili, relazioni dirette e
+variabili di stato. La metodologia è disponibile in
+[italiano](docs/COSTRUZIONE-GRAFO-QUALITATIVO.md) e in
+[English](docs/QUALITATIVE-GRAPH-BUILDING.md).
+
 ## Download dell'applicazione
 
 Per scaricare la versione desktop di STGraphX (versione attuale: 2026.09.12):

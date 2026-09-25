@@ -3138,6 +3138,18 @@ function removeSelected() {
     return;
   }
 
+  if (ui.selected?.type === "edgeLabel") {
+    runAction(() => {
+      const edge = getEdgeById(ui.selected.id);
+      if (edge) {
+        edge.label = null;
+      }
+      clearAllSelection();
+      setStatusKey("status.edgeLabelDeleted");
+    });
+    return;
+  }
+
   if (ui.selected?.type === "widget") {
     runWidgetAction(() => {
       graph.widgets = graph.widgets.filter((w) => w.id !== ui.selected.id);
@@ -3556,6 +3568,80 @@ function openEdgeContextMenu(evt, edgeId, atPoint) {
       },
       disabled: edge.controlPoints.length === 0,
     },
+    { separator: true },
+    {
+      label: edge.label?.text ? t("context.edge.editLabel") : t("context.edge.addLabel"),
+      action: () => {
+        const current = getEdgeById(edgeId);
+        if (!current) {
+          return;
+        }
+        const text = window.prompt(
+          t("context.edge.editLabel"),
+          String(current.label?.text ?? ""),
+        );
+        if (text == null) {
+          return;
+        }
+        runAction(() => {
+          const target = getEdgeById(edgeId);
+          if (!target) {
+            return;
+          }
+          const trimmed = String(text).trim();
+          if (!trimmed) {
+            target.label = null;
+          } else if (target.label) {
+            target.label.text = trimmed;
+          } else {
+            target.label = defaultEdgeLabel(target, trimmed);
+          }
+          selectEdge(edgeId);
+        });
+      },
+    },
+    {
+      label: t("context.edge.rotateLabel"),
+      action: () => {
+        const current = getEdgeById(edgeId);
+        if (!current?.label) {
+          return;
+        }
+        const rotation = window.prompt(
+          t("context.edge.rotateLabel"),
+          String(Number(current.label.rotation) || 0),
+        );
+        if (rotation == null) {
+          return;
+        }
+        const value = Number(rotation);
+        if (!Number.isFinite(value)) {
+          return;
+        }
+        runAction(() => {
+          const target = getEdgeById(edgeId);
+          if (target?.label) {
+            target.label.rotation = value;
+          }
+        });
+      },
+      disabled: !edge.label?.text,
+    },
+    {
+      label: t("context.edge.deleteLabel"),
+      action: () => {
+        runAction(() => {
+          const target = getEdgeById(edgeId);
+          if (target) {
+            target.label = null;
+          }
+          clearAllSelection();
+        });
+        setStatusKey("status.edgeLabelDeleted");
+      },
+      disabled: !edge.label?.text,
+    },
+    { separator: true },
     {
       label: t("context.edge.delete"),
       action: () => {

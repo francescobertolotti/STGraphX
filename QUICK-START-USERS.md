@@ -74,6 +74,23 @@ Se usi l'editor web:
 - deve esistere una pagina dell'editor già predisposta;
 - i file del modello, dei sottomodelli e dei CSV devono essere raggiungibili dal browser.
 
+### 1.3.1 Collegare dati CSV nell'editor
+
+Per usare un CSV in un parametro senza copiarne il contenuto nel file JSON del
+modello, apri **File > Manage data links** e scegli **Add CSV...**. La finestra
+elenca tutti i collegamenti salvati dal modello e permette di rimuoverli uno a
+uno. Il modello conserva nel JSON il percorso relativo e un identificatore del
+collegamento per ciascun CSV; l'editor mantiene inoltre il consenso al file
+quando il browser lo permette. Alla riapertura prova quindi il collegamento
+salvato e la cartella del modello. Mostra un warning soltanto se uno o più file
+collegati non sono disponibili.
+
+Nel valore di un parametro, digita `readData("` e seleziona uno dei CSV
+suggeriti: con Invio o doppio clic viene completato il percorso tra virgolette.
+Fuori dalla chiamata, il doppio clic inserisce l'espressione completa, ad
+esempio `readData("values.csv")`. Il CSV deve essere rettangolare, cioè ogni
+riga non vuota deve avere lo stesso numero di colonne.
+
 ### 1.4 Dove devono stare i file
 
 Nel caso più semplice:
@@ -100,6 +117,29 @@ Se usi l'editor web:
 
 - sì, normalmente l'editor va usato via `http:` o `https:`;
 - l'uso diretto via `file:` può funzionare solo parzialmente ed è sconsigliato.
+
+### 1.5.1 Etichette delle frecce
+
+Fai clic con il tasto destro su una freccia e scegli **Aggiungi etichetta...**.
+L'etichetta viene creata appena sopra il collegamento e centrata tra i due nodi.
+Nelle proprietà della freccia puoi impostare testo e sfondo trasparente. Puoi
+anche trascinarla; quando è selezionata, trascina la piccola maniglia circolare
+sopra l'etichetta per ruotarla. Puoi cancellarla con
+**Elimina etichetta** oppure selezionandola e premendo Canc/Backspace. Le
+etichette fanno parte del modello e vengono quindi salvate nel JSON.
+
+### 1.5.2 Costruzione qualitativa guidata del grafo
+
+Apri **Inserisci > Grafo > Qualitative Graph Building...** per avviare una
+procedura in tre fasi. Prima inserisci fino a dieci variabili con nomi validi;
+poi compili la matrice delle relazioni scegliendo `1` quando la variabile della
+riga influenza direttamente quella della colonna e `0` (o lasciando il
+selettore vuoto) in assenza di relazione; infine selezioni le variabili di
+stato. Il comando crea
+nodi inizialmente senza espressione, frecce per le relazioni indicate e una
+disposizione automatica che avvicina i nodi collegati e separa quelli non
+collegati. Per la descrizione della metodologia vedi
+`docs/COSTRUZIONE-GRAFO-QUALITATIVO.md`.
 
 ### 1.6 Come si usa
 

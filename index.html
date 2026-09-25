@@ -38,6 +38,7 @@
             <button id="saveAsJsonBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.file.saveAs"><span data-i18n="menu.file.saveAs"></span><span class="menu-shortcut">Ctrl+Shift+S</span></button>
             <button id="closeModelBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.file.close"><span data-i18n="menu.file.close"></span><span class="menu-shortcut">Ctrl+W</span></button>
             <button id="exportCsvBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.file.exportCsv"><span data-i18n="menu.file.exportCsv"></span></button>
+            <button id="manageDataLinksBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.file.manageDataLinks"><span data-i18n="menu.file.manageDataLinks"></span></button>
             <input id="loadJsonInput" type="file" accept="application/json" class="hidden-file" />
           </div>
         </div>
@@ -65,6 +66,9 @@
             <button id="addEllipseNodeItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.ellipse"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">○</span><span data-i18n="menu.insert.ellipse"></span></span><span class="menu-shortcut">Alt+2</span></button>
             <button id="addDiamondNodeItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.diamond"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">◇</span><span data-i18n="menu.insert.diamond"></span></span><span class="menu-shortcut">Alt+3</span></button>
             <button id="addSubmodelNodeItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.submodel"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">▣</span><span data-i18n="menu.insert.submodel"></span></span><span class="menu-shortcut">Alt+4</span></button>
+            <hr class="menu-sep" />
+            <div class="menu-section-title" data-i18n="menu.insert.group.graph"></div>
+            <button id="qualitativeGraphBuilderItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.qualitativeGraph"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">⌘</span><span data-i18n="menu.insert.qualitativeGraph"></span></span></button>
             <hr class="menu-sep" />
             <div class="menu-section-title" data-i18n="menu.insert.group.inputWidgets"></div>
             <button id="addButtonWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.button"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">◉</span><span data-i18n="menu.insert.buttonWidget"></span></span></button>
@@ -511,6 +515,35 @@
         <div id="functionsHelpContent" class="functions-help-content"></div>
         <div class="modal-actions">
           <button id="functionsHelpDismissBtn" type="button" data-i18n="action.close"></button>
+        </div>
+      </div>
+    </div>
+    <div id="dataLinksModal" class="modal-backdrop hidden">
+      <div class="modal-card data-links-card" role="dialog" aria-modal="true" aria-labelledby="dataLinksTitle">
+        <div class="modal-head">
+          <h3 id="dataLinksTitle" data-i18n="dataLinks.title"></h3>
+          <button id="dataLinksCloseBtn" class="icon-btn modal-close-btn" type="button" data-i18n-aria-label="aria.close">×</button>
+        </div>
+        <div class="help-intro" data-i18n="dataLinks.intro"></div>
+        <div id="dataLinksList" class="data-links-list"></div>
+        <div class="modal-actions">
+          <button id="addLinkedDataBtn" type="button" data-i18n="dataLinks.addCsv"></button>
+          <button id="dataLinksDismissBtn" type="button" data-i18n="action.close"></button>
+        </div>
+      </div>
+    </div>
+    <div id="qualitativeGraphWizardModal" class="modal-backdrop hidden">
+      <div class="modal-card qualitative-graph-card" role="dialog" aria-modal="true" aria-labelledby="qualitativeGraphTitle">
+        <div class="modal-head">
+          <h3 id="qualitativeGraphTitle" data-i18n="qualitativeGraph.title"></h3>
+          <button id="qualitativeGraphCloseBtn" class="icon-btn modal-close-btn" type="button" data-i18n-aria-label="aria.close">×</button>
+        </div>
+        <div id="qualitativeGraphSteps" class="qualitative-graph-steps"></div>
+        <div id="qualitativeGraphContent" class="qualitative-graph-content"></div>
+        <div class="modal-actions qualitative-graph-actions">
+          <button id="qualitativeGraphBackBtn" type="button" data-i18n="action.back"></button>
+          <button id="qualitativeGraphCancelBtn" type="button" data-i18n="action.cancel"></button>
+          <button id="qualitativeGraphNextBtn" type="button"></button>
         </div>
       </div>
     </div>

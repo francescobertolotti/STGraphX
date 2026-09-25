@@ -1,6 +1,6 @@
 /*!
  * STGraphX Embedded Player Bundle
- * Generated: 2026-09-19T16:49:06.175Z
+ * Generated: 2026-09-23T12:39:13.615Z
  */
 
 /* --- i18n-inline.js --- */
@@ -93,6 +93,10 @@ window.STGraphXI18nBundles = {
     "context.bg.newBarPlotWidget": "Grafico a barre",
     "context.edge.addCp": "Aggiungi punto controllo qui",
     "context.edge.clearCp": "Rimuovi tutti i punti controllo",
+    "context.edge.addLabel": "Aggiungi etichetta...",
+    "context.edge.editLabel": "Modifica etichetta...",
+    "context.edge.deleteLabel": "Elimina etichetta",
+    "context.edge.rotateLabel": "Imposta rotazione etichetta...",
     "context.edge.delete": "Elimina freccia",
     "context.node.addProp": "Aggiungi proprietà",
     "context.node.delete": "Elimina nodo",
@@ -121,11 +125,19 @@ window.STGraphXI18nBundles = {
     "menu.file.clearRecent": "Svuota recenti",
     "menu.file.close": "Chiudi il modello",
     "menu.file.exportCsv": "Esporta dati CSV...",
+    "menu.file.manageDataLinks": "Gestisci collegamenti dati...",
     "menu.file.load": "Carica modello...",
     "menu.file.new": "Crea modello",
     "menu.file.recent": "Apri recenti",
     "menu.file.save": "Salva",
     "menu.file.saveAs": "Salva con nome...",
+    "dataLinks.title": "Gestisci collegamenti dati",
+    "dataLinks.intro": "I file restano esterni al modello. Il percorso e l'identificatore del collegamento sono salvati nel modello e vengono cercati automaticamente alla riapertura; i file non trovati sono segnalati con un warning.",
+    "dataLinks.addCsv": "Aggiungi CSV...",
+    "dataLinks.remove": "Rimuovi",
+    "dataLinks.empty": "Non sono presenti dati collegati.",
+    "dataLinks.available": "Disponibile in questa sessione",
+    "dataLinks.relinkRequired": "Da ricollegare",
     "menu.help": "Help",
     "menu.help.about": "About...",
     "menu.help.analyze": "Analizza modello...",
@@ -226,11 +238,15 @@ window.STGraphXI18nBundles = {
     "label.value": "Valore",
     "label.valueComputed": "Valore calcolato",
     "label.valueExpr": "Espressione valore",
+    "label.edgeLabel": "Etichetta",
+    "label.edgeLabelRotation": "Rotazione (°)",
+    "label.edgeLabelTransparent": "Sfondo trasparente",
     "label.width": "Larghezza",
     "label.zoom": "Zoom",
     "node.defaultName": "n{id}",
     "node.widgetControlled": "Nodo controllato da un widget di input.",
     "panel.edge": "Freccia",
+    "panel.edgeLabel": "Etichetta della freccia",
     "panel.model": "Modello",
     "panel.node": "Nodo",
     "panel.propertiesList": "Proprietà",
@@ -375,7 +391,12 @@ window.STGraphXI18nBundles = {
     "expr.help.rand": "Numero casuale da una distribuzione di probabilità uniforme. Senza argomenti restituisce un valore tra `0` e `1`; con un argomento tra `0` e `max`; con due argomenti tra `min` e `max`. Esempi: rand() ; rand(10) ; rand(-1, 1).",
     "expr.help.randInt": "Numero intero casuale da una distribuzione di probabilità uniforme. Con un argomento restituisce un intero tra `0` e `max`; con due argomenti tra `min` e `max`. Esempi: randInt(5) ; randInt(2, 7).",
     "expr.help.range": "Una successione numerica con estremo finale escluso. Esempio: `range(4) -> [0,1,2,3]`.",
-    "expr.help.readData": "Matrice di valori numerici e/o testuali letta da un file CSV relativo alla cartella del modello. Disponibile solo nei parametri. Esempio: `readData(\"data/values.csv\")`.",
+    "expr.help.readData": "Matrice di valori numerici e/o testuali letta da un file CSV. Disponibile solo nei parametri. Per collegare un file senza includerlo nel JSON usa File > Gestisci collegamenti dati: percorso e identificatore sono salvati nel modello e cercati automaticamente alla riapertura. Digita quindi `readData(\"` e scegli il CSV suggerito. Le righe del CSV devono avere tutte lo stesso numero di colonne. Esempio: `readData(\"data/values.csv\")`.",
+    "expr.help.linkedData": "File CSV collegato: {path}. Usalo come `readData(\"{path}\")`.",
+    "expr.help.linkedDataCompletionTitle": "Scegli un CSV collegato",
+    "expr.help.linkedDataCompletionHint": "Invio o doppio clic completa il percorso tra virgolette.",
+    "expr.help.linkedDataInsertHint": "Doppio clic inserisce la chiamata; tra virgolette completa solo il percorso.",
+    "expr.help.kind.externalData": "Dati collegati",
     "expr.help.reduce": "Riduzione progressiva di un vettore o di una matrice mediante un operatore o una funzione. Per le matrici axis=0 riduce per colonne, axis=1 per righe. Esempi: reduce(+, [1,2,3]) ; reduce(max, [3,7,2]) ; reduce(+, [[1,2],[3,4]], 0).",
     "expr.help.removeAt": "Una copia senza l'elemento indicato del vettore oppure senza la riga o la colonna indicate della matrice. Per le matrici axis=0 rimuove una riga, axis=1 una colonna. Esempi: removeAt([1,2,3], 1) -> [1,3] ; removeAt([[1,2],[3,4]], 0) -> [[3,4]] ; removeAt([[1,2],[3,4]], 1, 1) -> [[1],[3]].",
     "expr.help.removeRow": "Una copia della matrice senza la riga i. Per matrici agents elimina l'agente i. Esempio: `removeRow(agents, 2)`.",
@@ -766,6 +787,7 @@ window.STGraphXI18nBundles = {
     "status.cpAdded": "Punto di controllo aggiunto.",
     "status.cpCleared": "Punti di controllo rimossi.",
     "status.cpRemoved": "Punto di controllo rimosso.",
+    "status.edgeLabelDeleted": "Etichetta della freccia eliminata.",
     "status.csvExportCanceled": "Esportazione CSV annullata.",
     "status.csvExported": "Dati di simulazione esportati in CSV.",
     "status.edgeCanceled": "Connessione annullata: rilascia su un nodo destinazione.",
@@ -784,6 +806,7 @@ window.STGraphXI18nBundles = {
     "status.highlightNodeEdgesOn": "Evidenziazione frecce del nodo attivata.",
     "status.integratorUpdated": "Integratore impostato a {name}.",
     "status.linkedNodeCreated": "Nuovo nodo collegato creato.",
+    "status.linkedDataMissing": "Dati collegati non disponibili: {paths}.",
     "status.loaded": "Grafo caricato da JSON.",
     "status.modelAnalyzed": "Analisi completata: {count} problemi trovati ({errors} errori, {warnings} warning).",
     "status.modelFolderDerived": "Cartella modello derivata automaticamente: {name}",
@@ -875,6 +898,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.file": "Operazioni sul file del modello: nuovo, carica e salva.",
     "tooltip.menu.file.close": "Chiude il modello nella scheda attiva.",
     "tooltip.menu.file.exportCsv": "Esporta in CSV la storia di simulazione dei nodi marcati come output.",
+    "tooltip.menu.file.manageDataLinks": "Aggiunge, controlla o rimuove i file CSV locali collegati al modello.",
     "tooltip.menu.file.load": "Carica un modello da un file JSON in una nuova scheda.",
     "tooltip.menu.file.new": "Crea un nuovo modello vuoto in una nuova scheda.",
     "tooltip.menu.file.save": "Salva il modello corrente nel file associato o apre il salvataggio se necessario.",
@@ -1099,7 +1123,7 @@ window.STGraphXI18nBundles = {
     "examples.openError": "Impossibile aprire il modello di esempio.",
     "examples.title": "Modelli di esempio",
     "help.group.agent": "Funzioni e variabili per agenti",
-    "help.group.array": "Funzioni per array",
+    "help.group.array": "Funzioni per array e matrici",
     "help.group.functions": "Funzioni generali",
     "help.group.math": "Funzioni matematiche",
     "help.group.probability": "Funzioni statistiche e probabilistiche",
@@ -1253,6 +1277,10 @@ window.STGraphXI18nBundles = {
     "context.bg.newBarPlotWidget": "Bar plot",
     "context.edge.addCp": "Add control point here",
     "context.edge.clearCp": "Remove all control points",
+    "context.edge.addLabel": "Add label...",
+    "context.edge.editLabel": "Edit label...",
+    "context.edge.deleteLabel": "Delete label",
+    "context.edge.rotateLabel": "Set label rotation...",
     "context.edge.delete": "Delete edge",
     "context.node.addProp": "Add property",
     "context.node.delete": "Delete node",
@@ -1281,11 +1309,19 @@ window.STGraphXI18nBundles = {
     "menu.file.clearRecent": "Clear recent",
     "menu.file.close": "Close model",
     "menu.file.exportCsv": "Export CSV data...",
+    "menu.file.manageDataLinks": "Manage data links...",
     "menu.file.load": "Load model...",
     "menu.file.new": "Create model",
     "menu.file.recent": "Open recent",
     "menu.file.save": "Save",
     "menu.file.saveAs": "Save as...",
+    "dataLinks.title": "Manage data links",
+    "dataLinks.intro": "Files remain external to the model. Their paths and link identifiers are saved with the model and looked up automatically when it is reopened; missing files are reported with a warning.",
+    "dataLinks.addCsv": "Add CSV...",
+    "dataLinks.remove": "Remove",
+    "dataLinks.empty": "There is no linked data.",
+    "dataLinks.available": "Available in this session",
+    "dataLinks.relinkRequired": "Relinking required",
     "menu.help": "Help",
     "menu.help.about": "About...",
     "menu.help.analyze": "Analyze model...",
@@ -1386,11 +1422,15 @@ window.STGraphXI18nBundles = {
     "label.value": "Value",
     "label.valueComputed": "Computed value",
     "label.valueExpr": "Value expression",
+    "label.edgeLabel": "Label",
+    "label.edgeLabelRotation": "Rotation (°)",
+    "label.edgeLabelTransparent": "Transparent background",
     "label.width": "Width",
     "label.zoom": "Zoom",
     "node.defaultName": "n{id}",
     "node.widgetControlled": "Node controlled by an input widget.",
     "panel.edge": "Edge",
+    "panel.edgeLabel": "Edge label",
     "panel.model": "Model",
     "panel.node": "Node",
     "panel.propertiesList": "Properties",
@@ -1535,7 +1575,12 @@ window.STGraphXI18nBundles = {
     "expr.help.rand": "Uniform random number. With no arguments it returns a value between 0 and 1; with one argument between 0 and max; with two arguments between min and max. Examples: rand() ; rand(10) ; rand(-1, 1).",
     "expr.help.randInt": "Uniform random integer, with inclusive upper bound. With one argument it returns an integer between 0 and max; with two arguments between min and max. Examples: randInt(5) ; randInt(2, 7).",
     "expr.help.range": "A numeric sequence with exclusive end value. Example: `range(4) -> [0,1,2,3]`.",
-    "expr.help.readData": "Matrix of numeric and/or textual values read from a CSV file relative to the model folder. Available only in parameters. Example: `readData(\"data/values.csv\")`.",
+    "expr.help.readData": "Matrix of numeric and/or textual values read from a CSV file. Available only in parameters. To link a file without including it in JSON, use File > Manage data links: its path and link identifier are saved with the model and looked up automatically when it is reopened. Then type `readData(\"` and choose the suggested CSV. Every CSV row must have the same number of columns. Example: `readData(\"data/values.csv\")`.",
+    "expr.help.linkedData": "Linked CSV file: {path}. Use it as `readData(\"{path}\")`.",
+    "expr.help.linkedDataCompletionTitle": "Choose a linked CSV",
+    "expr.help.linkedDataCompletionHint": "Enter or double-click completes the quoted path.",
+    "expr.help.linkedDataInsertHint": "Double-click inserts the call; inside quotes it completes only the path.",
+    "expr.help.kind.externalData": "Linked data",
     "expr.help.reduce": "Progressive reduction of a vector or matrix. For matrices axis=0 reduces columns, axis=1 reduces rows. Examples: reduce(+, [1,2,3]) ; reduce(max, [3,7,2]) ; reduce(+, [[1,2],[3,4]], 0).",
     "expr.help.removeAt": "A copy without the selected vector element or without the selected matrix row or column. For matrices axis=0 removes a row, axis=1 a column. Examples: removeAt([1,2,3], 1) -> [1,3] ; removeAt([[1,2],[3,4]], 0) -> [[3,4]] ; removeAt([[1,2],[3,4]], 1, 1) -> [[1],[3]].",
     "expr.help.removeRow": "A copy of the matrix without row i. For agent matrices it removes agent i. Example: `removeRow(agents, 2)`.",
@@ -1926,6 +1971,7 @@ window.STGraphXI18nBundles = {
     "status.cpAdded": "Control point added.",
     "status.cpCleared": "Control points removed.",
     "status.cpRemoved": "Control point removed.",
+    "status.edgeLabelDeleted": "Edge label deleted.",
     "status.csvExportCanceled": "CSV export canceled.",
     "status.csvExported": "Simulation data exported as CSV.",
     "status.edgeCanceled": "Connection canceled: release over a destination node.",
@@ -1944,6 +1990,7 @@ window.STGraphXI18nBundles = {
     "status.highlightNodeEdgesOn": "Node-edge highlighting enabled.",
     "status.integratorUpdated": "Integrator set to {name}.",
     "status.linkedNodeCreated": "New linked node created.",
+    "status.linkedDataMissing": "Linked data unavailable: {paths}.",
     "status.loaded": "Graph loaded from JSON.",
     "status.modelAnalyzed": "Analysis completed: {count} issues found ({errors} errors, {warnings} warnings).",
     "status.modelFolderDerived": "Model folder derived automatically: {name}",
@@ -2035,6 +2082,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.file": "Model file operations: create, load, and save.",
     "tooltip.menu.file.close": "Closes the model in the active tab.",
     "tooltip.menu.file.exportCsv": "Exports CSV simulation history for nodes marked as output.",
+    "tooltip.menu.file.manageDataLinks": "Adds, reviews, or removes local CSV files linked to the model.",
     "tooltip.menu.file.load": "Loads a model from a JSON file in a new tab.",
     "tooltip.menu.file.new": "Creates a new empty model in a new tab.",
     "tooltip.menu.file.save": "Saves the current model to the associated file or opens save flow if needed.",
@@ -2259,7 +2307,7 @@ window.STGraphXI18nBundles = {
     "examples.openError": "Unable to open the example model.",
     "examples.title": "Example models",
     "help.group.agent": "Agent functions and variables",
-    "help.group.array": "Array functions",
+    "help.group.array": "Array and matrix functions",
     "help.group.functions": "General functions",
     "help.group.math": "Math functions",
     "help.group.probability": "Statistical and probabilistic functions",
@@ -4259,25 +4307,19 @@ window.STGraphXI18nBundles = {
       agents: { kind: "agent", signature: "agents(fieldNames[, rowsOrCount])", descriptionKey: "expr.help.agents", insertText: "agents()", cursorOffset: 7, helpSection: "agent" },
       agentSpace: { kind: "agent", signature: "agentSpace(agents, xCol, yCol[, idCol][, [rows, cols][, neighborhood[, toroidal[, radius]]]])", descriptionKey: "expr.help.agentSpace", insertText: "agentSpace()", cursorOffset: 11, helpSection: "agent" },
       allNeighborCounts: { kind: "agent", signature: "allNeighborCounts(agents, space)", descriptionKey: "expr.help.allNeighborCounts", insertText: "allNeighborCounts()", cursorOffset: 18, helpSection: "agent" },
-      appendRow: { kind: "agent", signature: "appendRow(matrix, row)", descriptionKey: "expr.help.appendRow", insertText: "appendRow()", cursorOffset: 10, helpSection: "agent" },
-      col: { kind: "agent", signature: "col(matrix, j)", descriptionKey: "expr.help.col", insertText: "col()", cursorOffset: 4, helpSection: "agent" },
       filterAgents: { kind: "agent", signature: "filterAgents(cond, agents)", descriptionKey: "expr.help.filterAgents", insertText: "filterAgents()", cursorOffset: 13, helpSection: "agent" },
       mapAgents: { kind: "agent", signature: "mapAgents(expr, agents)", descriptionKey: "expr.help.mapAgents", insertText: "mapAgents()", cursorOffset: 10, helpSection: "agent" },
       neighborCountOf: { kind: "agent", signature: "neighborCountOf(agents, space, i)", descriptionKey: "expr.help.neighborCountOf", insertText: "neighborCountOf()", cursorOffset: 16, helpSection: "agent" },
       neighborsOf: { kind: "agent", signature: "neighborsOf(agents, space, i)", descriptionKey: "expr.help.neighborsOf", insertText: "neighborsOf()", cursorOffset: 12, helpSection: "agent" },
-      ncols: { kind: "agent", signature: "ncols(matrix)", descriptionKey: "expr.help.ncols", insertText: "ncols()", cursorOffset: 6, helpSection: "agent" },
-      nrows: { kind: "agent", signature: "nrows(matrix)", descriptionKey: "expr.help.nrows", insertText: "nrows()", cursorOffset: 6, helpSection: "agent" },
-      removeRow: { kind: "agent", signature: "removeRow(matrix, i)", descriptionKey: "expr.help.removeRow", insertText: "removeRow()", cursorOffset: 10, helpSection: "agent" },
-      row: { kind: "agent", signature: "row(matrix, i)", descriptionKey: "expr.help.row", insertText: "row()", cursorOffset: 4, helpSection: "agent" },
-      setCol: { kind: "agent", signature: "setCol(matrix, j, vector)", descriptionKey: "expr.help.setCol", insertText: "setCol()", cursorOffset: 7, helpSection: "agent" },
-      setRow: { kind: "agent", signature: "setRow(matrix, i, row)", descriptionKey: "expr.help.setRow", insertText: "setRow()", cursorOffset: 7, helpSection: "agent" },
       spaceMatrix: { kind: "agent", signature: "spaceMatrix(space)", descriptionKey: "expr.help.spaceMatrix", insertText: "spaceMatrix()", cursorOffset: 12, helpSection: "agent" },
 
       // Array functions
       append: { kind: "array", signature: "append(vector, value|vector) | append(value, vector) | append(matrix, rowVector)", descriptionKey: "expr.help.append", insertText: "append()", cursorOffset: 7 },
+      appendRow: { kind: "array", signature: "appendRow(matrix, row)", descriptionKey: "expr.help.appendRow", insertText: "appendRow()", cursorOffset: 10 },
       argmax: { kind: "array", signature: "argmax(vector|matrix)", descriptionKey: "expr.help.argmax", insertText: "argmax()", cursorOffset: 7 },
       argmin: { kind: "array", signature: "argmin(vector|matrix)", descriptionKey: "expr.help.argmin", insertText: "argmin()", cursorOffset: 7 },
       array: { kind: "array", signature: "array(axis0[, axis1, ...], expr)", descriptionKey: "expr.help.array", insertText: "array()", cursorOffset: 6 },
+      col: { kind: "array", signature: "col(matrix, j)", descriptionKey: "expr.help.col", insertText: "col()", cursorOffset: 4 },
       coords: { kind: "array", signature: "coords(matrix[, value])", descriptionKey: "expr.help.coords", insertText: "coords()", cursorOffset: 7 },
       filter: { kind: "array", signature: "filter(cond, array[, mode])", descriptionKey: "expr.help.filter", insertText: "filter()", cursorOffset: 7 },
       flatten: { kind: "array", signature: "flatten(matrix)", descriptionKey: "expr.help.flatten", insertText: "flatten()", cursorOffset: 8 },
@@ -4285,9 +4327,15 @@ window.STGraphXI18nBundles = {
       indicesWhere: { kind: "array", signature: "indicesWhere(array) | indicesWhere(cond, array)", descriptionKey: "expr.help.indicesWhere", insertText: "indicesWhere()", cursorOffset: 13 },
       intersection: { kind: "array", signature: "intersection(vectorA, vectorB)", descriptionKey: "expr.help.intersection", insertText: "intersection()", cursorOffset: 13 },
       neighbors: { kind: "array", signature: "neighbors(matrix, row, col[, diagonals[, toroidal]])", descriptionKey: "expr.help.neighbors", insertText: "neighbors()", cursorOffset: 10 },
+      ncols: { kind: "array", signature: "ncols(matrix)", descriptionKey: "expr.help.ncols", insertText: "ncols()", cursorOffset: 6 },
+      nrows: { kind: "array", signature: "nrows(matrix)", descriptionKey: "expr.help.nrows", insertText: "nrows()", cursorOffset: 6 },
       removeAt: { kind: "array", signature: "removeAt(vector, index) | removeAt(matrix, index[, axis])", descriptionKey: "expr.help.removeAt", insertText: "removeAt()", cursorOffset: 9 },
+      removeRow: { kind: "array", signature: "removeRow(matrix, i)", descriptionKey: "expr.help.removeRow", insertText: "removeRow()", cursorOffset: 10 },
+      row: { kind: "array", signature: "row(matrix, i)", descriptionKey: "expr.help.row", insertText: "row()", cursorOffset: 4 },
       set: { kind: "array", signature: "set(vector)", descriptionKey: "expr.help.set", insertText: "set()", cursorOffset: 4 },
       setAt: { kind: "array", signature: "setAt(vector, index, value) | setAt(matrix, [row,col], value) | setAt(matrix, row, rowVector)", descriptionKey: "expr.help.setAt", insertText: "setAt()", cursorOffset: 6 },
+      setCol: { kind: "array", signature: "setCol(matrix, j, vector)", descriptionKey: "expr.help.setCol", insertText: "setCol()", cursorOffset: 7 },
+      setRow: { kind: "array", signature: "setRow(matrix, i, row)", descriptionKey: "expr.help.setRow", insertText: "setRow()", cursorOffset: 7 },
       shuffle: { kind: "array", signature: "shuffle(vector|matrix)", descriptionKey: "expr.help.shuffle", insertText: "shuffle()", cursorOffset: 8 },
       size: { kind: "array", signature: "size(array[, axis])", descriptionKey: "expr.help.size", insertText: "size()", cursorOffset: 5 },
       sort: { kind: "array", signature: "sort(vector)", descriptionKey: "expr.help.sort", insertText: "sort()", cursorOffset: 5 },
@@ -7627,6 +7675,13 @@ window.STGraphXI18nBundles = {
           controlPoints: Array.isArray(e.controlPoints)
             ? e.controlPoints.filter((cp) => Number.isFinite(cp?.x) && Number.isFinite(cp?.y)).map((cp) => ({ x: cp.x, y: cp.y }))
             : [],
+          label: String(e?.label?.text ?? "").trim() ? {
+            text: String(e.label.text).trim(),
+            x: Number.isFinite(Number(e.label.x)) ? Number(e.label.x) : 0,
+            y: Number.isFinite(Number(e.label.y)) ? Number(e.label.y) : 0,
+            rotation: Number.isFinite(Number(e.label.rotation)) ? Number(e.label.rotation) : 0,
+            transparent: Boolean(e.label.transparent),
+          } : null,
         }));
 
       return {
@@ -7636,6 +7691,9 @@ window.STGraphXI18nBundles = {
           : [],
         localFunctions: Array.isArray(data?.localFunctions)
           ? data.localFunctions.map((definition) => sanitizeLocalFunctionDefinition(definition))
+          : [],
+        externalData: Array.isArray(data?.externalData)
+          ? data.externalData.map((entry) => ({ id: String(entry?.id ?? ""), path: String(entry?.path ?? ""), type: "csv" })).filter((entry) => entry.path)
           : [],
         debug: {
           watches: Array.isArray(data?.debug?.watches) ? data.debug.watches.map((name) => String(name ?? "")) : [],
@@ -8499,6 +8557,7 @@ window.STGraphXI18nBundles = {
       isSubmodelNode,
       getSubmodelTemplate,
       getDirectoryHandleForModel,
+      getLinkedReadDataFile = null,
     } = options;
 
     if (
@@ -8551,13 +8610,19 @@ window.STGraphXI18nBundles = {
       if (!referencedPaths.size) {
         return;
       }
-      const directoryHandle = await getDirectoryHandleForModel(model);
+      let directoryHandle = null;
       for (const relativePath of referencedPaths) {
         let fileHandle;
         let file;
         try {
-          fileHandle = await directoryHandle.getFileHandle(relativePath);
-          file = await fileHandle.getFile();
+          file = typeof getLinkedReadDataFile === "function"
+            ? await getLinkedReadDataFile(model, relativePath)
+            : null;
+          if (!file) {
+            directoryHandle = directoryHandle || await getDirectoryHandleForModel(model);
+            fileHandle = await directoryHandle.getFileHandle(relativePath);
+            file = await fileHandle.getFile();
+          }
         } catch (_err) {
           throw new Error(`readData file is unavailable: ${relativePath}`);
         }
@@ -10193,6 +10258,55 @@ window.STGraphXI18nBundles = {
     return "en";
   }
 
+  function playerNodeBoundaryPoint(node, targetX, targetY) {
+    const x = Number(node?.x) || 0;
+    const y = Number(node?.y) || 0;
+    const dx = targetX - x;
+    const dy = targetY - y;
+    if (dx === 0 && dy === 0) return { x, y };
+    const halfWidth = (Number(node?.width) || 120) / 2;
+    const halfHeight = (Number(node?.height) || 70) / 2;
+    const type = String(node?.type || "state");
+    const denominator = type === "algebraic"
+      ? Math.sqrt((dx * dx) / (halfWidth * halfWidth) + (dy * dy) / (halfHeight * halfHeight))
+      : type === "parameter"
+        ? Math.abs(dx) / halfWidth + Math.abs(dy) / halfHeight
+        : Math.max(Math.abs(dx) / halfWidth, Math.abs(dy) / halfHeight);
+    const scale = 1 / (denominator || 1);
+    return { x: x + dx * scale, y: y + dy * scale };
+  }
+
+  function playerEdgePath(points) {
+    if (points.length < 2) return "";
+    if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+    if (points.length === 3) return `M ${points[0].x} ${points[0].y} Q ${points[1].x} ${points[1].y} ${points[2].x} ${points[2].y}`;
+    let path = `M ${points[0].x} ${points[0].y}`;
+    for (let index = 1; index < points.length - 1; index += 1) {
+      const point = points[index];
+      const next = points[index + 1];
+      if (index < points.length - 2) {
+        path += ` Q ${point.x} ${point.y} ${(point.x + next.x) / 2} ${(point.y + next.y) / 2}`;
+      } else {
+        path += ` Q ${point.x} ${point.y} ${next.x} ${next.y}`;
+      }
+    }
+    return path;
+  }
+
+  function playerEdgeLabel(label) {
+    const text = String(label?.text ?? "").trim();
+    if (!text) return null;
+    const x = Number(label?.x);
+    const y = Number(label?.y);
+    return {
+      text,
+      x: Number.isFinite(x) ? x : 0,
+      y: Number.isFinite(y) ? y : 0,
+      rotation: Number.isFinite(Number(label?.rotation)) ? Number(label.rotation) : 0,
+      transparent: Boolean(label?.transparent),
+    };
+  }
+
   function normalizeZoom(raw, fallback = 1) {
     const value = Number(raw);
     if (!Number.isFinite(value) || value <= 0) {
@@ -11458,7 +11572,27 @@ window.STGraphXI18nBundles = {
           .edge {
             fill: none;
             stroke: #6e8398;
-            stroke-width: 1.6;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .edge-arrow {
+            fill: #6e8398;
+            stroke: none;
+          }
+          .edge-label-background {
+            fill: #fff;
+            fill-opacity: 0.92;
+          }
+          .edge-label-background.transparent {
+            fill-opacity: 0;
+          }
+          .edge-label {
+            fill: #24384b;
+            font-size: 13px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
           }
           .canvas-text {
             font-size: 12px;
@@ -12360,6 +12494,14 @@ window.STGraphXI18nBundles = {
           maxX = Math.max(maxX, x);
           maxY = Math.max(maxY, y);
         });
+        const label = playerEdgeLabel(edge.label);
+        if (label) {
+          const halfWidth = Math.max(24, label.text.length * 3.8);
+          minX = Math.min(minX, label.x - halfWidth);
+          minY = Math.min(minY, label.y - 14);
+          maxX = Math.max(maxX, label.x + halfWidth);
+          maxY = Math.max(maxY, label.y + 8);
+        }
       });
       (model?.widgets || []).forEach((widget) => {
         if (!this.isDashboardItemVisible(widget)) return;
@@ -12502,21 +12644,6 @@ window.STGraphXI18nBundles = {
       this.$svg.setAttribute("height", String(bounds.height * zoom));
       this.$svg.innerHTML = "";
 
-      const defs = document.createElementNS(SVG_NS, "defs");
-      const marker = document.createElementNS(SVG_NS, "marker");
-      marker.setAttribute("id", "player-arrow");
-      marker.setAttribute("viewBox", "0 0 10 10");
-      marker.setAttribute("refX", "9");
-      marker.setAttribute("refY", "5");
-      marker.setAttribute("markerWidth", "8");
-      marker.setAttribute("markerHeight", "8");
-      marker.setAttribute("orient", "auto-start-reverse");
-      const arrowPath = document.createElementNS(SVG_NS, "path");
-      arrowPath.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
-      arrowPath.setAttribute("fill", "#6e8398");
-      marker.appendChild(arrowPath);
-      defs.appendChild(marker);
-      this.$svg.appendChild(defs);
       const dashboardLayer = document.createElementNS(SVG_NS, "g");
 
       (model.presentationGroups || []).forEach((group) => {
@@ -12608,12 +12735,49 @@ window.STGraphXI18nBundles = {
         if (!from || !to || !visibleNodeIds.has(from.id) || !visibleNodeIds.has(to.id)) {
           return;
         }
+        const controlPoints = Array.isArray(edge.controlPoints) ? edge.controlPoints : [];
+        const firstTarget = controlPoints[0] || to;
+        const lastTarget = controlPoints[controlPoints.length - 1] || from;
+        const start = playerNodeBoundaryPoint(from, firstTarget.x, firstTarget.y);
+        const end = playerNodeBoundaryPoint(to, lastTarget.x, lastTarget.y);
+        const points = [start, ...controlPoints, end];
         const path = document.createElementNS(SVG_NS, "path");
-        const points = [{ x: from.x, y: from.y }, ...(edge.controlPoints || []), { x: to.x, y: to.y }];
-        path.setAttribute("d", `M ${points.map((pt) => `${pt.x} ${pt.y}`).join(" L ")}`);
+        path.setAttribute("d", playerEdgePath(points));
         path.setAttribute("class", "edge");
-        path.setAttribute("marker-end", "url(#player-arrow)");
         this.$svg.appendChild(path);
+
+        const beforeEnd = points[points.length - 2] || start;
+        const angle = Math.atan2(end.y - beforeEnd.y, end.x - beforeEnd.x);
+        const arrowLength = 10;
+        const arrowWidth = 4.6;
+        const baseX = end.x - Math.cos(angle) * arrowLength;
+        const baseY = end.y - Math.sin(angle) * arrowLength;
+        const leftX = baseX + Math.cos(angle + Math.PI / 2) * arrowWidth;
+        const leftY = baseY + Math.sin(angle + Math.PI / 2) * arrowWidth;
+        const rightX = baseX + Math.cos(angle - Math.PI / 2) * arrowWidth;
+        const rightY = baseY + Math.sin(angle - Math.PI / 2) * arrowWidth;
+        const arrow = document.createElementNS(SVG_NS, "path");
+        arrow.setAttribute("class", "edge-arrow");
+        arrow.setAttribute("d", `M ${end.x} ${end.y} L ${leftX} ${leftY} L ${rightX} ${rightY} Z`);
+        this.$svg.appendChild(arrow);
+
+        const label = playerEdgeLabel(edge.label);
+        if (label) {
+          const group = document.createElementNS(SVG_NS, "g");
+          group.setAttribute("transform", `translate(${label.x} ${label.y}) rotate(${label.rotation})`);
+          const width = Math.max(42, label.text.length * 7.4 + 12);
+          const background = document.createElementNS(SVG_NS, "rect");
+          background.setAttribute("class", `edge-label-background${label.transparent ? " transparent" : ""}`);
+          background.setAttribute("x", String(-width / 2));
+          background.setAttribute("y", "-14");
+          background.setAttribute("width", String(width));
+          background.setAttribute("height", "22");
+          const text = document.createElementNS(SVG_NS, "text");
+          text.setAttribute("class", "edge-label");
+          text.textContent = label.text;
+          group.append(background, text);
+          this.$svg.appendChild(group);
+        }
       });
 
       (model.nodes || []).filter((node) => visibleNodeIds.has(node.id)).forEach((node) => {

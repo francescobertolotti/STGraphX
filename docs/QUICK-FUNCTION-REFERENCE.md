@@ -1,6 +1,6 @@
 # DSGraph - Quick Function Reference
 
-Generated automatically da `i18n-inline.js` e `graph-functions.js` (release 2026.09.16).
+Generated automatically da `i18n-inline.js` e `graph-functions.js` (release 2026.09.19).
 
 Regenerate with `npm run docs:functions`.
 
@@ -151,7 +151,7 @@ A numeric sequence with exclusive end value.
 
 `readData(path)`
 
-Matrix of numeric and/or textual values read from a CSV file relative to the model folder. Available only in parameters.
+Matrix of numeric and/or textual values read from a CSV file. Available only in parameters. To link a file without including it in JSON, use File > Manage data links: its path and link identifier are saved with the model and looked up automatically when it is reopened. Then type `readData("` and choose the suggested CSV. Every CSV row must have the same number of columns.
 
 **Examples**
 - `readData("data/values.csv")`
@@ -191,7 +191,7 @@ Assignment of a custom property on the current node, returning the assigned valu
 **Examples**
 - `setProperty("unit", "kg")`
 
-## Array functions
+## Array and matrix functions
 
 ### `append`
 
@@ -204,6 +204,17 @@ Appends or prepends an element to a vector, concatenates two vectors, or appends
 - `append(1, [2,3])`
 - `append([1,2], [3,4])`
 - `append([[1,2],[3,4]], [5,6])`
+
+---
+
+### `appendRow`
+
+`appendRow(matrix, row)`
+
+A copy of the matrix with a new row appended at the end. For agent matrices it adds a new agent.
+
+**Examples**
+- `appendRow(agents, [3,1])`
 
 ---
 
@@ -237,6 +248,17 @@ Array obtained by evaluating expr for every combination of axes. An axis can be 
 
 **Examples**
 - `array(range(-2,3), $0^2)`
+
+---
+
+### `col`
+
+`col(matrix, j)`
+
+Column j from the matrix as a vector.
+
+**Examples**
+- `col(agents, ENERGY)`
 
 ---
 
@@ -314,6 +336,17 @@ The elements present in both vectors, without duplicates and preserving the orde
 
 ---
 
+### `ncols`
+
+`ncols(matrix)`
+
+The number of matrix columns. For an agent population it matches the number of properties.
+
+**Examples**
+- `ncols(agents)`
+
+---
+
 ### `neighbors`
 
 `neighbors(matrix, row, col[, diagonals[, toroidal]])`
@@ -327,6 +360,17 @@ The values of cells neighboring the selected one. With diagonals=true it uses th
 
 ---
 
+### `nrows`
+
+`nrows(matrix)`
+
+The number of matrix rows. For an agent population it matches the number of agents.
+
+**Examples**
+- `nrows(agents)`
+
+---
+
 ### `removeAt`
 
 `removeAt(vector, index) | removeAt(matrix, index[, axis])`
@@ -337,6 +381,28 @@ A copy without the selected vector element or without the selected matrix row or
 - `removeAt([1,2,3], 1) -> [1,3]`
 - `removeAt([[1,2],[3,4]], 0) -> [[3,4]]`
 - `removeAt([[1,2],[3,4]], 1, 1) -> [[1],[3]]`
+
+---
+
+### `removeRow`
+
+`removeRow(matrix, i)`
+
+A copy of the matrix without row i. For agent matrices it removes agent i.
+
+**Examples**
+- `removeRow(agents, 2)`
+
+---
+
+### `row`
+
+`row(matrix, i)`
+
+Row i from the matrix. If the matrix represents agents, it returns the property vector of agent i.
+
+**Examples**
+- `row(agents, 0)`
 
 ---
 
@@ -360,6 +426,28 @@ A copy with the element or row replaced.
 **Examples**
 - `setAt([1,2,3], 1, 9) -> [1,9,3]`
 - `setAt([[1,2],[3,4]], [1,0], 8) -> [[1,2],[8,4]]`
+
+---
+
+### `setCol`
+
+`setCol(matrix, j, vector)`
+
+A copy of the matrix with column j replaced by the vector values. The vector must provide one value for each row.
+
+**Examples**
+- `setCol(agents, ENERGY, newEnergy)`
+
+---
+
+### `setRow`
+
+`setRow(matrix, i, row)`
+
+A copy of the matrix with row i replaced by row.
+
+**Examples**
+- `setRow(agents, 3, [10,1,4,7])`
 
 ---
 
@@ -988,28 +1076,6 @@ A vector with the neighbor count of every agent.
 
 ---
 
-### `appendRow`
-
-`appendRow(matrix, row)`
-
-A copy of the matrix with a new row appended at the end. For agent matrices it adds a new agent.
-
-**Examples**
-- `appendRow(agents, [3,1])`
-
----
-
-### `col`
-
-`col(matrix, j)`
-
-Column j from the matrix as a vector.
-
-**Examples**
-- `col(agents, ENERGY)`
-
----
-
 ### `filterAgents`
 
 `filterAgents(cond, agents)`
@@ -1029,17 +1095,6 @@ Row-by-row transformation of all agents. expr must return a new row with the sam
 
 **Examples**
 - `mapAgents(setAt(self, ENERGY, self[ENERGY] + 1), agents)`
-
----
-
-### `ncols`
-
-`ncols(matrix)`
-
-The number of matrix columns. For an agent population it matches the number of properties.
-
-**Examples**
-- `ncols(agents)`
 
 ---
 
@@ -1065,66 +1120,11 @@ The references of agents neighboring the agent at row i, using the space built w
 
 ---
 
-### `nrows`
-
-`nrows(matrix)`
-
-The number of matrix rows. For an agent population it matches the number of agents.
-
-**Examples**
-- `nrows(agents)`
-
----
-
-### `removeRow`
-
-`removeRow(matrix, i)`
-
-A copy of the matrix without row i. For agent matrices it removes agent i.
-
-**Examples**
-- `removeRow(agents, 2)`
-
----
-
-### `row`
-
-`row(matrix, i)`
-
-Row i from the matrix. If the matrix represents agents, it returns the property vector of agent i.
-
-**Examples**
-- `row(agents, 0)`
-
----
-
 ### `self`
 
 `self`
 
 Current local node value. In scalar execution it matches the node value; in vector execution it refers to the current agent component; in matrix agent-based contexts it matches the current cell value.
-
----
-
-### `setCol`
-
-`setCol(matrix, j, vector)`
-
-A copy of the matrix with column j replaced by the vector values. The vector must provide one value for each row.
-
-**Examples**
-- `setCol(agents, ENERGY, newEnergy)`
-
----
-
-### `setRow`
-
-`setRow(matrix, i, row)`
-
-A copy of the matrix with row i replaced by row.
-
-**Examples**
-- `setRow(agents, 3, [10,1,4,7])`
 
 ---
 

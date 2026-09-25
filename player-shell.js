@@ -43,6 +43,55 @@
     return "en";
   }
 
+  function playerNodeBoundaryPoint(node, targetX, targetY) {
+    const x = Number(node?.x) || 0;
+    const y = Number(node?.y) || 0;
+    const dx = targetX - x;
+    const dy = targetY - y;
+    if (dx === 0 && dy === 0) return { x, y };
+    const halfWidth = (Number(node?.width) || 120) / 2;
+    const halfHeight = (Number(node?.height) || 70) / 2;
+    const type = String(node?.type || "state");
+    const denominator = type === "algebraic"
+      ? Math.sqrt((dx * dx) / (halfWidth * halfWidth) + (dy * dy) / (halfHeight * halfHeight))
+      : type === "parameter"
+        ? Math.abs(dx) / halfWidth + Math.abs(dy) / halfHeight
+        : Math.max(Math.abs(dx) / halfWidth, Math.abs(dy) / halfHeight);
+    const scale = 1 / (denominator || 1);
+    return { x: x + dx * scale, y: y + dy * scale };
+  }
+
+  function playerEdgePath(points) {
+    if (points.length < 2) return "";
+    if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+    if (points.length === 3) return `M ${points[0].x} ${points[0].y} Q ${points[1].x} ${points[1].y} ${points[2].x} ${points[2].y}`;
+    let path = `M ${points[0].x} ${points[0].y}`;
+    for (let index = 1; index < points.length - 1; index += 1) {
+      const point = points[index];
+      const next = points[index + 1];
+      if (index < points.length - 2) {
+        path += ` Q ${point.x} ${point.y} ${(point.x + next.x) / 2} ${(point.y + next.y) / 2}`;
+      } else {
+        path += ` Q ${point.x} ${point.y} ${next.x} ${next.y}`;
+      }
+    }
+    return path;
+  }
+
+  function playerEdgeLabel(label) {
+    const text = String(label?.text ?? "").trim();
+    if (!text) return null;
+    const x = Number(label?.x);
+    const y = Number(label?.y);
+    return {
+      text,
+      x: Number.isFinite(x) ? x : 0,
+      y: Number.isFinite(y) ? y : 0,
+      rotation: Number.isFinite(Number(label?.rotation)) ? Number(label.rotation) : 0,
+      transparent: Boolean(label?.transparent),
+    };
+  }
+
   function normalizeZoom(raw, fallback = 1) {
     const value = Number(raw);
     if (!Number.isFinite(value) || value <= 0) {
@@ -1308,7 +1357,27 @@
           .edge {
             fill: none;
             stroke: #6e8398;
-            stroke-width: 1.6;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .edge-arrow {
+            fill: #6e8398;
+            stroke: none;
+          }
+          .edge-label-background {
+            fill: #fff;
+            fill-opacity: 0.92;
+          }
+          .edge-label-background.transparent {
+            fill-opacity: 0;
+          }
+          .edge-label {
+            fill: #24384b;
+            font-size: 13px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
           }
           .canvas-text {
             font-size: 12px;
@@ -2210,6 +2279,14 @@
           maxX = Math.max(maxX, x);
           maxY = Math.max(maxY, y);
         });
+        const label = playerEdgeLabel(edge.label);
+        if (label) {
+          const halfWidth = Math.max(24, label.text.length * 3.8);
+          minX = Math.min(minX, label.x - halfWidth);
+          minY = Math.min(minY, label.y - 14);
+          maxX = Math.max(maxX, label.x + halfWidth);
+          maxY = Math.max(maxY, label.y + 8);
+        }
       });
       (model?.widgets || []).forEach((widget) => {
         if (!this.isDashboardItemVisible(widget)) return;
@@ -2352,21 +2429,6 @@
       this.$svg.setAttribute("height", String(bounds.height * zoom));
       this.$svg.innerHTML = "";
 
-      const defs = document.createElementNS(SVG_NS, "defs");
-      const marker = document.createElementNS(SVG_NS, "marker");
-      marker.setAttribute("id", "player-arrow");
-      marker.setAttribute("viewBox", "0 0 10 10");
-      marker.setAttribute("refX", "9");
-      marker.setAttribute("refY", "5");
-      marker.setAttribute("markerWidth", "8");
-      marker.setAttribute("markerHeight", "8");
-      marker.setAttribute("orient", "auto-start-reverse");
-      const arrowPath = document.createElementNS(SVG_NS, "path");
-      arrowPath.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
-      arrowPath.setAttribute("fill", "#6e8398");
-      marker.appendChild(arrowPath);
-      defs.appendChild(marker);
-      this.$svg.appendChild(defs);
       const dashboardLayer = document.createElementNS(SVG_NS, "g");
 
       (model.presentationGroups || []).forEach((group) => {
@@ -2458,12 +2520,49 @@
         if (!from || !to || !visibleNodeIds.has(from.id) || !visibleNodeIds.has(to.id)) {
           return;
         }
+        const controlPoints = Array.isArray(edge.controlPoints) ? edge.controlPoints : [];
+        const firstTarget = controlPoints[0] || to;
+        const lastTarget = controlPoints[controlPoints.length - 1] || from;
+        const start = playerNodeBoundaryPoint(from, firstTarget.x, firstTarget.y);
+        const end = playerNodeBoundaryPoint(to, lastTarget.x, lastTarget.y);
+        const points = [start, ...controlPoints, end];
         const path = document.createElementNS(SVG_NS, "path");
-        const points = [{ x: from.x, y: from.y }, ...(edge.controlPoints || []), { x: to.x, y: to.y }];
-        path.setAttribute("d", `M ${points.map((pt) => `${pt.x} ${pt.y}`).join(" L ")}`);
+        path.setAttribute("d", playerEdgePath(points));
         path.setAttribute("class", "edge");
-        path.setAttribute("marker-end", "url(#player-arrow)");
         this.$svg.appendChild(path);
+
+        const beforeEnd = points[points.length - 2] || start;
+        const angle = Math.atan2(end.y - beforeEnd.y, end.x - beforeEnd.x);
+        const arrowLength = 10;
+        const arrowWidth = 4.6;
+        const baseX = end.x - Math.cos(angle) * arrowLength;
+        const baseY = end.y - Math.sin(angle) * arrowLength;
+        const leftX = baseX + Math.cos(angle + Math.PI / 2) * arrowWidth;
+        const leftY = baseY + Math.sin(angle + Math.PI / 2) * arrowWidth;
+        const rightX = baseX + Math.cos(angle - Math.PI / 2) * arrowWidth;
+        const rightY = baseY + Math.sin(angle - Math.PI / 2) * arrowWidth;
+        const arrow = document.createElementNS(SVG_NS, "path");
+        arrow.setAttribute("class", "edge-arrow");
+        arrow.setAttribute("d", `M ${end.x} ${end.y} L ${leftX} ${leftY} L ${rightX} ${rightY} Z`);
+        this.$svg.appendChild(arrow);
+
+        const label = playerEdgeLabel(edge.label);
+        if (label) {
+          const group = document.createElementNS(SVG_NS, "g");
+          group.setAttribute("transform", `translate(${label.x} ${label.y}) rotate(${label.rotation})`);
+          const width = Math.max(42, label.text.length * 7.4 + 12);
+          const background = document.createElementNS(SVG_NS, "rect");
+          background.setAttribute("class", `edge-label-background${label.transparent ? " transparent" : ""}`);
+          background.setAttribute("x", String(-width / 2));
+          background.setAttribute("y", "-14");
+          background.setAttribute("width", String(width));
+          background.setAttribute("height", "22");
+          const text = document.createElementNS(SVG_NS, "text");
+          text.setAttribute("class", "edge-label");
+          text.textContent = label.text;
+          group.append(background, text);
+          this.$svg.appendChild(group);
+        }
       });
 
       (model.nodes || []).filter((node) => visibleNodeIds.has(node.id)).forEach((node) => {

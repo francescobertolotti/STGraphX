@@ -18,6 +18,10 @@ DSGraph is distributed under the Mozilla Public License, version 2.0.
 
 Luca Mari and the original STGraphX project are not necessarily responsible, maintainers, or endorsers of DSGraph.
 
+## Definizione dei nodi prima dell'esecuzione
+
+In `Vista > Opzioni di visualizzazione`, la casella `Blocca l'esecuzione se non tutti i nodi sono definiti` è attiva per impostazione predefinita. Con la casella attiva, DSGraph evidenzia in rosso i nodi privi di una definizione valida e blocca l'esecuzione, mostrando nella barra superiore il primo nodo problematico e il motivo. Disattivandola, i nodi vuoti non sono evidenziati e il modello conserva il comportamento permissivo precedente.
+
 ## Gruppi di presentazione
 
 Dal menu `Vista > Gruppi di presentazione...` puoi definire insiemi nominati di nodi per organizzare il grafo durante la presentazione del modello. Un gruppo non modifica frecce, formule o ordine di esecuzione.

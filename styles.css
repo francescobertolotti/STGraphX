@@ -1739,13 +1739,38 @@ button:disabled {
 }
 
 .node-type-row .menu-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: auto;
   margin: 0;
   padding: 0;
   white-space: nowrap;
   line-height: 1.05;
+  cursor: pointer;
 }
 
-.node-flags-col .menu-check input {
+.node-flags-col .menu-check input[type="checkbox"],
+.expression-node-option-flag input[type="checkbox"] {
+  /* Form controls are full-width by default. Safari otherwise stretches these
+     checkboxes inside flex/grid labels, leaving their visible square detached
+     from the clickable control. */
+  -webkit-appearance: checkbox;
+  appearance: auto;
+  box-sizing: border-box;
+  flex: 0 0 14px;
+  width: 14px;
+  min-width: 14px;
+  max-width: 14px;
+  height: 14px;
+  min-height: 14px;
+  max-height: 14px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.node-flags-col .menu-check input[type="checkbox"] {
   transform: scale(0.92);
   transform-origin: left center;
 }
@@ -1957,6 +1982,15 @@ button:disabled {
   transition: stroke 120ms ease, stroke-width 120ms ease, filter 120ms ease;
 }
 
+.edge-runtime-value {
+  fill: #526575;
+  font-size: 11px;
+  font-weight: 600;
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -2018,9 +2052,9 @@ button:disabled {
 
 .expression-editor-card {
   width: min(940px, calc(100vw - 40px));
-  height: min(72vh, 720px);
+  height: min(90vh, 940px);
   min-width: 680px;
-  min-height: 480px;
+  min-height: 640px;
   max-width: calc(100vw - 20px);
   max-height: calc(100vh - 20px);
   position: absolute;
@@ -2720,12 +2754,41 @@ button:disabled {
   background: #faf5f6;
 }
 
+.expression-preview.collapsed {
+  gap: 0;
+  padding-block: 5px;
+}
+
+.expression-preview.collapsed .expression-preview-value {
+  display: none;
+}
+
 .expression-preview-label {
   display: inline-block;
   font-size: 0.8rem;
   font-weight: 600;
   color: #54687c;
   line-height: 1.15;
+}
+
+.expression-preview-toggle {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #54687c;
+  text-align: left;
+  cursor: pointer;
+}
+
+.expression-preview-toggle::after {
+  content: "▸";
+  float: right;
+  font-size: 0.85em;
+}
+
+.expression-preview:not(.collapsed) .expression-preview-toggle::after {
+  content: "▾";
 }
 
 .expression-preview-value {
@@ -2753,7 +2816,7 @@ button:disabled {
 
 .expression-formula-notes-input {
   width: 100%;
-  min-height: 84px;
+  min-height: 58px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -3294,8 +3357,26 @@ button:disabled {
   font-size: 0.82rem;
 }
 
-.expression-node-options > select {
-  min-width: 120px;
+.expression-node-identity {
+  display: grid;
+  grid-template-columns: auto minmax(150px, 1fr);
+  align-items: center;
+  gap: 3px 7px;
+  min-width: min(100%, 300px);
+  flex: 1 1 280px;
+}
+
+.expression-node-identity input,
+.expression-node-identity select {
+  min-width: 0;
+}
+
+.expression-node-flags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  flex: 0 1 auto;
 }
 
 .expression-node-option-flag {
@@ -3304,6 +3385,7 @@ button:disabled {
   gap: 4px;
   margin: 0;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .expression-main-field {
@@ -3683,6 +3765,44 @@ button:disabled {
   display: grid;
   gap: 8px;
   margin: 10px 0;
+}
+
+.qualitative-graph-role-list {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.qualitative-graph-role-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px 92px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid #d8e2eb;
+  border-radius: 6px;
+  background: #fbfdff;
+}
+
+.qualitative-graph-role-heading {
+  border: 0;
+  background: transparent;
+  color: #3c566c;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.qualitative-graph-role-row label {
+  display: flex;
+  justify-content: center;
+}
+
+.qualitative-graph-role-row input[type="checkbox"] {
+  width: 14px;
+  min-width: 14px;
+  height: 14px;
+  min-height: 14px;
+  margin: 0;
 }
 
 .qualitative-graph-variable-row {

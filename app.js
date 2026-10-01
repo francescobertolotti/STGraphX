@@ -66,7 +66,6 @@ const topRunEvalBtn = document.getElementById("topRunEvalBtn");
 const topRunStepBtn = document.getElementById("topRunStepBtn");
 const topRunTimedBtn = document.getElementById("topRunTimedBtn");
 const topRunResetBtn = document.getElementById("topRunResetBtn");
-const runStrictDefinitionsInput = document.getElementById("runStrictDefinitionsInput");
 const selectAllBtn = document.getElementById("selectAllBtn");
 const cutBtn = document.getElementById("cutBtn");
 const copyBtn = document.getElementById("copyBtn");
@@ -92,9 +91,11 @@ const snapToGridInput = document.getElementById("snapToGridInput");
 const showGridInput = document.getElementById("showGridInput");
 const highlightNodeEdgesInput = document.getElementById("highlightNodeEdgesInput");
 const showNodeValuesInput = document.getElementById("showNodeValuesInput");
+const showEdgeValuesInput = document.getElementById("showEdgeValuesInput");
 const gridSizeInput = document.getElementById("gridSizeInput");
 const tooltipDelayInput = document.getElementById("tooltipDelayInput");
 const interfaceLanguageInput = document.getElementById("interfaceLanguageInput");
+const strictDefinitionsInput = document.getElementById("strictDefinitionsInput");
 
 const noSelection = document.getElementById("noSelection");
 const globalPanel = document.getElementById("globalPanel");
@@ -110,7 +111,6 @@ const timeDelayInput = document.getElementById("timeDelayInput");
 const renderEveryStepsInput = document.getElementById("renderEveryStepsInput");
 const decimalDigitsInput = document.getElementById("decimalDigitsInput");
 const integratorInput = document.getElementById("integratorInput");
-const strictDefinitionsInput = document.getElementById("strictDefinitionsInput");
 const timeCurrentOutput = document.getElementById("timeCurrentOutput");
 const modelPropsList = document.getElementById("modelPropsList");
 const addModelPropBtn = document.getElementById("addModelPropBtn");
@@ -193,7 +193,10 @@ const expressionStateTransitionLabel = document.getElementById("expressionStateT
 const expressionStateTransitionStatus = document.getElementById("expressionStateTransitionStatus");
 const expressionEditorTextarea = document.getElementById("expressionEditorTextarea");
 const expressionNodeOptions = document.getElementById("expressionNodeOptions");
+const expressionNodeNameInput = document.getElementById("expressionNodeName");
 const expressionNodeShapeInput = document.getElementById("expressionNodeShape");
+const expressionNodeInputInput = document.getElementById("expressionNodeInput");
+const expressionNodeInputLabel = document.getElementById("expressionNodeInputLabel");
 const expressionNodeOutputInput = document.getElementById("expressionNodeOutput");
 const expressionNodeOutputLabel = document.getElementById("expressionNodeOutputLabel");
 const expressionNodeGlobalInput = document.getElementById("expressionNodeGlobal");
@@ -209,6 +212,7 @@ const expressionSidebar = document.getElementById("expressionSidebar");
 const expressionHelp = document.getElementById("expressionHelp");
 const expressionHelpCopyBtn = document.getElementById("expressionHelpCopyBtn");
 const expressionPreviewBox = document.getElementById("expressionPreviewBox");
+const expressionPreviewLabel = document.getElementById("expressionPreviewLabel");
 const expressionPreviewValue = document.getElementById("expressionPreviewValue");
 const expressionDescriptionBox = document.getElementById("expressionDescriptionBox");
 const expressionDescriptionInput = document.getElementById("expressionDescriptionInput");
@@ -893,7 +897,7 @@ const graph = {
     renderEverySteps: 1,
     decimals: 3,
     integrator: "euler",
-    strictDefinitions: false,
+    strictDefinitions: true,
     currentTime: null,
   },
 };
@@ -903,6 +907,8 @@ const qualitativeGraphWizard = {
   variables: [""],
   matrix: [],
   stateNames: new Set(),
+  inputNames: new Set(),
+  parameterNames: new Set(),
 };
 
 const ui = {
@@ -923,6 +929,7 @@ const ui = {
   showGrid: false,
   highlightNodeEdges: false,
   showNodeValues: false,
+  showEdgeValues: false,
   gridSize: 20,
   tooltipDelayMs: 300,
   zoom: 1,
@@ -1273,6 +1280,9 @@ function updateCanvasGridAppearance() {
   }
   if (showNodeValuesInput) {
     showNodeValuesInput.checked = ui.showNodeValues === true;
+  }
+  if (showEdgeValuesInput) {
+    showEdgeValuesInput.checked = ui.showEdgeValues === true;
   }
   if (gridSizeInput && document.activeElement !== gridSizeInput) {
     gridSizeInput.value = String(ui.gridSize);
@@ -3129,7 +3139,15 @@ function syncExpressionEditorNodeOptions(node, visible) {
     expressionNodeShapeInput.value = node.shape;
     expressionNodeShapeInput.disabled = isEditingUiLocked();
   }
-  syncExpressionEditorNodeOptionAvailability(node.shape);
+  if (expressionNodeNameInput) {
+    expressionNodeNameInput.value = node.name;
+    expressionNodeNameInput.classList.remove("invalid");
+    expressionNodeNameInput.disabled = isEditingUiLocked();
+  }
+  syncExpressionEditorNodeOptionAvailability(node, node.shape);
+  if (expressionNodeInputInput) {
+    expressionNodeInputInput.checked = Boolean(node.input);
+  }
   if (expressionNodeOutputInput) {
     expressionNodeOutputInput.checked = Boolean(node.output);
   }
@@ -3138,11 +3156,19 @@ function syncExpressionEditorNodeOptions(node, visible) {
   }
 }
 
-function syncExpressionEditorNodeOptionAvailability(shape) {
+function syncExpressionEditorNodeOptionAvailability(node, shape) {
   const isSubmodel = shape === "submodel";
+  const canBeInput = shape === "ellipse" && Boolean(node) && !nodeHasIncomingEdges(node.id);
   const canBeGlobal = shape === "diamond";
+  expressionNodeInputLabel?.classList.toggle("hidden", !canBeInput);
   expressionNodeOutputLabel?.classList.toggle("hidden", isSubmodel);
   expressionNodeGlobalLabel?.classList.toggle("hidden", !canBeGlobal);
+  if (expressionNodeInputInput) {
+    expressionNodeInputInput.disabled = isEditingUiLocked() || !canBeInput;
+    if (!canBeInput) {
+      expressionNodeInputInput.checked = false;
+    }
+  }
   if (expressionNodeOutputInput) {
     expressionNodeOutputInput.disabled = isEditingUiLocked() || isSubmodel;
   }
@@ -3856,6 +3882,9 @@ function syncViewOptionsInputs() {
   if (showNodeValuesInput) {
     showNodeValuesInput.checked = ui.showNodeValues === true;
   }
+  if (showEdgeValuesInput) {
+    showEdgeValuesInput.checked = ui.showEdgeValues === true;
+  }
   if (gridSizeInput) {
     gridSizeInput.value = String(ui.gridSize);
   }
@@ -3867,6 +3896,9 @@ function syncViewOptionsInputs() {
   }
   if (decimalDigitsInput) {
     decimalDigitsInput.value = String(clampDisplayDecimals(graph.execution.decimals));
+  }
+  if (strictDefinitionsInput) {
+    strictDefinitionsInput.checked = Boolean(graph.execution.strictDefinitions);
   }
 }
 
@@ -5093,6 +5125,11 @@ function setExpressionPreviewState(text, tone = "") {
   expressionPreviewBox.classList.toggle("error", tone === "error");
 }
 
+expressionPreviewLabel?.addEventListener("click", () => {
+  const collapsed = expressionPreviewBox?.classList.toggle("collapsed") ?? true;
+  expressionPreviewLabel.setAttribute("aria-expanded", String(!collapsed));
+});
+
 function expressionPreviewNode() {
   if (!ui.expressionEditor) {
     return null;
@@ -5548,6 +5585,8 @@ function openExpressionEditor(fieldKey) {
   }
   expressionEditorTitle.textContent = ui.expressionEditor.baseTitle;
   expressionEditorTextarea.value = String(ui.expressionEditor.initialValue ?? "");
+  expressionPreviewBox?.classList.add("collapsed");
+  expressionPreviewLabel?.setAttribute("aria-expanded", "false");
   expressionEditorModal.classList.remove("hidden");
   resetExpressionEditorCardPosition();
   setExpressionEditorView("editor", { focus: false });
@@ -5597,6 +5636,8 @@ function openCustomExpressionEditor(title, initialValue, onApply) {
   };
   expressionStateInitialBlock?.classList.add("hidden");
   expressionStateTransitionHead?.classList.add("hidden");
+  expressionPreviewBox?.classList.add("collapsed");
+  expressionPreviewLabel?.setAttribute("aria-expanded", "false");
   expressionEditorTitle.textContent = String(title ?? "");
   expressionEditorTextarea.value = String(initialValue ?? "");
   expressionEditorModal.classList.remove("hidden");
@@ -5640,6 +5681,22 @@ function commitExpressionEditorValue(closeAfter = true) {
   const nextShape = ["rect", "ellipse", "diamond", "submodel"].includes(expressionNodeShapeInput?.value)
     ? expressionNodeShapeInput.value
     : node.shape;
+  const nameAttempt = semantics.validateNodeName(graph.nodes, expressionNodeNameInput?.value ?? node.name, node.id);
+  if (!nameAttempt.ok) {
+    expressionNodeNameInput?.classList.add("invalid");
+    if (nameAttempt.reason === "duplicate") {
+      setStatusKey("error.duplicateNodeName");
+    } else if (nameAttempt.reason === "function") {
+      setStatusKey("error.functionNodeName");
+    } else if (nameAttempt.reason === "reserved") {
+      setStatusKey("error.reservedNodeName");
+    } else {
+      setStatusKey("error.invalidNodeName");
+    }
+    return false;
+  }
+  const nextName = nameAttempt.name;
+  const nextInput = nextShape === "ellipse" && !nodeHasIncomingEdges(node.id) && Boolean(expressionNodeInputInput?.checked);
   const nextOutput = nextShape === "submodel" ? false : Boolean(expressionNodeOutputInput?.checked);
   const nextGlobal = nextShape === "diamond" && Boolean(expressionNodeGlobalInput?.checked);
   const expressionChanged = (
@@ -5658,9 +5715,17 @@ function commitExpressionEditorValue(closeAfter = true) {
     if (nextInitialValue != null && isStateNode(node)) {
       node.initialStateExpression = String(nextInitialValue ?? "");
     }
+    const oldName = node.name;
+    const wasInput = Boolean(node.input);
     const wasOutput = Boolean(node.output);
+    node.name = nextName;
+    propagateNodeRenameInExpressions(oldName, node.name);
+    node.input = nextInput;
     node.output = nextOutput;
     node.global = nextGlobal;
+    if (wasInput && !node.input) {
+      removeNodeFromInputWidgetBindings(node.name);
+    }
     if ((wasOutput && !node.output) || (outputChanged && !nextOutput)) {
       removeNodeFromAllWidgetDisplays(node.name);
     }
@@ -7919,33 +7984,23 @@ function deserializeNodeType(type) {
 }
 
 function graphBounds() {
-  let minX = Infinity;
-  let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
 
   const visibleNodeIds = visiblePresentationNodeIds();
   graph.nodes.filter((node) => visibleNodeIds.has(node.id)).forEach((node) => {
-    const hw = node.width / 2;
-    const hh = node.height / 2;
-    minX = Math.min(minX, node.x - hw);
-    minY = Math.min(minY, node.y - hh);
-    maxX = Math.max(maxX, node.x + hw);
-    maxY = Math.max(maxY, node.y + hh);
+    maxX = Math.max(maxX, node.x + node.width / 2);
+    maxY = Math.max(maxY, node.y + node.height / 2);
   });
 
   graph.edges.filter((edge) => visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to)).forEach((edge) => {
     (edge.controlPoints || []).forEach((cp) => {
-      minX = Math.min(minX, cp.x);
-      minY = Math.min(minY, cp.y);
       maxX = Math.max(maxX, cp.x);
       maxY = Math.max(maxY, cp.y);
     });
     const label = normalizeEdgeLabel(edge.label);
     if (label) {
       const halfWidth = Math.max(24, label.text.length * 3.8);
-      minX = Math.min(minX, label.x - halfWidth);
-      minY = Math.min(minY, label.y - 14);
       maxX = Math.max(maxX, label.x + halfWidth);
       maxY = Math.max(maxY, label.y + 8);
     }
@@ -7956,8 +8011,6 @@ function graphBounds() {
     const position = dashboardItemPosition(widget);
     const width = Number(widget.width) || 0;
     const height = Number(widget.minimized ? 36 : widget.height) || 0;
-    minX = Math.min(minX, position.x);
-    minY = Math.min(minY, position.y);
     maxX = Math.max(maxX, position.x + width);
     maxY = Math.max(maxY, position.y + height);
   });
@@ -7965,50 +8018,33 @@ function graphBounds() {
   graph.textItems.forEach((item) => {
     if (!isDashboardItemVisible(item)) return;
     const position = dashboardItemPosition(item);
-    minX = Math.min(minX, position.x);
-    minY = Math.min(minY, position.y);
     maxX = Math.max(maxX, position.x + item.width);
     maxY = Math.max(maxY, position.y + item.height);
   });
 
   if (graph.dashboard && graph.dashboard.visible !== false) {
-    minX = Math.min(minX, graph.dashboard.x);
-    minY = Math.min(minY, graph.dashboard.y);
     maxX = Math.max(maxX, graph.dashboard.x + graph.dashboard.width);
     maxY = Math.max(maxY, graph.dashboard.y + graph.dashboard.height);
   }
 
-  if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
-    minX = 0;
-    minY = 0;
+  if (!Number.isFinite(maxX) || !Number.isFinite(maxY)) {
     maxX = 0;
     maxY = 0;
   }
 
+  // Keep the canvas origin fixed so an object can stay at the top-left corner.
+  // Only the right and bottom boundaries grow with the model contents.
+  const minX = 0;
+  const minY = 0;
   const margin = 180;
-  minX -= margin;
-  minY -= margin;
   maxX += margin;
   maxY += margin;
-
-  const width = maxX - minX;
-  const height = maxY - minY;
-  if (width < MIN_GRAPH_WIDTH) {
-    const extra = (MIN_GRAPH_WIDTH - width) / 2;
-    minX -= extra;
-    maxX += extra;
-  }
-  if (height < MIN_GRAPH_HEIGHT) {
-    const extra = (MIN_GRAPH_HEIGHT - height) / 2;
-    minY -= extra;
-    maxY += extra;
-  }
 
   return {
     minX,
     minY,
-    width: Math.max(MIN_GRAPH_WIDTH, maxX - minX),
-    height: Math.max(MIN_GRAPH_HEIGHT, maxY - minY),
+    width: Math.max(MIN_GRAPH_WIDTH, maxX),
+    height: Math.max(MIN_GRAPH_HEIGHT, maxY),
   };
 }
 
@@ -8125,35 +8161,34 @@ function setTimedRunButtonIcon(button, isRunning) {
 }
 
 function updateModelRunButtons() {
-  const blocked = hasStrictExecutionBlock();
   if (topRunEvalBtn) {
     setTooltipText(topRunEvalBtn, `${t("menu.run.execute")} (F7)`);
-    topRunEvalBtn.disabled = blocked;
+    topRunEvalBtn.disabled = false;
   }
   if (tabletRunBtn) {
     setTooltipText(tabletRunBtn, t("menu.run.execute"));
-    tabletRunBtn.disabled = blocked;
+    tabletRunBtn.disabled = false;
   }
   if (topRunStepBtn) {
     setTooltipText(topRunStepBtn, `${t("menu.run.step")} (F8)`);
-    topRunStepBtn.disabled = blocked;
+    topRunStepBtn.disabled = false;
   }
   if (tabletStepBtn) {
     setTooltipText(tabletStepBtn, t("menu.run.step"));
-    tabletStepBtn.disabled = blocked;
+    tabletStepBtn.disabled = false;
   }
   if (topRunTimedBtn) {
     const timedKey = ui.timedRunHandle == null ? "action.timedStart" : "action.timedStop";
     setTimedRunButtonIcon(topRunTimedBtn, ui.timedRunHandle != null);
     setTooltipText(topRunTimedBtn, `${t(timedKey)} (F9)`);
-    topRunTimedBtn.disabled = blocked && ui.timedRunHandle == null;
+    topRunTimedBtn.disabled = false;
     topRunTimedBtn.classList.toggle("active", ui.timedRunHandle != null);
   }
   if (tabletTimedBtn) {
     const timedKey = ui.timedRunHandle == null ? "action.timedStart" : "action.timedStop";
     setTimedRunButtonIcon(tabletTimedBtn, ui.timedRunHandle != null);
     setTooltipText(tabletTimedBtn, t(timedKey));
-    tabletTimedBtn.disabled = blocked && ui.timedRunHandle == null;
+    tabletTimedBtn.disabled = false;
     tabletTimedBtn.classList.toggle("active", ui.timedRunHandle != null);
   }
   if (topRunResetBtn) {
@@ -8168,35 +8203,29 @@ function updateModelRunButtons() {
   updateTabletCanvasModeUi();
   if (runFullModelBtn) {
     setTooltipText(runFullModelBtn, `${t("menu.run.execute")} (F7)`);
-    runFullModelBtn.disabled = blocked;
+    runFullModelBtn.disabled = false;
   }
   if (manualStepBtn) {
     setTooltipText(manualStepBtn, `${t("menu.run.step")} (F8)`);
-    manualStepBtn.disabled = blocked;
+    manualStepBtn.disabled = false;
   }
   if (timedToggleBtn) {
     const timedKey = ui.timedRunHandle == null ? "action.timedStart" : "action.timedStop";
     setTimedRunButtonIcon(timedToggleBtn, ui.timedRunHandle != null);
     setTooltipText(timedToggleBtn, `${t(timedKey)} (F9)`);
-    timedToggleBtn.disabled = blocked && ui.timedRunHandle == null;
+    timedToggleBtn.disabled = false;
   }
   if (resetExecBtn) {
     setTooltipText(resetExecBtn, `${t("menu.run.reset")} (F10)`);
   }
   if (runEvalBtn) {
-    runEvalBtn.disabled = blocked;
+    runEvalBtn.disabled = false;
   }
   if (runStepBtn) {
-    runStepBtn.disabled = blocked;
+    runStepBtn.disabled = false;
   }
   if (runTimedToggleBtn) {
-    runTimedToggleBtn.disabled = blocked && ui.timedRunHandle == null;
-  }
-  if (runStrictDefinitionsInput) {
-    runStrictDefinitionsInput.checked = Boolean(graph.execution.strictDefinitions);
-  }
-  if (strictDefinitionsInput) {
-    strictDefinitionsInput.checked = Boolean(graph.execution.strictDefinitions);
+    runTimedToggleBtn.disabled = false;
   }
 }
 
@@ -8664,9 +8693,10 @@ function exportGraphData() {
     })),
     view: {
       zoom: clampZoom(Number(ui.zoom) || 1),
-      showGrid: ui.showGrid !== false,
+      showGrid: ui.showGrid === true,
       highlightNodeEdges: ui.highlightNodeEdges === true,
       showNodeValues: ui.showNodeValues === true,
+      showEdgeValues: ui.showEdgeValues === true,
       gridSize: clamp(Number(ui.gridSize) || 20, 5, 100),
       tooltipDelayMs: normalizeTooltipDelayMs(ui.tooltipDelayMs),
       scrollLeft: Math.max(0, Number(graphViewport?.scrollLeft) || 0),
@@ -8884,6 +8914,7 @@ function captureCurrentModelContext(nodeName = "") {
       showGrid: ui.showGrid,
       highlightNodeEdges: ui.highlightNodeEdges,
       showNodeValues: ui.showNodeValues,
+      showEdgeValues: ui.showEdgeValues,
       gridSize: ui.gridSize,
       tooltipDelayMs: normalizeTooltipDelayMs(ui.tooltipDelayMs),
       scrollLeft: graphViewport.scrollLeft,
@@ -8912,6 +8943,7 @@ function restoreModelContext(context) {
   ui.showGrid = context.view?.showGrid === true;
   ui.highlightNodeEdges = context.view?.highlightNodeEdges === true;
   ui.showNodeValues = context.view?.showNodeValues === true;
+  ui.showEdgeValues = context.view?.showEdgeValues === true;
   ui.gridSize = clamp(Number(context.view?.gridSize) || ui.gridSize || 20, 5, 100);
   ui.tooltipDelayMs = normalizeTooltipDelayMs(context.view?.tooltipDelayMs);
   setStatus(String(context.statusMessage || t("status.ready")));
@@ -9174,6 +9206,7 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
   ui.showGrid = savedView?.showGrid === true;
   ui.highlightNodeEdges = savedView?.highlightNodeEdges === true;
   ui.showNodeValues = savedView?.showNodeValues === true;
+  ui.showEdgeValues = savedView?.showEdgeValues === true;
   ui.gridSize = clamp(Number(savedView?.gridSize) || ui.gridSize || 20, 5, 100);
   ui.tooltipDelayMs = normalizeTooltipDelayMs(savedView?.tooltipDelayMs);
   normalizeInputNodeFlags();
@@ -9464,6 +9497,11 @@ function updateEditingLockUi() {
     renderEveryStepsInput,
     decimalDigitsInput,
     nodeNameInput,
+    expressionNodeNameInput,
+    expressionNodeShapeInput,
+    expressionNodeInputInput,
+    expressionNodeOutputInput,
+    expressionNodeGlobalInput,
     nodeInitialStateInput,
     nodeModelPathInput,
     textWidthInput,
@@ -9510,9 +9548,6 @@ function updateEditingLockUi() {
   }
   if (expressionEditorApplyBtn) {
     expressionEditorApplyBtn.disabled = frozen || Boolean(ui.expressionEditor && !ui.expressionEditor.syntaxOk);
-  }
-  if (runStrictDefinitionsInput) {
-    runStrictDefinitionsInput.disabled = frozen;
   }
   if (!frozen) {
     releaseExecutionDisabledControls(document);
@@ -9787,6 +9822,38 @@ function buildEdgeGeometry(edge) {
   return { path, points };
 }
 
+function edgePolylineMidpoint(points = []) {
+  if (!Array.isArray(points) || points.length === 0) {
+    return null;
+  }
+  if (points.length === 1) {
+    return { x: Number(points[0].x) || 0, y: Number(points[0].y) || 0 };
+  }
+  let total = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    total += Math.hypot(points[index].x - points[index - 1].x, points[index].y - points[index - 1].y);
+  }
+  if (!Number.isFinite(total) || total <= 0) {
+    return { x: Number(points[0].x) || 0, y: Number(points[0].y) || 0 };
+  }
+  let travelled = 0;
+  const halfway = total / 2;
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1];
+    const current = points[index];
+    const segment = Math.hypot(current.x - previous.x, current.y - previous.y);
+    if (travelled + segment >= halfway) {
+      const ratio = segment > 0 ? (halfway - travelled) / segment : 0;
+      return {
+        x: previous.x + (current.x - previous.x) * ratio,
+        y: previous.y + (current.y - previous.y) * ratio,
+      };
+    }
+    travelled += segment;
+  }
+  return points[points.length - 1];
+}
+
 function rectangleOverlapArea(left, right, gap = 0) {
   const leftEdge = Math.max(left.x - gap, right.x);
   const topEdge = Math.max(left.y - gap, right.y);
@@ -9990,6 +10057,8 @@ function resetQualitativeGraphWizard() {
   qualitativeGraphWizard.variables = [""];
   qualitativeGraphWizard.matrix = [];
   qualitativeGraphWizard.stateNames = new Set();
+  qualitativeGraphWizard.inputNames = new Set();
+  qualitativeGraphWizard.parameterNames = new Set();
 }
 
 function qualitativeGraphNamesAreValid() {
@@ -10018,13 +10087,19 @@ function initializeQualitativeGraphMatrix() {
   qualitativeGraphWizard.stateNames = new Set(
     [...qualitativeGraphWizard.stateNames].filter((name) => qualitativeGraphWizard.variables.includes(name)),
   );
+  qualitativeGraphWizard.inputNames = new Set(
+    [...qualitativeGraphWizard.inputNames].filter((name) => qualitativeGraphWizard.variables.includes(name)),
+  );
+  qualitativeGraphWizard.parameterNames = new Set(
+    [...qualitativeGraphWizard.parameterNames].filter((name) => qualitativeGraphWizard.variables.includes(name)),
+  );
 }
 
 function renderQualitativeGraphWizard() {
   if (!qualitativeGraphContent || !qualitativeGraphSteps) return;
   const wizard = qualitativeGraphWizard;
   qualitativeGraphSteps.innerHTML = "";
-  ["variables", "relations", "states"].forEach((name, index) => {
+  ["variables", "relations", "states", "roles"].forEach((name, index) => {
     const item = document.createElement("span");
     item.className = `qualitative-graph-step${wizard.step === index + 1 ? " active" : ""}${wizard.step > index + 1 ? " complete" : ""}`;
     item.textContent = t(`qualitativeGraph.step.${name}`);
@@ -10125,7 +10200,7 @@ function renderQualitativeGraphWizard() {
     table.append(head, body);
     wrap.appendChild(table);
     qualitativeGraphContent.append(intro, wrap);
-  } else {
+  } else if (wizard.step === 3) {
     const intro = document.createElement("p");
     intro.className = "help-intro";
     intro.textContent = t("qualitativeGraph.states.intro");
@@ -10147,10 +10222,77 @@ function renderQualitativeGraphWizard() {
     note.className = "qualitative-graph-limit";
     note.textContent = t("qualitativeGraph.states.empty");
     qualitativeGraphContent.append(intro, list, note);
+  } else {
+    const intro = document.createElement("p");
+    intro.className = "help-intro";
+    intro.textContent = t("qualitativeGraph.roles.intro");
+    const list = document.createElement("div");
+    list.className = "qualitative-graph-role-list";
+    const heading = document.createElement("div");
+    heading.className = "qualitative-graph-role-row qualitative-graph-role-heading";
+    const variableHeading = document.createElement("span");
+    variableHeading.textContent = t("qualitativeGraph.roles.variable");
+    const inputHeading = document.createElement("span");
+    inputHeading.textContent = t("qualitativeGraph.roles.input");
+    const parameterHeading = document.createElement("span");
+    parameterHeading.textContent = t("qualitativeGraph.roles.parameter");
+    heading.append(variableHeading, inputHeading, parameterHeading);
+    list.appendChild(heading);
+    wizard.variables.forEach((name, index) => {
+      const hasIncomingRelation = wizard.matrix.some((row, rowIndex) => rowIndex !== index && row[index] === "1");
+      const isState = wizard.stateNames.has(name);
+      const canAssignRole = !isState && !hasIncomingRelation;
+      if (!canAssignRole) {
+        wizard.inputNames.delete(name);
+        wizard.parameterNames.delete(name);
+      }
+      const row = document.createElement("div");
+      row.className = "qualitative-graph-role-row";
+      const nameCell = document.createElement("span");
+      nameCell.textContent = name;
+      const inputLabel = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.setAttribute("aria-label", `${t("qualitativeGraph.roles.input")}: ${name}`);
+      input.checked = wizard.inputNames.has(name);
+      input.disabled = !canAssignRole;
+      input.addEventListener("change", () => {
+        if (input.checked) {
+          wizard.inputNames.add(name);
+          wizard.parameterNames.delete(name);
+        } else {
+          wizard.inputNames.delete(name);
+        }
+        renderQualitativeGraphWizard();
+      });
+      inputLabel.appendChild(input);
+      const parameterLabel = document.createElement("label");
+      const parameter = document.createElement("input");
+      parameter.type = "checkbox";
+      parameter.setAttribute("aria-label", `${t("qualitativeGraph.roles.parameter")}: ${name}`);
+      parameter.checked = wizard.parameterNames.has(name);
+      parameter.disabled = !canAssignRole;
+      parameter.addEventListener("change", () => {
+        if (parameter.checked) {
+          wizard.parameterNames.add(name);
+          wizard.inputNames.delete(name);
+        } else {
+          wizard.parameterNames.delete(name);
+        }
+        renderQualitativeGraphWizard();
+      });
+      parameterLabel.appendChild(parameter);
+      row.append(nameCell, inputLabel, parameterLabel);
+      list.appendChild(row);
+    });
+    const note = document.createElement("div");
+    note.className = "qualitative-graph-limit";
+    note.textContent = t("qualitativeGraph.roles.unavailable");
+    qualitativeGraphContent.append(intro, list, note);
   }
 
   qualitativeGraphBackBtn.disabled = wizard.step === 1;
-  qualitativeGraphNextBtn.textContent = t(wizard.step === 3 ? "action.create" : "action.next");
+  qualitativeGraphNextBtn.textContent = t(wizard.step === 4 ? "action.create" : "action.next");
 }
 
 function layoutQualitativeGraph(count, links) {
@@ -10218,9 +10360,11 @@ function createQualitativeGraphFromWizard() {
   runAction(() => {
     const ids = names.map((name, index) => {
       const state = qualitativeGraphWizard.stateNames.has(name);
+      const parameter = qualitativeGraphWizard.parameterNames.has(name);
+      const input = !state && !parameter && qualitativeGraphWizard.inputNames.has(name);
       const node = {
-        id: nodeCounter++, name, input: false, output: false, global: false,
-        shape: state ? "rect" : "ellipse", x: positions[index].x, y: positions[index].y,
+        id: nodeCounter++, name, input, output: false, global: false,
+        shape: state ? "rect" : (parameter ? "diamond" : "ellipse"), x: positions[index].x, y: positions[index].y,
         width: 120, height: 70, fillColor: "", strokeColor: "", valueExpression: "",
         initialStateExpression: "", modelPath: "", inputBindings: {},
         interfaceCache: emptySubmodelInterfaceCache(), submodelError: "", computedValue: null,
@@ -10269,6 +10413,8 @@ function advanceQualitativeGraphWizard() {
       return;
     }
     qualitativeGraphWizard.step = 3;
+  } else if (qualitativeGraphWizard.step === 3) {
+    qualitativeGraphWizard.step = 4;
   } else {
     createQualitativeGraphFromWizard();
     return;
@@ -10838,9 +10984,6 @@ function refreshSidebar() {
     if (document.activeElement !== integratorInput) {
       integratorInput.value = String(graph.execution.integrator ?? "euler");
     }
-    if (strictDefinitionsInput) {
-      strictDefinitionsInput.checked = Boolean(graph.execution.strictDefinitions);
-    }
     if (zoomRangeInput && document.activeElement !== zoomRangeInput) {
       zoomRangeInput.value = String(Math.round(ui.zoom * 100));
     }
@@ -11215,6 +11358,27 @@ function render(options = {}) {
 
     g.appendChild(path);
     g.appendChild(hit);
+
+    if (ui.showEdgeValues === true && graph.execution.currentTime != null) {
+      const sourceNode = getNodeById(edge.from);
+      if (sourceNode) {
+        const midpoint = edgePolylineMidpoint(geom.points);
+        const valueLabel = document.createElementNS(SVG_NS, "text");
+        valueLabel.classList.add("edge-runtime-value");
+        valueLabel.setAttribute("x", String(midpoint?.x ?? 0));
+        valueLabel.setAttribute("y", String((midpoint?.y ?? 0) + 16));
+        valueLabel.setAttribute("text-anchor", "middle");
+        valueLabel.textContent = sourceNode.computedError
+          ? t("text.nodeValueError")
+          : summarizeTooltipValue(sourceNode.computedValue);
+        const title = document.createElementNS(SVG_NS, "title");
+        title.textContent = sourceNode.computedError
+          ? String(sourceNode.computedError)
+          : summarizeTooltipValue(sourceNode.computedValue);
+        valueLabel.appendChild(title);
+        g.appendChild(valueLabel);
+      }
+    }
 
     const edgeLabel = normalizeEdgeLabel(edge.label);
     if (edgeLabel) {
@@ -12195,6 +12359,7 @@ function importGraphData(data) {
         showGrid: data.view.showGrid === true,
         highlightNodeEdges: data.view.highlightNodeEdges === true,
         showNodeValues: data.view.showNodeValues === true,
+        showEdgeValues: data.view.showEdgeValues === true,
         gridSize: clamp(Number(data.view.gridSize) || 20, 5, 100),
         tooltipDelayMs: normalizeTooltipDelayMs(data.view.tooltipDelayMs),
         scrollLeft: Math.max(0, Number(data.view.scrollLeft) || 0),
@@ -12919,7 +13084,7 @@ function resetGraphToEmptyModel() {
     renderEverySteps: 1,
     decimals: 3,
     integrator: "euler",
-    strictDefinitions: false,
+    strictDefinitions: true,
     currentTime: null,
   };
   nodeCounter = 1;
@@ -12938,6 +13103,7 @@ function resetGraphToEmptyModel() {
   submodelFileHandleCache.clear();
   submodelSourceCache.clear();
   ui.submodelsPrepared = false;
+  ui.showGrid = false;
   ui.watchPreviousSnapshot = new Map();
   ui.breakpointLastResult = null;
   ui.localFunctionsEditor = null;
@@ -13101,7 +13267,7 @@ const runtimeController = globalThis.STGraphXRuntimeController?.createRuntimeCon
     clearAllTableWidgetRows();
   },
   clearSimulationHistory: () => clearSimulationOutputHistory(),
-  hasStrictExecutionBlock: () => graph.execution.strictDefinitions && invalidDefinedNodes().length > 0,
+  hasStrictExecutionBlock: () => hasStrictExecutionBlock(),
   buildEvaluationEnv: () => ({
     rootExecution: graph.execution,
     stack: [],
@@ -13836,6 +14002,10 @@ window.addEventListener("pointermove", (evt) => {
         y: ui.snapToGrid ? cp.y + dy : cp.y + dy,
       }));
     });
+    // Keep the dynamic right/bottom boundaries ahead of the dragged node.
+    // Without this forced update, the current SVG viewBox clips a node as soon
+    // as it crosses the former model boundary, until the pointer is released.
+    updateCanvasSize(evt.clientX, evt.clientY, true);
     render();
   }
 
@@ -14655,6 +14825,15 @@ if (showNodeValuesInput) {
   });
 }
 
+if (showEdgeValuesInput) {
+  showEdgeValuesInput.addEventListener("change", () => {
+    ui.showEdgeValues = showEdgeValuesInput.checked;
+    render();
+    scheduleFileStatusRefresh();
+    setStatusKey(ui.showEdgeValues ? "status.edgeValuesOn" : "status.edgeValuesOff");
+  });
+}
+
 gridSizeInput.addEventListener("change", () => {
   ui.gridSize = clamp(Number(gridSizeInput.value) || 20, 5, 100);
   gridSizeInput.value = String(ui.gridSize);
@@ -14675,6 +14854,15 @@ if (tooltipDelayInput) {
 if (interfaceLanguageInput) {
   interfaceLanguageInput.addEventListener("change", () => {
     applyInterfaceLanguage(interfaceLanguageInput.value, true);
+  });
+}
+
+if (strictDefinitionsInput) {
+  strictDefinitionsInput.addEventListener("change", () => {
+    graph.execution.strictDefinitions = strictDefinitionsInput.checked;
+    scheduleFileStatusRefresh();
+    setStatusKey(graph.execution.strictDefinitions ? "status.strictDefinitionsOn" : "status.strictDefinitionsOff");
+    render();
   });
 }
 
@@ -14774,24 +14962,6 @@ if (integratorInput) {
     setStatusKey("status.integratorUpdated", { name: t(`integrator.${graph.execution.integrator}`) });
     scheduleFileStatusRefresh();
     render();
-  });
-}
-
-function commitStrictDefinitionsToggle(enabled) {
-  graph.execution.strictDefinitions = Boolean(enabled);
-  setStatusKey(graph.execution.strictDefinitions ? "status.strictDefinitionsOn" : "status.strictDefinitionsOff");
-  scheduleFileStatusRefresh();
-  render();
-}
-
-if (strictDefinitionsInput) {
-  strictDefinitionsInput.addEventListener("change", () => {
-    commitStrictDefinitionsToggle(strictDefinitionsInput.checked);
-  });
-}
-if (runStrictDefinitionsInput) {
-  runStrictDefinitionsInput.addEventListener("change", () => {
-    commitStrictDefinitionsToggle(runStrictDefinitionsInput.checked);
   });
 }
 
@@ -15462,13 +15632,20 @@ if (expressionEditorTextarea) {
 
 if (expressionNodeShapeInput) {
   expressionNodeShapeInput.addEventListener("change", () => {
-    syncExpressionEditorNodeOptionAvailability(expressionNodeShapeInput.value);
+    const node = ui.expressionEditor?.nodeId ? getNodeById(ui.expressionEditor.nodeId) : null;
+    syncExpressionEditorNodeOptionAvailability(node, expressionNodeShapeInput.value);
     if (expressionNodeShapeInput.value !== "diamond" && expressionNodeGlobalInput) {
       expressionNodeGlobalInput.checked = false;
     }
     if (expressionNodeShapeInput.value === "submodel" && expressionNodeOutputInput) {
       expressionNodeOutputInput.checked = false;
     }
+  });
+}
+
+if (expressionNodeNameInput) {
+  expressionNodeNameInput.addEventListener("input", () => {
+    expressionNodeNameInput.classList.remove("invalid");
   });
 }
 
@@ -16216,23 +16393,17 @@ document.addEventListener("keydown", (evt) => {
 
   if (evt.key === "F7") {
     evt.preventDefault();
-    if (!hasStrictExecutionBlock()) {
-      void executeNodeExpressions();
-    }
+    void executeNodeExpressions();
     return;
   }
   if (evt.key === "F8") {
     evt.preventDefault();
-    if (!hasStrictExecutionBlock()) {
-      void runManualStep();
-    }
+    void runManualStep();
     return;
   }
   if (evt.key === "F9") {
     evt.preventDefault();
-    if (ui.timedRunHandle != null || !hasStrictExecutionBlock()) {
-      void toggleTimedExecution();
-    }
+    void toggleTimedExecution();
     return;
   }
   if (evt.key === "F10") {

@@ -23,6 +23,11 @@ quantificate.
 3. **Variabili di stato.** Seleziona le variabili che dipendono anche dal loro
    valore precedente. Esse diventano nodi di stato; le altre diventano nodi
    algebrici. Tutti i valori e le espressioni restano inizialmente vuoti.
+4. **Ruoli.** Per ogni variabile algebrica senza relazioni entranti puoi
+   selezionare, in alternativa, `Input` oppure `Parametro`. Un input è pronto
+   per essere pilotato da un widget; un parametro viene creato come nodo
+   parametro. Le variabili di stato e quelle con frecce entranti non sono
+   selezionabili, poiché nessuno dei due ruoli può ricevere relazioni.
 
 Al termine, DSGraph applica un layout a dispersione interno: ogni relazione
 attrae moderatamente i suoi estremi, mentre ogni coppia di nodi si respinge a

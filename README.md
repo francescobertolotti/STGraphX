@@ -32,8 +32,8 @@ Il file QUICK-START.md contiene informazioni sull'installazione, l'uso, e lo svi
 ## Qualitative Graph Building
 
 La procedura guidata `Inserisci > Grafo > Qualitative Graph Building...` crea
-la struttura iniziale di un modello a partire da variabili, relazioni dirette e
-variabili di stato. La metodologia è disponibile in
+la struttura iniziale di un modello a partire da variabili, relazioni dirette,
+variabili di stato e ruoli Input/Parametro. La metodologia è disponibile in
 [italiano](docs/COSTRUZIONE-GRAFO-QUALITATIVO.md) e in
 [English](docs/QUALITATIVE-GRAPH-BUILDING.md).
 
@@ -91,7 +91,7 @@ Ha un'interfaccia utente responsive, che lo rende utilizzabile anche su tablet.
 
 * Definizione della base dei tempi e modalità varie di esecuzione; pannello di configurazione aggiornato dinamicamente
 * Gestione di esecuzione completa, passo-passo, temporizzata, con modello in modalità read-only durante l'esecuzione
-* Gestione opzionale del blocco di esecuzione ed evidenziazione per nodi non definiti (**)
+* Nelle Opzioni di visualizzazione, l'impostazione `Blocca l'esecuzione se non tutti i nodi sono definiti` evidenzia in rosso i nodi non definiti e blocca l'esecuzione con un messaggio di errore; disattivandola, l'esecuzione conserva il comportamento permissivo precedente (**)
 
 #### Funzionalità del linguaggio
 

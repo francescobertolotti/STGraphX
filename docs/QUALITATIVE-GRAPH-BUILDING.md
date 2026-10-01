@@ -21,6 +21,11 @@ explicit, so they can be reviewed, corrected, and later quantified.
 3. **State variables.** Select variables whose value also depends on the
    system's previous state. They become state nodes; the remaining variables
    become algebraic nodes. All expressions and values are initially blank.
+4. **Roles.** For each algebraic variable without incoming relationships, you
+   may select either `Input` or `Parameter`. An input is ready to be driven by
+   an input widget; a parameter is created as a parameter node. State variables
+   and variables with incoming links cannot be selected because neither role
+   may receive relationships.
 
 When the wizard finishes, DSGraph uses an internal scatter layout: each
 relationship moderately attracts its endpoints, while every nearby pair of

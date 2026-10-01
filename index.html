@@ -115,10 +115,6 @@
             <button id="runResetBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.reset"><span data-i18n="menu.run.reset"></span><span class="menu-shortcut">F10</span></button>
             <hr class="menu-sep" />
             <button id="watchDebuggerBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.watch"><span data-i18n="menu.run.watch"></span></button>
-            <label class="menu-check" for="runStrictDefinitionsInput" data-title-i18n="tooltip.model.strictDefinitions">
-              <input id="runStrictDefinitionsInput" type="checkbox" />
-              <span data-i18n="menu.run.strictDefinitions"></span>
-            </label>
           </div>
         </div>
 
@@ -421,16 +417,26 @@
           <div id="expressionEditorMain" class="expression-editor-main">
             <div id="expressionEditorCore" class="expression-editor-core">
             <div id="expressionNodeOptions" class="expression-node-options hidden">
-              <label for="expressionNodeShape" data-i18n="label.shape"></label>
-              <select id="expressionNodeShape"></select>
-              <label id="expressionNodeOutputLabel" class="expression-node-option-flag">
-                <input id="expressionNodeOutput" type="checkbox" />
-                <span data-i18n="label.output"></span>
-              </label>
-              <label id="expressionNodeGlobalLabel" class="expression-node-option-flag">
-                <input id="expressionNodeGlobal" type="checkbox" />
-                <span data-i18n="label.global"></span>
-              </label>
+              <div class="expression-node-identity">
+                <label for="expressionNodeName" data-i18n="label.name"></label>
+                <input id="expressionNodeName" type="text" data-title-i18n="tooltip.node.name" />
+                <label for="expressionNodeShape" data-i18n="label.shape"></label>
+                <select id="expressionNodeShape"></select>
+              </div>
+              <div class="expression-node-flags">
+                <label id="expressionNodeInputLabel" class="expression-node-option-flag">
+                  <input id="expressionNodeInput" type="checkbox" />
+                  <span data-i18n="label.input"></span>
+                </label>
+                <label id="expressionNodeOutputLabel" class="expression-node-option-flag">
+                  <input id="expressionNodeOutput" type="checkbox" />
+                  <span data-i18n="label.output"></span>
+                </label>
+                <label id="expressionNodeGlobalLabel" class="expression-node-option-flag">
+                  <input id="expressionNodeGlobal" type="checkbox" />
+                  <span data-i18n="label.global"></span>
+                </label>
+              </div>
             </div>
             <div id="expressionStateInitialBlock" class="expression-state-initial hidden">
               <div class="expression-field-head">
@@ -475,7 +481,7 @@
               <div id="expressionHelp" class="expression-help" data-i18n="expr.help.empty"></div>
             </div>
             <div id="expressionPreviewBox" class="expression-preview">
-              <div id="expressionPreviewLabel" class="expression-preview-label" data-i18n="expr.preview.title"></div>
+              <button id="expressionPreviewLabel" class="expression-preview-label expression-preview-toggle" type="button" data-i18n="expr.preview.title" aria-expanded="false"></button>
               <pre id="expressionPreviewValue" class="expression-preview-value" data-i18n="expr.preview.empty"></pre>
             </div>
           </aside>
@@ -730,6 +736,10 @@
               <input id="showNodeValuesInput" type="checkbox" />
               <span data-i18n="menu.view.showNodeValues"></span>
             </label>
+            <label class="option-check" for="showEdgeValuesInput" data-title-i18n="tooltip.menu.view.showEdgeValues">
+              <input id="showEdgeValuesInput" type="checkbox" />
+              <span data-i18n="menu.view.showEdgeValues"></span>
+            </label>
           </div>
         </section>
         <section class="view-options-section">
@@ -752,6 +762,15 @@
             </select>
             <label for="decimalDigitsInput" data-i18n="label.decimals" data-title-i18n="tooltip.model.decimals"></label>
             <input id="decimalDigitsInput" type="number" min="0" max="12" step="1" data-title-i18n="tooltip.model.decimals" />
+          </div>
+        </section>
+        <section class="view-options-section">
+          <h4 data-i18n="viewOptions.execution"></h4>
+          <div class="view-options-checks">
+            <label class="option-check" for="strictDefinitionsInput" data-title-i18n="tooltip.model.strictDefinitions">
+              <input id="strictDefinitionsInput" type="checkbox" checked />
+              <span data-i18n="label.strictDefinitions"></span>
+            </label>
           </div>
         </section>
         <div class="modal-actions">

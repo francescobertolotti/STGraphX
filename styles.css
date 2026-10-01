@@ -2121,6 +2121,22 @@ button:disabled {
   overflow: hidden;
 }
 
+#functionalLoopModal.modal-modeless {
+  z-index: 1492;
+}
+
+.functional-loop-card {
+  width: min(1180px, calc(100vw - 40px));
+  max-width: calc(100vw - 20px);
+  height: min(82vh, 820px);
+  max-height: calc(100vh - 20px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+}
+
 #watchDebuggerModal.modal-modeless {
   z-index: 1492;
 }
@@ -2539,6 +2555,200 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.functional-loop-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+
+.functional-loop-toolbar label {
+  display: grid;
+  grid-template-columns: auto 88px;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.86rem;
+  color: #405a6e;
+}
+
+.functional-loop-toolbar input {
+  min-width: 0;
+}
+
+.functional-loop-validation-list,
+.functional-loop-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.functional-loop-validation,
+.functional-loop-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.functional-loop-validation.success,
+.functional-loop-pill.reinforcing {
+  color: #0d7041;
+  background: #e3f8ed;
+}
+
+.functional-loop-validation.warning,
+.functional-loop-pill.balancing {
+  color: #995900;
+  background: #fff0d5;
+}
+
+.functional-loop-validation.neutral,
+.functional-loop-pill.indeterminate {
+  color: #405a6e;
+  background: #e9eff4;
+}
+
+.functional-loop-pill.plain {
+  color: #284051;
+  background: #edf3f7;
+}
+
+.functional-loop-content {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.functional-loop-section {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d7e2ea;
+  border-radius: 10px;
+  background: #fbfdff;
+}
+
+.functional-loop-section h4,
+.functional-loop-section p {
+  margin: 0;
+}
+
+.functional-loop-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.functional-loop-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.84rem;
+  color: #405a6e;
+}
+
+.functional-loop-table-wrap {
+  overflow: auto;
+  border: 1px solid #dce6ed;
+  border-radius: 8px;
+}
+
+.functional-loop-table {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.functional-loop-table th,
+.functional-loop-table td {
+  padding: 8px 9px;
+  border-bottom: 1px solid #e1e9ee;
+  text-align: left;
+  vertical-align: top;
+}
+
+.functional-loop-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #edf4f8;
+  color: #365269;
+  white-space: nowrap;
+}
+
+.functional-loop-table tbody tr {
+  cursor: pointer;
+}
+
+.functional-loop-table tbody tr:hover,
+.functional-loop-table tbody tr:focus-visible {
+  outline: none;
+  background: #eaf6ff;
+}
+
+.functional-loop-row.reinforcing .functional-loop-id {
+  color: #08753f;
+  font-weight: 700;
+}
+
+.functional-loop-row.balancing .functional-loop-id {
+  color: #a36200;
+  font-weight: 700;
+}
+
+.functional-loop-row.indeterminate .functional-loop-id {
+  color: #526a7d;
+  font-weight: 700;
+}
+
+.functional-loop-node-name {
+  font-weight: 700;
+}
+
+.functional-loop-influence details {
+  min-width: 180px;
+}
+
+.functional-loop-influence summary {
+  color: #176ca7;
+}
+
+.functional-loop-influence pre {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  font: inherit;
+  color: #405a6e;
+}
+
+.functional-loop-leverage-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 28px;
+}
+
+.functional-loop-leverage-button {
+  padding: 0;
+  color: #176ca7;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.functional-loop-help,
+.functional-loop-empty {
+  color: #526a7d;
+  font-size: 0.88rem;
 }
 
 .model-analysis-checks-content {
@@ -4123,6 +4333,16 @@ body.tablet-sidebar-layout .expression-editor-resize-handle {
   cursor: move;
 }
 
+.edge-label.auto-relation-label {
+  cursor: default;
+  pointer-events: none;
+}
+
+.edge-label.auto-relation-label .edge-label-text {
+  fill: #176ca7;
+  font-weight: 700;
+}
+
 .edge-label-hit {
   fill: #fff;
   fill-opacity: 0.92;
@@ -4173,6 +4393,24 @@ body.tablet-sidebar-layout .expression-editor-resize-handle {
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid var(--line);
+}
+
+.edge-relation-config {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.edge-relation-config h4 {
+  margin: 0;
+}
+
+.edge-relation-config label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
 }
 
 .edge-label-config h4 {
@@ -5128,6 +5366,7 @@ body.tablet-sidebar-layout .menu-run-btn {
   .about-app-card,
   .eight-tuple-card,
   .model-analysis-card,
+  .functional-loop-card,
   .watch-debugger-card,
   .local-functions-card,
   .text-editor-card,

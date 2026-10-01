@@ -114,6 +114,7 @@
             <button id="runTimedToggleBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.timed"><span data-i18n="menu.run.timedToggle"></span><span class="menu-shortcut">F9</span></button>
             <button id="runResetBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.reset"><span data-i18n="menu.run.reset"></span><span class="menu-shortcut">F10</span></button>
             <hr class="menu-sep" />
+            <button id="functionalLoopDiagramBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.functionalLoops"><span data-i18n="menu.run.functionalLoops"></span></button>
             <button id="watchDebuggerBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.watch"><span data-i18n="menu.run.watch"></span></button>
           </div>
         </div>
@@ -647,6 +648,26 @@
         </div>
       </div>
     </div>
+    <div id="functionalLoopModal" class="modal-backdrop modal-modeless hidden">
+      <div class="modal-card functional-loop-card" role="dialog" aria-modal="false" aria-labelledby="functionalLoopTitle">
+        <div class="modal-head">
+          <h3 id="functionalLoopTitle" data-i18n="functionalLoops.title"></h3>
+          <button id="functionalLoopCloseBtn" class="icon-btn modal-close-btn" type="button" data-i18n-aria-label="aria.close">×</button>
+        </div>
+        <div class="functional-loop-toolbar">
+          <label for="functionalLoopMaxCyclesInput"><span data-i18n="functionalLoops.maxCycles"></span><input id="functionalLoopMaxCyclesInput" type="number" min="1" max="5000" step="1" value="500" /></label>
+          <label for="functionalLoopMaxDepthInput"><span data-i18n="functionalLoops.maxDepth"></span><input id="functionalLoopMaxDepthInput" type="number" min="1" max="12" step="1" value="4" /></label>
+          <button id="functionalLoopRunBtn" class="small-btn" type="button" data-i18n="functionalLoops.run"></button>
+        </div>
+        <div id="functionalLoopValidation" class="functional-loop-validation-list"></div>
+        <div id="functionalLoopSummary" class="functional-loop-summary"></div>
+        <div id="functionalLoopContent" class="functional-loop-content"></div>
+        <div class="modal-actions">
+          <button id="functionalLoopExportBtn" type="button" data-i18n="functionalLoops.export"></button>
+          <button id="functionalLoopDismissBtn" type="button" data-i18n="action.close"></button>
+        </div>
+      </div>
+    </div>
     <div id="watchDebuggerModal" class="modal-backdrop modal-modeless hidden">
       <div class="modal-card watch-debugger-card" role="dialog" aria-modal="false" aria-labelledby="watchDebuggerTitle">
         <div class="modal-head">
@@ -843,6 +864,8 @@
     <script src="help-content.js"></script>
     <script src="model-analysis-core.js"></script>
     <script src="model-analysis-ui.js"></script>
+    <script src="functional-loop-core.js"></script>
+    <script src="functional-loop-ui.js"></script>
     <script src="watch-debugger-core.js"></script>
     <script src="watch-debugger-ui.js"></script>
     <script src="widgets.js"></script>

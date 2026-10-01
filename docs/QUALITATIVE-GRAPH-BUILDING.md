@@ -14,10 +14,13 @@ explicit, so they can be reviewed, corrected, and later quantified.
 1. **Variables.** Enter up to ten important system properties. Each name must
    be a valid DSGraph identifier and must not duplicate another name already in
    the model.
-2. **Relationships.** The row `a` and column `b` ask whether `a` directly
-   influences `b`. Select `1` to create `a → b`; select `0`, or leave the
-   selector empty, to create no edge. The diagonal cannot be edited because the wizard
-   does not introduce self-links.
+2. **Functional relationships.** The row `a` and column `b` ask how `a`
+   influences `b`. Select `+` to create a direct functional relationship, `−`
+   for an inverse one, or `1` when a relationship exists but is non-monotonic
+   or its sign is not yet specified. Select `0`, or leave the selector empty,
+   to create no edge. `+` and `−` relationships are created as monotonic and
+   show their sign above the edge until a custom label is entered. The diagonal
+   cannot be edited because the wizard does not introduce self-links.
 3. **State variables.** Select variables whose value also depends on the
    system's previous state. They become state nodes; the remaining variables
    become algebraic nodes. All expressions and values are initially blank.

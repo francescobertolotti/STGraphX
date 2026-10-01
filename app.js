@@ -60,6 +60,7 @@ const runEvalBtn = document.getElementById("runEvalBtn");
 const runStepBtn = document.getElementById("runStepBtn");
 const runTimedToggleBtn = document.getElementById("runTimedToggleBtn");
 const runResetBtn = document.getElementById("runResetBtn");
+const functionalLoopDiagramBtn = document.getElementById("functionalLoopDiagramBtn");
 const analyzeModelBtn = document.getElementById("analyzeModelBtn");
 const watchDebuggerBtn = document.getElementById("watchDebuggerBtn");
 const topRunEvalBtn = document.getElementById("topRunEvalBtn");
@@ -278,6 +279,16 @@ const modelAnalysisChecksModal = document.getElementById("modelAnalysisChecksMod
 const modelAnalysisChecksCloseBtn = document.getElementById("modelAnalysisChecksCloseBtn");
 const modelAnalysisChecksDismissBtn = document.getElementById("modelAnalysisChecksDismissBtn");
 const modelAnalysisChecksContent = document.getElementById("modelAnalysisChecksContent");
+const functionalLoopModal = document.getElementById("functionalLoopModal");
+const functionalLoopCloseBtn = document.getElementById("functionalLoopCloseBtn");
+const functionalLoopDismissBtn = document.getElementById("functionalLoopDismissBtn");
+const functionalLoopRunBtn = document.getElementById("functionalLoopRunBtn");
+const functionalLoopExportBtn = document.getElementById("functionalLoopExportBtn");
+const functionalLoopMaxCyclesInput = document.getElementById("functionalLoopMaxCyclesInput");
+const functionalLoopMaxDepthInput = document.getElementById("functionalLoopMaxDepthInput");
+const functionalLoopValidation = document.getElementById("functionalLoopValidation");
+const functionalLoopSummary = document.getElementById("functionalLoopSummary");
+const functionalLoopContent = document.getElementById("functionalLoopContent");
 const watchDebuggerModal = document.getElementById("watchDebuggerModal");
 const watchDebuggerCloseBtn = document.getElementById("watchDebuggerCloseBtn");
 const watchDebuggerDismissBtn = document.getElementById("watchDebuggerDismissBtn");
@@ -969,6 +980,7 @@ const ui = {
   expressionEditorPendingSelectionAction: null,
   expressionPreviewInitCache: null,
   analysisFocus: null,
+  functionalLoopFocus: null,
   watchPreviousSnapshot: new Map(),
   breakpointLastResult: null,
   localFunctionsEditor: null,
@@ -2804,6 +2816,62 @@ if (!modelAnalysisCoreHelpers) {
   throw new Error("STGraphX model analysis core helpers are unavailable");
 }
 
+const functionalLoopCore = globalThis.DSGraphFunctionalLoopCore;
+if (!functionalLoopCore) {
+  throw new Error("DSGraph functional loop core helpers are unavailable");
+}
+
+function normalizeEdgeRelationType(value) {
+  return functionalLoopCore.normalizeRelationType(value, "1");
+}
+
+function focusFunctionalLoop(loop) {
+  if (!loop) return;
+  setFunctionalLoopFocus({ nodeIds: loop.nodeIds, edgeIds: loop.edgeIds });
+  setNodeSelection(loop.nodeIds || [], false);
+  render();
+}
+
+function focusFunctionalLoopNode(node) {
+  if (!node) return;
+  const result = functionalLoopUiHelpers?.getResult?.();
+  const linkedLoops = (result?.cycles || []).filter((loop) => (node.loopIds || []).includes(loop.id));
+  const nodeIds = new Set([node.nodeId]);
+  const edgeIds = new Set();
+  linkedLoops.forEach((loop) => {
+    loop.nodeIds.forEach((id) => nodeIds.add(id));
+    loop.edgeIds.forEach((id) => edgeIds.add(id));
+  });
+  setFunctionalLoopFocus({ nodeIds, edgeIds });
+  selectSingleNode(node.nodeId);
+  render();
+}
+
+function exportFunctionalLoopResults(result) {
+  const csv = functionalLoopCore.exportFunctionalLoopCsv(result);
+  downloadTextFile("functional-loop-diagram.csv", csv, "text/csv;charset=utf-8");
+  setStatusKey("status.functionalLoopsExported");
+}
+
+const functionalLoopUiHelpers = globalThis.DSGraphFunctionalLoopUi?.createFunctionalLoopUiHelpers({
+  t,
+  modal: functionalLoopModal,
+  content: functionalLoopContent,
+  summary: functionalLoopSummary,
+  validation: functionalLoopValidation,
+  maxCyclesInput: functionalLoopMaxCyclesInput,
+  maxDepthInput: functionalLoopMaxDepthInput,
+  runAnalysis: (options) => functionalLoopCore.analyzeFunctionalLoops(graph, options),
+  onFocusLoop: focusFunctionalLoop,
+  onFocusNode: focusFunctionalLoopNode,
+  onExport: exportFunctionalLoopResults,
+  setStatusKey,
+});
+
+if (!functionalLoopUiHelpers) {
+  throw new Error("DSGraph functional loop UI helpers are unavailable");
+}
+
 const watchDebuggerCoreHelpers = globalThis.STGraphXWatchDebuggerCore?.createWatchDebuggerCoreHelpers({
   t,
   getGraph: () => graph,
@@ -2859,6 +2927,31 @@ function setAnalysisFocus(target) {
       render();
     }
   }, 1850);
+}
+
+function isFunctionalLoopFocusActive(targetType, targetId) {
+  const focus = ui.functionalLoopFocus;
+  if (!focus || focus.expiresAt <= Date.now()) {
+    if (focus) ui.functionalLoopFocus = null;
+    return false;
+  }
+  const ids = targetType === "node" ? focus.nodeIds : focus.edgeIds;
+  return ids instanceof Set && ids.has(targetId);
+}
+
+function setFunctionalLoopFocus({ nodeIds = [], edgeIds = [] } = {}) {
+  const focus = {
+    nodeIds: new Set(nodeIds),
+    edgeIds: new Set(edgeIds),
+    expiresAt: Date.now() + 3500,
+  };
+  ui.functionalLoopFocus = focus;
+  window.setTimeout(() => {
+    if (ui.functionalLoopFocus === focus && focus.expiresAt <= Date.now()) {
+      ui.functionalLoopFocus = null;
+      render();
+    }
+  }, 3550);
 }
 
 function analyzeModelStaticIssues() {
@@ -3548,6 +3641,22 @@ function closeAboutApp() {
 
 function closeModelAnalysis() {
   modelAnalysisUiHelpers.closeModelAnalysis();
+}
+
+function openFunctionalLoopDiagram() {
+  functionalLoopUiHelpers.openFunctionalLoopDiagram();
+}
+
+function closeFunctionalLoopDiagram() {
+  functionalLoopUiHelpers.closeFunctionalLoopDiagram();
+}
+
+function runFunctionalLoopDiagram() {
+  functionalLoopUiHelpers.execute();
+}
+
+function exportFunctionalLoopDiagram() {
+  functionalLoopUiHelpers.exportResults();
 }
 
 function showLocalFunctionsStatus(message = "", isError = false) {
@@ -6681,6 +6790,7 @@ function closeDocumentTransientUi() {
   closeAboutApp();
   closeModelAnalysis();
   closeModelAnalysisChecksHelp();
+  closeFunctionalLoopDiagram();
   closeWatchDebugger();
   closeLocalFunctionsEditor();
   closePresentationGroupsEditor();
@@ -8785,6 +8895,7 @@ function exportGraphData() {
       id: e.id,
       from: e.from,
       to: e.to,
+      relationType: normalizeEdgeRelationType(e.relationType),
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
       label: normalizeEdgeLabel(e.label),
     })),
@@ -9045,13 +9156,16 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
     sanitizeNodeVisualOptions(node);
     return node;
   });
-  graph.edges = data.edges.map((e) => ({
-    id: e.id,
-    from: e.from,
-    to: e.to,
-    controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
-    label: normalizeEdgeLabel(e.label),
-  }));
+  graph.edges = data.edges
+    .filter((e) => normalizeEdgeRelationType(e?.relationType) !== "0")
+    .map((e) => ({
+      id: e.id,
+      from: e.from,
+      to: e.to,
+      relationType: normalizeEdgeRelationType(e.relationType),
+      controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
+      label: normalizeEdgeLabel(e.label),
+    }));
   graph.textItems = Array.isArray(data.textItems)
     ? data.textItems.map((item) => {
       const out = {
@@ -9590,6 +9704,7 @@ function collectSelectedForClipboard() {
     .map((e) => ({
       from: e.from,
       to: e.to,
+      relationType: normalizeEdgeRelationType(e.relationType),
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
       label: normalizeEdgeLabel(e.label),
     }));
@@ -9683,6 +9798,7 @@ async function pasteFromClipboard() {
         id: edgeCounter++,
         from,
         to,
+        relationType: normalizeEdgeRelationType(e.relationType),
         controlPoints: (e.controlPoints || []).map((cp) => ({
           x: snap(cp.x + offset),
           y: snap(cp.y + offset),
@@ -10041,6 +10157,7 @@ function addEdge(fromId, toId) {
     id: edgeCounter++,
     from: fromId,
     to: toId,
+    relationType: "1",
     controlPoints: [],
   };
   graph.edges.push(edge);
@@ -10074,7 +10191,7 @@ function qualitativeGraphNamesAreValid() {
 
 function qualitativeGraphMatrixIsValid() {
   return qualitativeGraphWizard.matrix.every((row) => row.every((value) => (
-    value === "" || value === "0" || value === "1"
+    value === "" || value === "0" || value === "1" || value === "+" || value === "-"
   )));
 }
 
@@ -10179,7 +10296,7 @@ function renderQualitativeGraphWizard() {
           const select = document.createElement("select");
           select.className = "qualitative-graph-matrix-choice";
           select.setAttribute("aria-label", `${from} → ${wizard.variables[col]}`);
-          [["", ""], ["0", "0"], ["1", "1"]].forEach(([value, label]) => {
+          [["", ""], ["0", "0"], ["1", "1"], ["+", "+"], ["-", "-"]].forEach(([value, label]) => {
             const option = document.createElement("option");
             option.value = value;
             option.textContent = label;
@@ -10239,7 +10356,9 @@ function renderQualitativeGraphWizard() {
     heading.append(variableHeading, inputHeading, parameterHeading);
     list.appendChild(heading);
     wizard.variables.forEach((name, index) => {
-      const hasIncomingRelation = wizard.matrix.some((row, rowIndex) => rowIndex !== index && row[index] === "1");
+      const hasIncomingRelation = wizard.matrix.some((row, rowIndex) => (
+        rowIndex !== index && row[index] !== "" && row[index] !== "0"
+      ));
       const isState = wizard.stateNames.has(name);
       const canAssignRole = !isState && !hasIncomingRelation;
       if (!canAssignRole) {
@@ -10354,7 +10473,7 @@ function layoutQualitativeGraph(count, links) {
 
 function createQualitativeGraphFromWizard() {
   const names = qualitativeGraphWizard.variables.map((name) => String(name).trim());
-  const links = qualitativeGraphWizard.matrix.map((row) => row.map((value) => value === "1"));
+  const links = qualitativeGraphWizard.matrix.map((row) => row.map((value) => value !== "" && value !== "0"));
   const positions = layoutQualitativeGraph(names.length, links);
   let edgeCount = 0;
   runAction(() => {
@@ -10378,7 +10497,13 @@ function createQualitativeGraphFromWizard() {
     });
     links.forEach((row, from) => row.forEach((linked, to) => {
       if (!linked || from === to) return;
-      graph.edges.push({ id: edgeCounter++, from: ids[from], to: ids[to], controlPoints: [] });
+      graph.edges.push({
+        id: edgeCounter++,
+        from: ids[from],
+        to: ids[to],
+        relationType: qualitativeGraphWizard.matrix[from][to],
+        controlPoints: [],
+      });
       edgeCount += 1;
     }));
     setNodeSelection(ids, false);
@@ -10453,6 +10578,38 @@ function refreshSidebar() {
     const summary = document.createElement("div");
     summary.textContent = `${from?.name || edge.from} -> ${to?.name || edge.to}`;
     edgeInfo.appendChild(summary);
+
+    const relationSection = document.createElement("section");
+    relationSection.className = "edge-relation-config";
+    const relationTitle = document.createElement("h4");
+    relationTitle.textContent = t("panel.edgeRelation");
+    const relationLabel = document.createElement("label");
+    relationLabel.textContent = t("label.edgeRelation");
+    const relationSelect = document.createElement("select");
+    ["+", "-", "1", "0"].forEach((value) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = t(`edgeRelation.${value}`);
+      relationSelect.appendChild(option);
+    });
+    relationSelect.value = normalizeEdgeRelationType(edge.relationType);
+    relationSelect.addEventListener("change", () => {
+      const nextType = normalizeEdgeRelationType(relationSelect.value);
+      runAction(() => {
+        const target = getEdgeById(edgeId);
+        if (!target) return;
+        if (nextType === "0") {
+          graph.edges = graph.edges.filter((candidate) => candidate.id !== edgeId);
+          clearAllSelection();
+          return;
+        }
+        target.relationType = nextType;
+      });
+      setStatusKey(nextType === "0" ? "status.edgeRelationRemoved" : "status.edgeRelationUpdated");
+    });
+    relationLabel.appendChild(relationSelect);
+    relationSection.append(relationTitle, relationLabel);
+    edgeInfo.appendChild(relationSection);
 
     const labelSection = document.createElement("section");
     labelSection.className = "edge-label-config";
@@ -11286,7 +11443,7 @@ function render(options = {}) {
     if (isSelected) {
       g.classList.add("selected");
     }
-    if (isAnalysisFocusActive("edge", edge.id)) {
+    if (isAnalysisFocusActive("edge", edge.id) || isFunctionalLoopFocusActive("edge", edge.id)) {
       g.classList.add("analysis-focus");
     }
     if (isBothHighlight) {
@@ -11380,14 +11537,26 @@ function render(options = {}) {
       }
     }
 
-    const edgeLabel = normalizeEdgeLabel(edge.label);
+    // A monotonic functional relationship communicates its sign even before a
+    // custom label has been created.  Keep that indication derived from the
+    // relationship type, rather than persisting a second label in the model.
+    const customEdgeLabel = normalizeEdgeLabel(edge.label);
+    const relationType = normalizeEdgeRelationType(edge.relationType);
+    const edgeLabel = customEdgeLabel || (
+      relationType === "+" || relationType === "-"
+        ? { ...defaultEdgeLabel(edge, relationType === "-" ? "−" : relationType), transparent: true }
+        : null
+    );
     if (edgeLabel) {
       const labelGroup = document.createElementNS(SVG_NS, "g");
       labelGroup.classList.add("edge-label");
+      if (!customEdgeLabel) {
+        labelGroup.classList.add("auto-relation-label");
+      }
       if (edgeLabel.transparent) {
         labelGroup.classList.add("transparent");
       }
-      if (ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
+      if (customEdgeLabel && ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
         labelGroup.classList.add("selected");
       }
       labelGroup.setAttribute(
@@ -11407,7 +11576,7 @@ function render(options = {}) {
       labelText.textContent = edgeLabel.text;
       labelGroup.append(labelHit, labelText);
 
-      if (ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
+      if (customEdgeLabel && ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
         const rotateHandle = document.createElementNS(SVG_NS, "g");
         rotateHandle.classList.add("edge-label-rotate-handle");
         rotateHandle.setAttribute("transform", "translate(0 -30)");
@@ -11427,34 +11596,36 @@ function render(options = {}) {
         labelGroup.appendChild(rotateHandle);
       }
 
-      labelGroup.addEventListener("contextmenu", (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        if (isEditingUiLocked()) return;
-        selectEdgeLabel(edge.id);
-        render();
-        openEdgeContextMenu(evt, edge.id, svgPointFromClient(evt.clientX, evt.clientY));
-      });
-      labelGroup.addEventListener("pointerdown", (evt) => {
-        if (evt.button !== 0 || isTabletCanvasPanMode()) return;
-        evt.preventDefault();
-        evt.stopPropagation();
-        selectEdgeLabel(edge.id);
-        if (isEditingUiLocked()) {
+      if (customEdgeLabel) {
+        labelGroup.addEventListener("contextmenu", (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          if (isEditingUiLocked()) return;
+          selectEdgeLabel(edge.id);
           render();
-          return;
-        }
-        const p = svgPoint(evt);
-        ui.edgeLabelDrag = {
-          edgeId: edge.id,
-          pointerId: evt.pointerId,
-          offsetX: p.x - edgeLabel.x,
-          offsetY: p.y - edgeLabel.y,
-        };
-        labelGroup.setPointerCapture?.(evt.pointerId);
-        beginTransaction();
-        render();
-      });
+          openEdgeContextMenu(evt, edge.id, svgPointFromClient(evt.clientX, evt.clientY));
+        });
+        labelGroup.addEventListener("pointerdown", (evt) => {
+          if (evt.button !== 0 || isTabletCanvasPanMode()) return;
+          evt.preventDefault();
+          evt.stopPropagation();
+          selectEdgeLabel(edge.id);
+          if (isEditingUiLocked()) {
+            render();
+            return;
+          }
+          const p = svgPoint(evt);
+          ui.edgeLabelDrag = {
+            edgeId: edge.id,
+            pointerId: evt.pointerId,
+            offsetX: p.x - edgeLabel.x,
+            offsetY: p.y - edgeLabel.y,
+          };
+          labelGroup.setPointerCapture?.(evt.pointerId);
+          beginTransaction();
+          render();
+        });
+      }
       g.appendChild(labelGroup);
     }
 
@@ -11581,7 +11752,7 @@ function render(options = {}) {
     if (nodeHasRuntimeError(node)) {
       g.classList.add("runtime-error");
     }
-    if (isAnalysisFocusActive("node", node.id)) {
+    if (isAnalysisFocusActive("node", node.id) || isFunctionalLoopFocusActive("node", node.id)) {
       g.classList.add("analysis-focus");
     }
     if (graph.execution.strictDefinitions && !validateNodeDefinition(node).ok) {
@@ -12154,6 +12325,9 @@ function importGraphData(data) {
       if (!Number.isInteger(e.id) || !nodeIds.has(e.from) || !nodeIds.has(e.to) || e.from === e.to) {
         return false;
       }
+      if (normalizeEdgeRelationType(e.relationType) === "0") {
+        return false;
+      }
       const targetNode = nodesWithValidNames.find((n) => n.id === e.to);
       return targetNode?.type !== "parameter";
     })
@@ -12161,6 +12335,7 @@ function importGraphData(data) {
       id: e.id,
       from: e.from,
       to: e.to,
+      relationType: normalizeEdgeRelationType(e.relationType),
       controlPoints: Array.isArray(e.controlPoints)
         ? e.controlPoints.filter(isValidPoint).map((cp) => ({ x: cp.x, y: cp.y }))
         : [],
@@ -15824,6 +15999,7 @@ bindModalDragHandle(dataLinksModal, ".data-links-card");
 bindModalDragHandle(examplesHelpModal, ".examples-help-card");
 bindModalDragHandle(aboutAppModal, ".about-app-card");
 bindModalDragHandle(modelAnalysisModal, ".model-analysis-card");
+bindModalDragHandle(functionalLoopModal, ".functional-loop-card");
 bindModalDragHandle(eightTupleModal, ".eight-tuple-card");
 bindModalDragHandle(watchDebuggerModal, ".watch-debugger-card");
 bindModalDragHandle(localFunctionsModal, ".local-functions-card");
@@ -15857,6 +16033,12 @@ if (analyzeModelBtn) {
   analyzeModelBtn.addEventListener("click", () => {
     closeTopMenus();
     openModelAnalysis();
+  });
+}
+if (functionalLoopDiagramBtn) {
+  functionalLoopDiagramBtn.addEventListener("click", () => {
+    closeTopMenus();
+    openFunctionalLoopDiagram();
   });
 }
 if (watchDebuggerBtn) {
@@ -15945,6 +16127,18 @@ if (modelAnalysisChecksCloseBtn) {
 }
 if (modelAnalysisChecksDismissBtn) {
   modelAnalysisChecksDismissBtn.addEventListener("click", closeModelAnalysisChecksHelp);
+}
+if (functionalLoopCloseBtn) {
+  functionalLoopCloseBtn.addEventListener("click", closeFunctionalLoopDiagram);
+}
+if (functionalLoopDismissBtn) {
+  functionalLoopDismissBtn.addEventListener("click", closeFunctionalLoopDiagram);
+}
+if (functionalLoopRunBtn) {
+  functionalLoopRunBtn.addEventListener("click", runFunctionalLoopDiagram);
+}
+if (functionalLoopExportBtn) {
+  functionalLoopExportBtn.addEventListener("click", exportFunctionalLoopDiagram);
 }
 if (watchDebuggerCloseBtn) {
   watchDebuggerCloseBtn.addEventListener("click", closeWatchDebugger);
@@ -16279,6 +16473,14 @@ document.addEventListener("keydown", (evt) => {
     } else if (evt.key === "Enter") {
       evt.preventDefault();
       applyDashboardPageRename();
+    }
+    return;
+  }
+
+  if (!functionalLoopModal?.classList.contains("hidden")) {
+    if (evt.key === "Escape") {
+      evt.preventDefault();
+      closeFunctionalLoopDiagram();
     }
     return;
   }

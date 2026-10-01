@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  * Copyright (c) 2026 Luca Mari
+ * Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
  */
 
 const fs = require("fs/promises");
@@ -22,6 +23,8 @@ const files = [
   "help-content.js",
   "model-analysis-core.js",
   "model-analysis-ui.js",
+  "functional-loop-core.js",
+  "functional-loop-ui.js",
   "watch-debugger-core.js",
   "watch-debugger-ui.js",
   "runtime-shared.js",

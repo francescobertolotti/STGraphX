@@ -18,7 +18,13 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
 
 ### Added
 
-_Nessuna aggiunta per ora._
+- Aggiunto il Diagramma dei Loop Funzionali: dal menu Esegui analizza in modo
+  qualitativo il grafo, elenca i loop semplici rinforzanti, bilancianti e
+  indeterminati, calcola partecipazione, portata e influenza firmata delle
+  variabili, evidenzia gli elementi nel diagramma ed esporta i risultati CSV.
+- Ogni freccia ha ora un tipo di relazione funzionale esplicito (`+`, `−`, `1` o
+  `0`); le nuove frecce partono da `1`, mentre `0` rimuove la freccia e non la
+  conserva nel modello.
 
 ### Changed
 
@@ -46,6 +52,10 @@ _Nessuna aggiunta per ora._
 - Qualitative Graph Building aggiunge una quarta fase per assegnare, quando
   compatibile con le relazioni scelte, il ruolo Input o Parametro alle
   variabili; i nodi generati ricevono automaticamente tipo e flag corrispondenti.
+- Qualitative Graph Building consente ora di definire nella matrice relazioni
+  `+`, `−`, `1` e `0`: i segni `+` e `−` sono salvati sulle frecce come relazioni
+  funzionali monotone. Se una freccia `+` o `−` non ha un'etichetta personalizzata,
+  il suo segno viene visualizzato automaticamente sopra l'arco.
 
 ### Fixed
 

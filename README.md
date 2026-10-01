@@ -37,6 +37,17 @@ variabili di stato e ruoli Input/Parametro. La metodologia è disponibile in
 [italiano](docs/COSTRUZIONE-GRAFO-QUALITATIVO.md) e in
 [English](docs/QUALITATIVE-GRAPH-BUILDING.md).
 
+## Diagramma dei Loop Funzionali
+
+Dal menu `Esegui` è disponibile il **Diagramma dei Loop Funzionali**, un'analisi
+qualitativa del grafo che individua cicli rinforzanti, bilancianti e
+indeterminati, partecipazione delle variabili, portata funzionale e influenza
+firmata. I tipi di relazione `+`, `−`, `1` e `0` sono configurabili direttamente
+nelle proprietà delle frecce; `+` e `−` vengono mostrati automaticamente sopra
+la freccia quando non è presente un'etichetta personalizzata. La guida è disponibile in
+[italiano](docs/DIAGRAMMA-LOOP-FUNZIONALI.md) e in
+[English](docs/FUNCTIONAL-LOOP-DIAGRAM.md).
+
 ## Download dell'applicazione
 
 Per scaricare la versione desktop di STGraphX (versione attuale: 2026.09.12):
@@ -82,6 +93,8 @@ Ha un'interfaccia utente responsive, che lo rende utilizzabile anche su tablet.
 
 * Gestione dei nodi algebrici, di stato, parametri e sottomodelli, con funzioni in sintassi javascript (compresa la gestione locale di `this` come stato attuale); controllo sintattico sul nome dei nodi; controllo sui parametri (valore non cambia dopo la prima esecuzione; frecce entranti non ammesse); inizializzazione ordinata di stati e nodi algebrici, con controllo di cicli nelle definizioni iniziali; controllo del numero di cifre decimali visualizzate (*)
 * Gestione di variabili globali
+* Tipi qualitativi sulle frecce (`+`, `−`, non monotona e nessuna relazione) e
+  analisi del Diagramma dei Loop Funzionali, senza richiedere simulazioni (**)
 * Possibilità di definire funzioni locali ai modelli (*)
 * Gestione di nodi di output e di widget di output: grafici, tabelle, matrici, led, testo; le tabelle possono mostrare una serie storica oppure espandere vettori e matrici in celle scalari; pannello di configurazione aggiornato dinamicamente (*)
 * Gestione di nodi di input e di widget di input, anche per parametri: slider, pulsante, selettore di testo; pannello di configurazione aggiornato dinamicamente

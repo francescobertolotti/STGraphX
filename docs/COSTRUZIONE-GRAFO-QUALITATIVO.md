@@ -15,11 +15,14 @@ quantificate.
 1. **Variabili.** Inserisci fino a dieci proprietà rilevanti del sistema. Ogni
    nome deve essere un identificatore DSGraph valido e diverso dagli altri nomi
    già presenti nel modello.
-2. **Relazioni.** La riga `a` e la colonna `b` rappresentano la domanda:
-   “`a` influenza direttamente `b`?”. Seleziona `1` per creare la freccia
-   `a → b`; seleziona `0`, oppure lascia il selettore vuoto, per non creare alcuna
-   freccia. La diagonale non è modificabile perché il passaggio non introduce
-   auto-collegamenti.
+2. **Relazioni funzionali.** La riga `a` e la colonna `b` rappresentano la
+   domanda: “come `a` influenza `b`?”. Seleziona `+` per creare una relazione
+   funzionale diretta, `−` per una inversa, oppure `1` quando la relazione
+   esiste ma è non monotona o il suo segno non è ancora specificato. Seleziona
+   `0`, oppure lascia il selettore vuoto, per non creare alcuna freccia. Le
+   relazioni `+` e `−` sono create già monotone e mostrano il loro segno sopra
+   la freccia finché non viene inserita un'etichetta personalizzata. La diagonale
+   non è modificabile perché il passaggio non introduce auto-collegamenti.
 3. **Variabili di stato.** Seleziona le variabili che dipendono anche dal loro
    valore precedente. Esse diventano nodi di stato; le altre diventano nodi
    algebrici. Tutti i valori e le espressioni restano inizialmente vuoti.

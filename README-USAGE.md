@@ -22,6 +22,10 @@ Luca Mari and the original STGraphX project are not necessarily responsible, mai
 
 In `Vista > Opzioni di visualizzazione`, la casella `Blocca l'esecuzione se non tutti i nodi sono definiti` è attiva per impostazione predefinita. Con la casella attiva, DSGraph evidenzia in rosso i nodi privi di una definizione valida e blocca l'esecuzione, mostrando nella barra superiore il primo nodo problematico e il motivo. Disattivandola, i nodi vuoti non sono evidenziati e il modello conserva il comportamento permissivo precedente.
 
+## Diagramma dei Loop Funzionali
+
+Da `Esegui > Esegui Diagramma dei Loop Funzionali` puoi analizzare la struttura funzionale del grafo anche se le formule non sono ancora state scritte. Seleziona una freccia e imposta nel pannello laterale il tipo di relazione: `+` diretta, `−` inversa, `1` non monotona o non specificata, oppure `0` per rimuovere la freccia. Con `+` e `−`, il segno compare automaticamente sopra la freccia se il campo Etichetta è vuoto; un'etichetta personalizzata lo sostituisce. I loop composti solo da `+` e `−` risultano rinforzanti (R) o bilancianti (B); un loop che contiene `1` resta neutro o indeterminato (N). La finestra riporta loop, partecipazione delle variabili, portata funzionale, influenza firmata, ranking dei punti di leva ed esportazione CSV. La guida completa, inclusi limiti e esempio, è in [docs/DIAGRAMMA-LOOP-FUNZIONALI.md](docs/DIAGRAMMA-LOOP-FUNZIONALI.md).
+
 ## Gruppi di presentazione
 
 Dal menu `Vista > Gruppi di presentazione...` puoi definire insiemi nominati di nodi per organizzare il grafo durante la presentazione del modello. Un gruppo non modifica frecce, formule o ordine di esecuzione.

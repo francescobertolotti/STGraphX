@@ -251,12 +251,15 @@ function addXYChartWidget(at = null) {
     xMax: null,
     yMin: null,
     yMax: null,
+    xAxisLabel: "",
+    yAxisLabel: "",
     showGrid: true,
     legendPosition: "top-right",
     xyPairs: [
       {
         xSource: "time",
         ySource: nodeNames[0] || "",
+        visualizedLabel: "",
         showTimeSeries: true,
         showInstantProfile: false,
         color: defaultChartSeriesColor(0),
@@ -280,8 +283,8 @@ function addBarPlotWidget(at = null) {
   graph.widgets.push({
     id, type: "barplot", customTitle: "", x, y, width: 320, height: 210,
     minimized: false, showTitleBar: true, fontSize: 13, outputOnly: true,
-    xMin: null, xMax: null, yMin: null, yMax: null, showGrid: true, legendPosition: "none", barWidth: 0.8, showXTicks: true, xTickLabels: [],
-    xyPairs: [{ xSource: nodeNames[0] || "", ySource: nodeNames[1] || nodeNames[0] || "", showTimeSeries: false, showInstantProfile: true, color: defaultChartSeriesColor(0), pointColor: defaultChartSeriesColor(0), showLine: false, lineWidth: 2.2, lineStyle: "solid", pointMode: "none", pointSize: 2.4, points: [] }],
+    xMin: null, xMax: null, yMin: null, yMax: null, xAxisLabel: "", yAxisLabel: "", showGrid: true, legendPosition: "none", barWidth: 0.8, showXTicks: true, xTickLabels: [],
+    xyPairs: [{ xSource: nodeNames[0] || "", ySource: nodeNames[1] || nodeNames[0] || "", visualizedLabel: "", showTimeSeries: false, showInstantProfile: true, color: defaultChartSeriesColor(0), pointColor: defaultChartSeriesColor(0), showLine: false, lineWidth: 2.2, lineStyle: "solid", pointMode: "none", pointSize: 2.4, points: [] }],
     columns: [],
   });
 }
@@ -329,6 +332,10 @@ function normalizeChartLineStyle(value) {
     return value;
   }
   return "solid";
+}
+
+function normalizeAxisLabel(value) {
+  return String(value ?? "").trim().slice(0, 120);
 }
 
 function chartLineDash(style) {
@@ -479,6 +486,7 @@ function sanitizeWidgetXYPairs(widget) {
     .map((pair, idx) => ({
       xSource: String(pair?.xSource ?? "time"),
       ySource: String(pair?.ySource ?? ""),
+      visualizedLabel: normalizeAxisLabel(pair?.visualizedLabel),
       showTimeSeries: normalizeChartSeriesToggle(pair?.showTimeSeries, pair?.seriesMode !== "instant"),
       showInstantProfile: normalizeChartSeriesToggle(pair?.showInstantProfile, pair?.seriesMode === "instant" ? true : false),
       color: /^#[0-9a-fA-F]{6}$/.test(String(pair?.color ?? "")) ? String(pair.color) : defaultChartSeriesColor(idx),
@@ -517,6 +525,14 @@ function sanitizeWidgetXYPairs(widget) {
     .filter((pair) => pair.ySource || widget.type === "barplot");
 }
 
+function chartPairDefaultLabel(pair) {
+  return `${pair?.xSource ?? ""} -> ${pair?.ySource ?? ""}`;
+}
+
+function chartPairLegendLabel(pair, fallback = "") {
+  return normalizeAxisLabel(pair?.visualizedLabel) || fallback || chartPairDefaultLabel(pair);
+}
+
 function sanitizeXYChartOptions(widget) {
   const parseNumOrNull = (value) => {
     if (value == null) {
@@ -535,6 +551,8 @@ function sanitizeXYChartOptions(widget) {
   widget.xMax = parseNumOrNull(widget.xMax);
   widget.yMin = parseNumOrNull(widget.yMin);
   widget.yMax = parseNumOrNull(widget.yMax);
+  widget.xAxisLabel = normalizeAxisLabel(widget.xAxisLabel);
+  widget.yAxisLabel = normalizeAxisLabel(widget.yAxisLabel);
   widget.showGrid = widget.showGrid !== false;
   widget.legendPosition = ["none", "top-right", "top-left", "bottom-right", "bottom-left"].includes(String(widget.legendPosition ?? ""))
     ? String(widget.legendPosition)
@@ -876,6 +894,8 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     xMax: parseAxisLimit(options?.xMax),
     yMin: parseAxisLimit(options?.yMin),
     yMax: parseAxisLimit(options?.yMax),
+    xAxisLabel: normalizeAxisLabel(options?.xAxisLabel),
+    yAxisLabel: normalizeAxisLabel(options?.yAxisLabel),
     showGrid: options?.showGrid !== false,
     legendPosition: ["none", "top-right", "top-left", "bottom-right", "bottom-left"].includes(String(options?.legendPosition ?? ""))
       ? String(options.legendPosition)
@@ -960,10 +980,12 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     const label = formatNumberValue(tick);
     return Math.max(max, ctx.measureText(label).width);
   }, 0);
-  const leftPad = Math.max(30, Math.ceil(maxYLabelWidth) + 14);
+  const leftPad = Math.max(30, Math.ceil(maxYLabelWidth) + 14)
+    + (cfg.yAxisLabel ? fontSize + 10 : 0);
   const rightPad = 24;
   const topPad = 24;
-  const bottomPad = Math.max(30, fontSize + 19);
+  const bottomPad = Math.max(30, fontSize + 19)
+    + (cfg.xAxisLabel ? fontSize + 10 : 0);
   const plotW = Math.max(10, width - leftPad - rightPad);
   const plotH = Math.max(10, height - topPad - bottomPad);
 
@@ -1114,6 +1136,21 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     }
   });
 
+  if (cfg.xAxisLabel) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(cfg.xAxisLabel, leftPad + plotW / 2, height - 3);
+  }
+  if (cfg.yAxisLabel) {
+    ctx.save();
+    ctx.translate(Math.max(fontSize, 11), topPad + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(cfg.yAxisLabel, 0, 0);
+    ctx.restore();
+  }
+
   const legendSeries = [];
   const seenLegendLabels = new Set();
   activeSeries.forEach((series, idx) => {
@@ -1209,7 +1246,11 @@ function drawBarPlot(canvas, seriesList = [], options = {}) {
   // never touch or exceed the plot frame.
   if (!hasXMin) minX -= spacing * widthFactor / 2;
   if (!hasXMax) maxX += spacing * widthFactor / 2;
-  const left = 42; const top = 18; const right = 18; const bottom = 30;
+  const fontSize = Math.max(8, Number(options.fontSize) || 11);
+  const xAxisLabel = normalizeAxisLabel(options.xAxisLabel);
+  const yAxisLabel = normalizeAxisLabel(options.yAxisLabel);
+  const left = 42 + (yAxisLabel ? fontSize + 10 : 0); const top = 18; const right = 18;
+  const bottom = 30 + (xAxisLabel ? fontSize + 10 : 0);
   const plotW = Math.max(10, canvas.width - left - right); const plotH = Math.max(10, canvas.height - top - bottom);
   const sx = (value) => left + ((value - minX) / (maxX - minX)) * plotW;
   const sy = (value) => top + plotH - ((value - minY) / (maxY - minY)) * plotH;
@@ -1221,13 +1262,28 @@ function drawBarPlot(canvas, seriesList = [], options = {}) {
   const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(left, zeroY); ctx.lineTo(left + plotW, zeroY); ctx.stroke();
   const width = Math.max(2, Math.min(plotW / Math.max(1, bars.length) * widthFactor, Math.abs(sx(uniqueX[0] + spacing * widthFactor) - sx(uniqueX[0]))));
   bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - width / 2, Math.min(y, zeroY), width, Math.abs(zeroY - y)); });
-  ctx.fillStyle = "#4e6072"; ctx.font = `${Math.max(8, Number(options.fontSize) || 11)}px sans-serif`;
+  ctx.fillStyle = "#4e6072"; ctx.font = `${fontSize}px sans-serif`;
   const xLabels = new Map((Array.isArray(options.xTickLabels) ? options.xTickLabels : []).map((entry) => [Number(entry?.value), String(entry?.label ?? "")]).filter(([value, label]) => Number.isFinite(value) && label));
   if (options.showXTicks !== false) {
     ctx.textAlign = "center";
-    uniqueX.forEach((value) => { ctx.fillText(xLabels.get(value) || formatNumberValue(value), sx(value), canvas.height - 8); });
+    uniqueX.forEach((value) => { ctx.fillText(xLabels.get(value) || formatNumberValue(value), sx(value), canvas.height - (xAxisLabel ? fontSize + 11 : 8)); });
   }
   ctx.textAlign = "right"; ctx.fillText(formatNumberValue(maxY), left - 7, top + 7); ctx.fillText(formatNumberValue(minY), left - 7, top + plotH);
+  if (xAxisLabel) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(xAxisLabel, left + plotW / 2, canvas.height - 3);
+    ctx.textBaseline = "alphabetic";
+  }
+  if (yAxisLabel) {
+    ctx.save();
+    ctx.translate(Math.max(fontSize, 11), top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(yAxisLabel, 0, 0);
+    ctx.restore();
+  }
 }
 
 function barPlotSeries(widget, nodeMap = buildNodeNameMap()) {
@@ -1236,7 +1292,7 @@ function barPlotSeries(widget, nodeMap = buildNodeNameMap()) {
     const x = flatten(nodeMap.get(pair.xSource)?.computedValue);
     const y = flatten(nodeMap.get(pair.ySource)?.computedValue);
     const count = Math.min(x.length, y.length);
-    return count > 0 ? [{ label: `${pair.xSource} -> ${pair.ySource}`, color: pair.color || defaultChartSeriesColor(index), points: x.slice(0, count).map((value, idx) => ({ x: value, y: y[idx] })) }] : [];
+    return count > 0 ? [{ label: chartPairLegendLabel(pair), color: pair.color || defaultChartSeriesColor(index), points: x.slice(0, count).map((value, idx) => ({ x: value, y: y[idx] })) }] : [];
   });
 }
 
@@ -2239,9 +2295,9 @@ function refreshChartWidgetRuntimeBody(root, widget, nodeMap = buildNodeNameMap(
     if (pair.showTimeSeries) {
       const seriesData = Array.isArray(pair.seriesData) && pair.seriesData.length > 0
         ? pair.seriesData
-        : [{ label: `${pair.xSource} -> ${pair.ySource}`, points: pair.points || [] }];
+        : [{ label: chartPairDefaultLabel(pair), points: pair.points || [] }];
       out.push(...seriesData.map((series, idx) => ({
-        label: series.label || `${pair.xSource} -> ${pair.ySource}${seriesData.length > 1 ? ` [${idx}]` : ""}`,
+        label: chartPairLegendLabel(pair, series.label || `${chartPairDefaultLabel(pair)}${seriesData.length > 1 ? ` [${idx}]` : ""}`),
         color: pair.color,
         pointColor: pair.pointColor,
         showLine: pair.showLine,
@@ -2257,7 +2313,7 @@ function refreshChartWidgetRuntimeBody(root, widget, nodeMap = buildNodeNameMap(
         ? pair.instantSeriesData
         : [];
       out.push(...instantSeriesData.map((series) => ({
-        label: series.label || `${pair.xSource} -> ${pair.ySource}`,
+        label: chartPairLegendLabel(pair, series.label || chartPairDefaultLabel(pair)),
         color: pair.color,
         pointColor: pair.pointColor,
         showLine: pair.showLine,
@@ -2683,9 +2739,9 @@ function renderWidgets() {
         if (pair.showTimeSeries) {
           const seriesData = Array.isArray(pair.seriesData) && pair.seriesData.length > 0
             ? pair.seriesData
-            : [{ label: `${pair.xSource} -> ${pair.ySource}`, points: pair.points || [] }];
+            : [{ label: chartPairDefaultLabel(pair), points: pair.points || [] }];
           out.push(...seriesData.map((series, idx) => ({
-            label: series.label || `${pair.xSource} -> ${pair.ySource}${seriesData.length > 1 ? ` [${idx}]` : ""}`,
+            label: chartPairLegendLabel(pair, series.label || `${chartPairDefaultLabel(pair)}${seriesData.length > 1 ? ` [${idx}]` : ""}`),
             color: pair.color,
             pointColor: pair.pointColor,
             showLine: pair.showLine,
@@ -2701,7 +2757,7 @@ function renderWidgets() {
             ? pair.instantSeriesData
             : [];
           out.push(...instantSeriesData.map((series) => ({
-            label: series.label || `${pair.xSource} -> ${pair.ySource}`,
+            label: chartPairLegendLabel(pair, series.label || chartPairDefaultLabel(pair)),
             color: pair.color,
             pointColor: pair.pointColor,
             showLine: pair.showLine,
@@ -5050,6 +5106,18 @@ function refreshWidgetConfigPanel(widget) {
     const xLimits = document.createElement("div"); xLimits.className = "row2-exec"; xLimits.append(addLimit("xMin", "widget.axisXMin"), addLimit("xMax", "widget.axisXMax"));
     const yLimits = document.createElement("div"); yLimits.className = "row2-exec"; yLimits.append(addLimit("yMin", "widget.axisYMin"), addLimit("yMax", "widget.axisYMax"));
     axesSection.append(xLimits, yLimits);
+    const axisLabels = document.createElement("div"); axisLabels.className = "row2-exec";
+    const addAxisLabel = (key, labelKey, tooltipKey) => {
+      const input = document.createElement("input");
+      input.type = "text"; input.maxLength = 120; input.value = widget[key] || "";
+      input.addEventListener("change", () => runAction(() => { widget[key] = normalizeAxisLabel(input.value); input.value = widget[key]; }));
+      return createCompactField(labelKey, input, tooltipKey);
+    };
+    axisLabels.append(
+      addAxisLabel("xAxisLabel", "widget.axisXLabel", "tooltip.widget.axisXLabel"),
+      addAxisLabel("yAxisLabel", "widget.axisYLabel", "tooltip.widget.axisYLabel"),
+    );
+    axesSection.appendChild(axisLabels);
     const grid = document.createElement("label"); grid.className = "menu-check compact-bool";
     const gridInput = document.createElement("input"); gridInput.type = "checkbox"; gridInput.checked = widget.showGrid !== false;
     gridInput.addEventListener("change", () => runAction(() => { widget.showGrid = gridInput.checked; }));
@@ -5135,6 +5203,7 @@ function refreshWidgetConfigPanel(widget) {
         widget.xyPairs.push({
           xSource: "time",
           ySource: defaultY,
+          visualizedLabel: "",
           showTimeSeries: true,
           showInstantProfile: false,
           color: defaultChartSeriesColor(widget.xyPairs.length),
@@ -5199,6 +5268,23 @@ function refreshWidgetConfigPanel(widget) {
     topRow.appendChild(xSel);
     topRow.appendChild(ySel);
     activePairSection.appendChild(topRow);
+
+    const visualizedLabelInput = document.createElement("input");
+    visualizedLabelInput.type = "text";
+    visualizedLabelInput.maxLength = 120;
+    visualizedLabelInput.value = pair.visualizedLabel || "";
+    setConfigTooltip(visualizedLabelInput, "tooltip.widget.visualizedLabel");
+    visualizedLabelInput.addEventListener("change", () => {
+      runAction(() => {
+        widget.xyPairs[activePairIndex].visualizedLabel = normalizeAxisLabel(visualizedLabelInput.value);
+        visualizedLabelInput.value = widget.xyPairs[activePairIndex].visualizedLabel;
+      });
+    });
+    activePairSection.appendChild(createCompactField(
+      "widget.visualizedLabel",
+      visualizedLabelInput,
+      "tooltip.widget.visualizedLabel",
+    ));
 
     const modesRow = document.createElement("div");
     modesRow.className = "chart-pair-modes";
@@ -5437,6 +5523,27 @@ function refreshWidgetConfigPanel(widget) {
   yLimitRow.appendChild(createCompactField("widget.axisYMin", yMinInput));
   yLimitRow.appendChild(createCompactField("widget.axisYMax", yMaxInput));
   chartAxisSection.appendChild(yLimitRow);
+
+  const axisLabelsRow = document.createElement("div");
+  axisLabelsRow.className = "row2-exec";
+  const addAxisLabel = (key, labelKey, tooltipKey) => {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = 120;
+    input.value = widget[key] || "";
+    input.addEventListener("change", () => {
+      runAction(() => {
+        widget[key] = normalizeAxisLabel(input.value);
+        input.value = widget[key];
+      });
+    });
+    return createCompactField(labelKey, input, tooltipKey);
+  };
+  axisLabelsRow.append(
+    addAxisLabel("xAxisLabel", "widget.axisXLabel", "tooltip.widget.axisXLabel"),
+    addAxisLabel("yAxisLabel", "widget.axisYLabel", "tooltip.widget.axisYLabel"),
+  );
+  chartAxisSection.appendChild(axisLabelsRow);
 
   const gridLabel = document.createElement("label");
   gridLabel.className = "menu-check compact-bool";

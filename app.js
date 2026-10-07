@@ -8936,6 +8936,8 @@ function exportGraphData() {
       xMax: serializeAutoNullableNumber(w.xMax),
       yMin: serializeAutoNullableNumber(w.yMin),
       yMax: serializeAutoNullableNumber(w.yMax),
+      xAxisLabel: String(w.xAxisLabel ?? "").trim().slice(0, 120),
+      yAxisLabel: String(w.yAxisLabel ?? "").trim().slice(0, 120),
       showGrid: w.showGrid !== false,
       legendPosition: ["none", "top-right", "top-left", "bottom-right", "bottom-left"].includes(String(w.legendPosition ?? ""))
         ? String(w.legendPosition)
@@ -8988,6 +8990,7 @@ function exportGraphData() {
         ? w.xyPairs.map((pair, idx) => ({
           xSource: String(pair.xSource ?? "time"),
           ySource: String(pair.ySource ?? ""),
+          visualizedLabel: String(pair.visualizedLabel ?? "").trim().slice(0, 120),
           showTimeSeries: normalizeChartSeriesToggle(pair?.showTimeSeries, pair?.seriesMode !== "instant"),
           showInstantProfile: normalizeChartSeriesToggle(pair?.showInstantProfile, pair?.seriesMode === "instant" ? true : false),
           color: /^#[0-9a-fA-F]{6}$/.test(String(pair?.color ?? "")) ? String(pair.color) : defaultChartSeriesColor(idx),
@@ -9212,6 +9215,8 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
         xMax: parseAutoNullableNumber(w.xMax),
         yMin: parseAutoNullableNumber(w.yMin),
         yMax: parseAutoNullableNumber(w.yMax),
+        xAxisLabel: String(w.xAxisLabel ?? "").trim().slice(0, 120),
+        yAxisLabel: String(w.yAxisLabel ?? "").trim().slice(0, 120),
         showGrid: w.showGrid !== false,
         legendPosition: ["none", "top-right", "top-left", "bottom-right", "bottom-left"].includes(String(w.legendPosition ?? ""))
           ? String(w.legendPosition)
@@ -9269,6 +9274,7 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
           ? w.xyPairs.map((pair, idx) => ({
             xSource: String(pair.xSource ?? "time"),
             ySource: String(pair.ySource ?? ""),
+            visualizedLabel: String(pair.visualizedLabel ?? "").trim().slice(0, 120),
             showTimeSeries: normalizeChartSeriesToggle(pair?.showTimeSeries, pair?.seriesMode !== "instant"),
             showInstantProfile: normalizeChartSeriesToggle(pair?.showInstantProfile, pair?.seriesMode === "instant" ? true : false),
             color: /^#[0-9a-fA-F]{6}$/.test(String(pair?.color ?? "")) ? String(pair.color) : defaultChartSeriesColor(idx),
@@ -11039,7 +11045,13 @@ function refreshSidebar() {
     }
 
     if (nodeInputLabel) {
-      nodeInputLabel.classList.add("hidden");
+      const canSetAllAsInput = nodes.length > 0 && nodes.every((node) => canMarkNodeAsInput(node));
+      const allInputsOn = canSetAllAsInput && nodes.every((node) => Boolean(node.input));
+      const allInputsOff = canSetAllAsInput && nodes.every((node) => !node.input);
+      nodeInputLabel.classList.toggle("hidden", !canSetAllAsInput);
+      nodeInputInput.indeterminate = canSetAllAsInput && !(allInputsOn || allInputsOff);
+      nodeInputInput.checked = allInputsOn;
+      nodeInputInput.disabled = !canSetAllAsInput;
     }
     if (nodeGlobalLabel) {
       nodeGlobalLabel.classList.add("hidden");
@@ -11047,8 +11059,6 @@ function refreshSidebar() {
     nodeNameLabel?.classList.add("hidden");
     nodeNameInput?.classList.add("hidden");
     nodeShapeInput?.classList.add("hidden");
-    nodeInputInput.checked = false;
-    nodeInputInput.disabled = true;
     nodeGlobalInput.checked = false;
     nodeGlobalInput.disabled = true;
     nodeValueExprLabel.classList.add("hidden");
@@ -12428,6 +12438,8 @@ function importGraphData(data) {
         xMax: parseAutoNullableNumber(w.xMax),
         yMin: parseAutoNullableNumber(w.yMin),
         yMax: parseAutoNullableNumber(w.yMax),
+        xAxisLabel: String(w.xAxisLabel ?? "").trim().slice(0, 120),
+        yAxisLabel: String(w.yAxisLabel ?? "").trim().slice(0, 120),
         showGrid: w.showGrid !== false,
         legendPosition: ["none", "top-right", "top-left", "bottom-right", "bottom-left"].includes(String(w.legendPosition ?? ""))
           ? String(w.legendPosition)
@@ -12485,6 +12497,7 @@ function importGraphData(data) {
           ? w.xyPairs.map((pair, idx) => ({
             xSource: String(pair.xSource ?? "time"),
             ySource: String(pair.ySource ?? ""),
+            visualizedLabel: String(pair.visualizedLabel ?? "").trim().slice(0, 120),
             showTimeSeries: normalizeChartSeriesToggle(pair?.showTimeSeries, pair?.seriesMode !== "instant"),
             showInstantProfile: normalizeChartSeriesToggle(pair?.showInstantProfile, pair?.seriesMode === "instant" ? true : false),
             color: /^#[0-9a-fA-F]{6}$/.test(String(pair?.color ?? "")) ? String(pair.color) : defaultChartSeriesColor(idx),
@@ -15405,25 +15418,22 @@ if (showSubmodelBtn) {
 }
 
 nodeInputInput.addEventListener("change", () => {
-  if (ui.selectedNodes.size !== 1) {
-    return;
-  }
-  const nodeId = [...ui.selectedNodes][0];
-  const node = getNodeById(nodeId);
-  if (!node) {
-    return;
-  }
-  if (!canMarkNodeAsInput(node)) {
+  const nodes = selectedNodesList();
+  if (nodes.length === 0 || !nodes.every((node) => canMarkNodeAsInput(node))) {
     nodeInputInput.checked = false;
+    nodeInputInput.indeterminate = false;
     return;
   }
-  const wasInput = Boolean(node.input);
   runAction(() => {
-    node.input = nodeInputInput.checked;
-    if (wasInput && !node.input) {
-      removeNodeFromInputWidgetBindings(node.name);
-    }
+    nodes.forEach((node) => {
+      const wasInput = Boolean(node.input);
+      node.input = nodeInputInput.checked;
+      if (wasInput && !node.input) {
+        removeNodeFromInputWidgetBindings(node.name);
+      }
+    });
   });
+  nodeInputInput.indeterminate = false;
 });
 
 nodeGlobalInput.addEventListener("change", () => {
@@ -15808,13 +15818,27 @@ if (expressionEditorTextarea) {
 if (expressionNodeShapeInput) {
   expressionNodeShapeInput.addEventListener("change", () => {
     const node = ui.expressionEditor?.nodeId ? getNodeById(ui.expressionEditor.nodeId) : null;
-    syncExpressionEditorNodeOptionAvailability(node, expressionNodeShapeInput.value);
-    if (expressionNodeShapeInput.value !== "diamond" && expressionNodeGlobalInput) {
-      expressionNodeGlobalInput.checked = false;
+    const nextShape = expressionNodeShapeInput.value;
+    if (!node || !["rect", "ellipse", "diamond", "submodel"].includes(nextShape)) {
+      return;
     }
-    if (expressionNodeShapeInput.value === "submodel" && expressionNodeOutputInput) {
-      expressionNodeOutputInput.checked = false;
+    // The popup is also the node-type editor. Apply this structural choice as
+    // soon as it is made so its state-only fields, validation and sidebar stay
+    // in sync with the selected type instead of waiting for an unrelated
+    // expression edit to be applied.
+    if (nextShape !== node.shape) {
+      setNodeShape(node, nextShape);
+      resetExecutionAfterEquationChange();
+      if (ui.expressionEditor) {
+        ui.expressionEditor.baseTitle = expressionEditorBaseTitleForNode(node);
+        ui.expressionEditor.initialValue = String(node.valueExpression ?? "");
+        ui.expressionEditor.secondaryInitialValue = isStateNode(node)
+          ? String(node.initialStateExpression ?? "")
+          : "";
+      }
     }
+    syncExpressionEditorFormulaNotes();
+    refreshExpressionEditorValidation();
   });
 }
 

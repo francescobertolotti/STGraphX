@@ -669,6 +669,18 @@ In tutti questi casi la legenda resta semplificata e usa la forma:
 
 - `x -> y`
 
+Per ogni coppia, il campo `Visualized label` nelle relative proprietà permette
+di scegliere il testo mostrato in legenda. Lasciandolo vuoto, DSGraph mantiene
+automaticamente la forma `x -> y`.
+
+### Etichette degli assi
+
+Nelle proprietà del grafico, nella sezione dei limiti degli assi, puoi inserire
+un'etichetta per l'asse X e una per l'asse Y. Le etichette sono opzionali: il
+campo vuoto mantiene l'aspetto precedente. La stessa impostazione è disponibile
+per il grafico a barre; le etichette rimangono visibili anche quando si usano
+etichette testuali personalizzate per i tick dell'asse X.
+
 ### Casi non supportati
 
 Attualmente il widget non tratta i seguenti casi:

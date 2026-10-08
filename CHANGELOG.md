@@ -23,13 +23,32 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
   leggibili.
 - Ogni coppia X-Y può ora avere una `Visualized label` personalizzata per la
   legenda; lasciandola vuota viene mantenuto il nome automatico `x -> y`.
+- Nelle Opzioni di visualizzazione è disponibile lo stile `Minimalista`, una
+  variante Minimalism & Swiss, affiancato da `Legacy` che conserva senza
+  modifiche l'interfaccia precedente. Lo stile Minimalista offre anche una
+  Modalità notturna OLED e adatta i grafici su canvas ai colori del tema.
 
 
 ### Changed
 
+- Aggiornate al 2026-10-08 le date correnti della documentazione e il metadato
+  di release mostrato nell'applicazione e nel player incorporabile.
+- Lo stile grafico e la relativa Modalità notturna sono preferenze locali
+  dell'interfaccia: non vengono salvati nel file del modello e non cambiano
+  l'aspetto scelto da altri utenti.
+- L'interfaccia usa ora Geist come font principale. Il tema Minimalista usa
+  `#F7F8FA` per le superfici non separate e `#2563EB` per ogni stato attivo,
+  selezione, focus e slider, mantenendo il canvas e gli input bianchi.
+- Anche l'aspetto Legacy usa ora lo sfondo neutro `#F7F8FA` e il blu
+  `#2563EB` per gli indicatori di selezione condivisi, senza modificare
+  struttura o comportamento dell'editor.
 
 ### Fixed
 
+- Nello stile Minimalista la preferenza del modello `Mostra griglia` viene
+  nuovamente rispettata; inoltre l'editor delle equazioni conserva il proprio
+  livello trasparente di sintassi, così il testo resta leggibile in entrambi i
+  temi chiari e scuri.
 - Nel popup di modifica del nodo, cambiare il tipo applica subito la
   trasformazione strutturale: i campi specifici (come stato iniziale e
   transizione) e la validazione si aggiornano immediatamente.

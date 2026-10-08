@@ -96,6 +96,9 @@ const showEdgeValuesInput = document.getElementById("showEdgeValuesInput");
 const gridSizeInput = document.getElementById("gridSizeInput");
 const tooltipDelayInput = document.getElementById("tooltipDelayInput");
 const interfaceLanguageInput = document.getElementById("interfaceLanguageInput");
+const interfaceThemeInput = document.getElementById("interfaceThemeInput");
+const minimalistNightModeInput = document.getElementById("minimalistNightModeInput");
+const minimalistNightModeRow = document.getElementById("minimalistNightModeRow");
 const strictDefinitionsInput = document.getElementById("strictDefinitionsInput");
 
 const noSelection = document.getElementById("noSelection");
@@ -411,6 +414,8 @@ const SUPPORTED_LANGS = new Set(["it", "en"]);
 const CHART_SERIES_PALETTE = ["#0e7ac4", "#e67e22", "#27ae60", "#8e44ad", "#c0392b", "#16a085"];
 const RECENT_MODELS_STORAGE_KEY = "stgraphx.recentModels.v1";
 const MODEL_CLIPBOARD_STORAGE_KEY = "stgraphx.modelClipboard.v1";
+const UI_THEME_STORAGE_KEY = "dsgraph.uiTheme.v1";
+const UI_MINIMALIST_NIGHT_MODE_STORAGE_KEY = "dsgraph.minimalistNightMode.v1";
 const MODEL_CLIPBOARD_PREFIX = "STGraphX clipboard v1\n";
 const MAX_RECENT_MODELS = 8;
 const SUBMODEL_DEFERRED_RESOLUTION = "__submodel_deferred_resolution__";
@@ -943,6 +948,8 @@ const ui = {
   showEdgeValues: false,
   gridSize: 20,
   tooltipDelayMs: 300,
+  visualTheme: "legacy",
+  minimalistNightMode: false,
   zoom: 1,
   nodeNameEditStart: null,
   timedRunHandle: null,
@@ -1186,7 +1193,7 @@ function createArrowMarker(id, color) {
   defs.appendChild(marker);
 }
 createArrowMarker("arrow", "#3b4e61");
-createArrowMarker("arrow-selected", "#0e7ac4");
+createArrowMarker("arrow-selected", "#2563eb");
 createArrowMarker("arrow-incoming", "#d17b16");
 createArrowMarker("arrow-outgoing", "#0d8c8c");
 createArrowMarker("arrow-both", "#8b5fbf");
@@ -1678,6 +1685,52 @@ function setTooltipText(el, text) {
 function normalizeTooltipDelayMs(value) {
   const numeric = Math.round(Number(value));
   return [0, 150, 300, 600, 1000].includes(numeric) ? numeric : 300;
+}
+
+function normalizeVisualTheme(value) {
+  return String(value ?? "").trim().toLowerCase() === "minimalist" ? "minimalist" : "legacy";
+}
+
+// Interface appearance is intentionally stored locally: opening a model must
+// never change the visual preferences of the person viewing it.
+function restoreVisualThemePreferences() {
+  try {
+    ui.visualTheme = normalizeVisualTheme(window.localStorage.getItem(UI_THEME_STORAGE_KEY));
+    ui.minimalistNightMode = window.localStorage.getItem(UI_MINIMALIST_NIGHT_MODE_STORAGE_KEY) === "true";
+  } catch {
+    ui.visualTheme = "legacy";
+    ui.minimalistNightMode = false;
+  }
+}
+
+function persistVisualThemePreferences() {
+  try {
+    window.localStorage.setItem(UI_THEME_STORAGE_KEY, normalizeVisualTheme(ui.visualTheme));
+    window.localStorage.setItem(UI_MINIMALIST_NIGHT_MODE_STORAGE_KEY, String(Boolean(ui.minimalistNightMode)));
+  } catch {}
+}
+
+function syncVisualThemeControls() {
+  const minimalistActive = normalizeVisualTheme(ui.visualTheme) === "minimalist";
+  if (interfaceThemeInput) {
+    interfaceThemeInput.value = minimalistActive ? "minimalist" : "legacy";
+  }
+  if (minimalistNightModeInput) {
+    minimalistNightModeInput.checked = Boolean(ui.minimalistNightMode);
+    minimalistNightModeInput.disabled = !minimalistActive;
+  }
+  if (minimalistNightModeRow) {
+    minimalistNightModeRow.hidden = !minimalistActive;
+  }
+}
+
+function applyVisualTheme() {
+  const minimalistActive = normalizeVisualTheme(ui.visualTheme) === "minimalist";
+  const nightModeActive = minimalistActive && Boolean(ui.minimalistNightMode);
+  document.body.classList.toggle("ui-theme-minimalist", minimalistActive);
+  document.body.classList.toggle("ui-minimalist-night", nightModeActive);
+  document.documentElement.style.colorScheme = nightModeActive ? "dark" : "light";
+  syncVisualThemeControls();
 }
 
 function cancelTooltipTimers() {
@@ -4003,6 +4056,7 @@ function syncViewOptionsInputs() {
   if (interfaceLanguageInput) {
     interfaceLanguageInput.value = currentLang;
   }
+  syncVisualThemeControls();
   if (decimalDigitsInput) {
     decimalDigitsInput.value = String(clampDisplayDecimals(graph.execution.decimals));
   }
@@ -11715,8 +11769,8 @@ function render(options = {}) {
     rect.setAttribute("y", r.y);
     rect.setAttribute("width", r.width);
     rect.setAttribute("height", r.height);
-    rect.setAttribute("fill", "rgba(14,122,196,0.12)");
-    rect.setAttribute("stroke", "#0e7ac4");
+    rect.setAttribute("fill", "rgba(37,99,235,0.12)");
+    rect.setAttribute("stroke", "#2563eb");
     rect.setAttribute("stroke-dasharray", "6 4");
     marqueeLayer.appendChild(rect);
   }
@@ -15045,6 +15099,27 @@ if (interfaceLanguageInput) {
   });
 }
 
+if (interfaceThemeInput) {
+  interfaceThemeInput.addEventListener("change", () => {
+    ui.visualTheme = normalizeVisualTheme(interfaceThemeInput.value);
+    applyVisualTheme();
+    persistVisualThemePreferences();
+    render();
+  });
+}
+
+if (minimalistNightModeInput) {
+  minimalistNightModeInput.addEventListener("change", () => {
+    if (normalizeVisualTheme(ui.visualTheme) !== "minimalist") {
+      return;
+    }
+    ui.minimalistNightMode = minimalistNightModeInput.checked;
+    applyVisualTheme();
+    persistVisualThemePreferences();
+    render();
+  });
+}
+
 if (strictDefinitionsInput) {
   strictDefinitionsInput.addEventListener("change", () => {
     graph.execution.strictDefinitions = strictDefinitionsInput.checked;
@@ -16830,6 +16905,8 @@ window.addEventListener("resize", () => {
 });
 
 async function boot() {
+  restoreVisualThemePreferences();
+  applyVisualTheme();
   await loadI18n();
   if (sidebarCollapseBtn) {
     sidebarCollapseBtn.addEventListener("click", () => {

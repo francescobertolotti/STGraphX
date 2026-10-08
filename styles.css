@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap");
+
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,14 +9,14 @@
  */
 
 :root {
-  --bg: #f3f5f7;
+  --bg: #f7f8fa;
   --surface: #ffffff;
   --line: #d5dce3;
   --text: #12212f;
   --muted: #4e6072;
-  --accent: #0e7ac4;
+  --accent: #2563eb;
   --danger: #ba1f36;
-  --font-ui: "Segoe UI", "Noto Sans", "DejaVu Sans", "Liberation Sans", Arial, Helvetica, sans-serif;
+  --font-ui: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "Noto Sans Mono", "DejaVu Sans Mono", "Liberation Mono", Consolas, "Courier New", monospace;
 }
 
@@ -26,7 +28,7 @@ body {
   margin: 0;
   font-family: var(--font-ui);
   color: var(--text);
-  background: radial-gradient(circle at 15% 0%, #ffffff 0, #ebf1f6 45%, #dee6ef 100%);
+  background: #f7f8fa;
   overflow: hidden;
 }
 
@@ -992,14 +994,14 @@ body {
   appearance: none;
   -webkit-appearance: none;
   border-radius: 999px;
-  background: linear-gradient(to right, #1681df 0 var(--slider-progress, 0%), #d5dce3 var(--slider-progress, 0%) 100%) center / 100% 6px no-repeat;
+  background: linear-gradient(to right, var(--slider-accent, #1681df) 0 var(--slider-progress, 0%), #d5dce3 var(--slider-progress, 0%) 100%) center / 100% 6px no-repeat;
 }
 
 .slider-widget-wrap input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: transparent; }
-.slider-widget-wrap input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -5px; appearance: none; -webkit-appearance: none; border: 0; border-radius: 50%; background: #1681df; }
+.slider-widget-wrap input[type="range"]::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -5px; appearance: none; -webkit-appearance: none; border: 0; border-radius: 50%; background: var(--slider-accent, #1681df); }
 .slider-widget-wrap input[type="range"]::-moz-range-track { height: 6px; border: 0; border-radius: 999px; background: #d5dce3; }
-.slider-widget-wrap input[type="range"]::-moz-range-progress { height: 6px; border-radius: 999px; background: #1681df; }
-.slider-widget-wrap input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #1681df; }
+.slider-widget-wrap input[type="range"]::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--slider-accent, #1681df); }
+.slider-widget-wrap input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: var(--slider-accent, #1681df); }
 }
 
 .zoom-control-row {
@@ -5199,6 +5201,423 @@ body.tablet-sidebar-layout .menu-run-btn {
 
   .slider-widget-wrap input[type="range"] {
     min-height: 34px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Optional Minimalism & Swiss interface
+   ------------------------------------------------------------------------- */
+
+body.ui-theme-minimalist {
+  --bg: #f7f8fa;
+  --surface: #f7f8fa;
+  --surface-soft: #f7f8fa;
+  --line: #dfe3e8;
+  --text: #141715;
+  --muted: #58605b;
+  --accent: #2563eb;
+  --danger: #b51f32;
+  --minimal-canvas: #ffffff;
+  --minimal-control: #f7f8fa;
+  --minimal-hover: #f7f8fa;
+  --minimal-elevated: #ffffff;
+  --minimal-graph-ink: #202421;
+  --minimal-tooltip-bg: #202421;
+  --minimal-tooltip-text: #ffffff;
+  --minimal-node-fill: #ffffff;
+  --minimal-grid-line: rgba(20, 23, 21, 0.12);
+  color: var(--text);
+  background: var(--bg);
+  letter-spacing: 0.005em;
+}
+
+body.ui-theme-minimalist.ui-minimalist-night {
+  --bg: #000000;
+  --surface: #090909;
+  --surface-soft: #111111;
+  --line: #303030;
+  --text: #f5f5f0;
+  --muted: #b2b6b0;
+  --accent: #2563eb;
+  --danger: #ff6b73;
+  --minimal-canvas: #000000;
+  --minimal-control: #151515;
+  --minimal-hover: #242424;
+  --minimal-elevated: #101010;
+  --minimal-graph-ink: #eeeeea;
+  --minimal-tooltip-bg: #171717;
+  --minimal-tooltip-text: #f5f5f0;
+  --minimal-node-fill: #0b0b0b;
+  --minimal-grid-line: rgba(255, 255, 255, 0.16);
+  background: #000000;
+  color-scheme: dark;
+}
+
+body.ui-theme-minimalist .menu-bar,
+body.ui-theme-minimalist .workspace-tabs,
+body.ui-theme-minimalist .sidebar,
+body.ui-theme-minimalist .canvas-wrap,
+body.ui-theme-minimalist .menu-panel,
+body.ui-theme-minimalist .menu-submenu-panel,
+body.ui-theme-minimalist .context-menu,
+body.ui-theme-minimalist .modal-card,
+body.ui-theme-minimalist .value-widget,
+body.ui-theme-minimalist .value-widget-body,
+body.ui-theme-minimalist .panel,
+body.ui-theme-minimalist #noSelection,
+body.ui-theme-minimalist .panel-section,
+body.ui-theme-minimalist .model-section,
+body.ui-theme-minimalist .view-options-section,
+body.ui-theme-minimalist .presentation-group-item,
+body.ui-theme-minimalist .sidebar-zoom-controls {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+body.ui-theme-minimalist .canvas-wrap {
+  background: var(--minimal-canvas);
+}
+
+body.ui-theme-minimalist .canvas-content {
+  background-image:
+    linear-gradient(var(--minimal-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--minimal-grid-line) 1px, transparent 1px);
+}
+
+/* Keep the model-level grid setting authoritative in every visual theme. */
+body.ui-theme-minimalist .canvas-content.grid-hidden {
+  background-image: none;
+}
+
+body.ui-theme-minimalist .workspace-tab,
+body.ui-theme-minimalist .workspace-tab.active,
+body.ui-theme-minimalist .menu-run-toolbar,
+body.ui-theme-minimalist .menu-run-btn,
+body.ui-theme-minimalist .view-options-section,
+body.ui-theme-minimalist .value-widget-header,
+body.ui-theme-minimalist .value-widget thead th,
+body.ui-theme-minimalist .matrix-widget-index,
+body.ui-theme-minimalist .text-widget-display {
+  background: var(--minimal-control);
+  box-shadow: none;
+}
+
+body.ui-theme-minimalist .workspace-tab,
+body.ui-theme-minimalist .workspace-tab.active,
+body.ui-theme-minimalist .menu-run-toolbar,
+body.ui-theme-minimalist .menu-run-btn,
+body.ui-theme-minimalist .value-widget-header,
+body.ui-theme-minimalist .value-widget,
+body.ui-theme-minimalist .value-widget th,
+body.ui-theme-minimalist .value-widget td,
+body.ui-theme-minimalist .text-widget-display {
+  border-color: var(--line);
+}
+
+body.ui-theme-minimalist .workspace-tab,
+body.ui-theme-minimalist .workspace-tab.active,
+body.ui-theme-minimalist .menu-run-toolbar,
+body.ui-theme-minimalist .menu-run-btn,
+body.ui-theme-minimalist .menu-panel,
+body.ui-theme-minimalist .menu-submenu-panel,
+body.ui-theme-minimalist .context-menu,
+body.ui-theme-minimalist .modal-card,
+body.ui-theme-minimalist .value-widget,
+body.ui-theme-minimalist .panel,
+body.ui-theme-minimalist #noSelection,
+body.ui-theme-minimalist .panel-section,
+body.ui-theme-minimalist .model-section,
+body.ui-theme-minimalist .view-options-section,
+body.ui-theme-minimalist .sidebar-zoom-controls,
+body.ui-theme-minimalist input,
+body.ui-theme-minimalist select,
+body.ui-theme-minimalist textarea,
+body.ui-theme-minimalist button {
+  border-radius: 2px;
+}
+
+body.ui-theme-minimalist .workspace-tab.active {
+  border-top: 3px solid var(--accent);
+  color: var(--text);
+}
+
+body.ui-theme-minimalist .workspace-tab-add,
+body.ui-theme-minimalist .menu-run-btn,
+body.ui-theme-minimalist .sidebar-collapse-btn,
+body.ui-theme-minimalist .sidebar-expand-btn {
+  color: var(--text);
+  background: var(--minimal-control);
+  border-color: var(--line);
+}
+
+body.ui-theme-minimalist .menu-run-btn.active:not(:disabled) {
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+body.ui-theme-minimalist .menu-title,
+body.ui-theme-minimalist .menu-command,
+body.ui-theme-minimalist .menu-submenu-toggle,
+body.ui-theme-minimalist .menu-check,
+body.ui-theme-minimalist .context-menu button {
+  color: var(--text);
+}
+
+body.ui-theme-minimalist .menu-title:hover,
+body.ui-theme-minimalist .menu-root.open .menu-title,
+body.ui-theme-minimalist .menu-command:hover:not(:disabled),
+body.ui-theme-minimalist .menu-submenu-toggle:hover:not(:disabled),
+body.ui-theme-minimalist .menu-submenu:hover > .menu-submenu-toggle,
+body.ui-theme-minimalist .menu-submenu:focus-within > .menu-submenu-toggle,
+body.ui-theme-minimalist .context-menu button:hover:not(:disabled),
+body.ui-theme-minimalist .workspace-tab-add:hover,
+body.ui-theme-minimalist .workspace-tab-btn:hover,
+body.ui-theme-minimalist .menu-run-btn:hover:not(:disabled),
+body.ui-theme-minimalist .sidebar-collapse-btn:hover,
+body.ui-theme-minimalist .sidebar-expand-btn:hover {
+  color: var(--accent);
+  background: var(--minimal-hover);
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+body.ui-theme-minimalist .menu-section-title,
+body.ui-theme-minimalist .menu-shortcut,
+body.ui-theme-minimalist .recent-model-path,
+body.ui-theme-minimalist .sidebar-desktop-header,
+body.ui-theme-minimalist .view-options-section h4,
+body.ui-theme-minimalist .view-options-fields label,
+body.ui-theme-minimalist .option-check,
+body.ui-theme-minimalist .value-widget-header,
+body.ui-theme-minimalist .slider-widget-source,
+body.ui-theme-minimalist .select-widget-source,
+body.ui-theme-minimalist .button-widget-source,
+body.ui-theme-minimalist .text-widget-source,
+body.ui-theme-minimalist .led-widget-source,
+body.ui-theme-minimalist .zoom-range-value {
+  color: var(--muted);
+}
+
+body.ui-theme-minimalist input,
+body.ui-theme-minimalist select,
+body.ui-theme-minimalist textarea,
+body.ui-theme-minimalist .value-output {
+  color: var(--text);
+  background: var(--minimal-elevated);
+  border-color: var(--line);
+}
+
+/* The equation editor renders syntax-highlighted text in the pre element
+   behind a deliberately transparent textarea. Do not turn that textarea into
+   an opaque generic form field when the Minimalist theme is active. */
+body.ui-theme-minimalist .expression-editor-surface {
+  background: var(--minimal-elevated);
+  border-color: var(--line);
+}
+
+body.ui-theme-minimalist .expression-editor-highlight {
+  color: var(--text);
+  background: transparent;
+}
+
+body.ui-theme-minimalist .expression-editor-textarea {
+  color: transparent;
+  background: transparent;
+  caret-color: var(--text);
+  -webkit-text-fill-color: transparent;
+}
+
+body.ui-theme-minimalist .expression-editor-surface.invalid {
+  background: #fff5f6;
+}
+
+body.ui-theme-minimalist button:not(.menu-title):not(.menu-command):not(.menu-submenu-toggle):not(.workspace-tab-btn):not(.context-menu button) {
+  color: var(--text);
+  background: var(--minimal-control);
+  border-color: var(--line);
+}
+
+body.ui-theme-minimalist input[type="checkbox"],
+body.ui-theme-minimalist input[type="radio"] {
+  accent-color: var(--accent);
+}
+
+body.ui-theme-minimalist .option-check[hidden] {
+  display: none !important;
+}
+
+body.ui-theme-minimalist :where(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+body.ui-theme-minimalist .value-widget.selected,
+body.ui-theme-minimalist .value-widget.analysis-focus {
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+body.ui-theme-minimalist .chart-pair-select-btn.active,
+body.ui-theme-minimalist .expression-editor-view-tab.active,
+body.ui-theme-minimalist .expression-library-item.active,
+body.ui-theme-minimalist .expression-library-data-item.active,
+body.ui-theme-minimalist .qualitative-graph-step.active {
+  color: var(--accent);
+  background: #ffffff;
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+body.ui-theme-minimalist .expression-library-item:focus-visible,
+body.ui-theme-minimalist .model-analysis-item:focus-visible {
+  outline-color: var(--accent);
+}
+
+body.ui-theme-minimalist .edge-drag-preview,
+body.ui-theme-minimalist .control-point {
+  stroke: var(--accent);
+}
+
+body.ui-theme-minimalist .control-point.active,
+body.ui-theme-minimalist .edge.selected .control-point.active {
+  fill: var(--accent);
+}
+
+body.ui-theme-minimalist .slider-widget-wrap {
+  --slider-accent: var(--accent);
+}
+
+body.ui-theme-minimalist .edge-line {
+  stroke: var(--minimal-graph-ink);
+}
+
+body.ui-theme-minimalist #arrow path {
+  fill: var(--minimal-graph-ink);
+}
+
+body.ui-theme-minimalist #arrow-selected path {
+  fill: var(--accent);
+}
+
+body.ui-theme-minimalist .node-shape {
+  fill: var(--node-fill, var(--minimal-node-fill));
+  stroke: var(--node-stroke, var(--minimal-graph-ink));
+}
+
+body.ui-theme-minimalist .node-shape-outline,
+body.ui-theme-minimalist .node-shape-inner {
+  stroke: var(--node-stroke, var(--minimal-graph-ink));
+}
+
+body.ui-theme-minimalist .node-label,
+body.ui-theme-minimalist .node-runtime-value,
+body.ui-theme-minimalist .edge-runtime-value,
+body.ui-theme-minimalist .edge-label-text,
+body.ui-theme-minimalist .canvas-text-content {
+  fill: var(--text);
+  color: var(--text);
+}
+
+body.ui-theme-minimalist .edge-label-hit,
+body.ui-theme-minimalist .edge-label-rotate-handle circle {
+  fill: var(--minimal-elevated);
+  stroke: var(--line);
+}
+
+body.ui-theme-minimalist .edge-label.auto-relation-label .edge-label-text {
+  fill: var(--accent);
+}
+
+body.ui-theme-minimalist .edge-label-rotate-handle path {
+  fill: none;
+  stroke: var(--accent);
+}
+
+body.ui-theme-minimalist .dashboard-frame {
+  fill: var(--surface);
+  stroke: var(--minimal-graph-ink);
+}
+
+body.ui-theme-minimalist .dashboard-header {
+  fill: var(--minimal-graph-ink);
+}
+
+body.ui-theme-minimalist .dashboard-tabs-bar,
+body.ui-theme-minimalist .dashboard-tab,
+body.ui-theme-minimalist .dashboard-tab-add,
+body.ui-theme-minimalist .dashboard-window-action {
+  fill: var(--minimal-control);
+  stroke: var(--line);
+}
+
+body.ui-theme-minimalist .dashboard-tab.active {
+  fill: var(--minimal-elevated);
+  stroke: var(--accent);
+}
+
+body.ui-theme-minimalist .dashboard-tab-label,
+body.ui-theme-minimalist .dashboard-tab-add-label,
+body.ui-theme-minimalist .dashboard-window-action-label {
+  fill: var(--text);
+}
+
+body.ui-theme-minimalist .app-tooltip {
+  color: var(--minimal-tooltip-text);
+  background: var(--minimal-tooltip-bg);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+body.ui-theme-minimalist .xy-chart-canvas,
+body.ui-theme-minimalist .matrix-surface-canvas {
+  background: var(--minimal-canvas);
+  border-color: var(--line);
+}
+
+body.ui-theme-minimalist .modal-backdrop {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+body.ui-theme-minimalist.ui-minimalist-night .menu-status-notice.warning {
+  color: #ffd29a;
+  background: #3d2708;
+  border-color: #a96c17;
+}
+
+body.ui-theme-minimalist.ui-minimalist-night .menu-status-notice.error {
+  color: #ffc0c5;
+  background: #420d13;
+  border-color: #b93846;
+}
+
+body.ui-theme-minimalist.ui-minimalist-night .node.invalid-definition .node-shape {
+  fill: #310b11;
+  stroke: #ff6b73;
+}
+
+body.ui-theme-minimalist.ui-minimalist-night .expression-editor-surface.invalid {
+  background: #310b11;
+}
+
+body.ui-theme-minimalist.ui-minimalist-night .node.runtime-error .node-shape {
+  fill: #34200b;
+  stroke: #f3a342;
+}
+
+body.ui-theme-minimalist.ui-minimalist-night .node.runtime-error .node-label,
+body.ui-theme-minimalist.ui-minimalist-night .node-runtime-value-error {
+  fill: #ffc27a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.ui-theme-minimalist *,
+  body.ui-theme-minimalist *::before,
+  body.ui-theme-minimalist *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

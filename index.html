@@ -786,6 +786,22 @@
           </div>
         </section>
         <section class="view-options-section">
+          <h4 data-i18n="viewOptions.appearance"></h4>
+          <div class="view-options-fields">
+            <label for="interfaceThemeInput" data-i18n="viewOptions.theme" data-title-i18n="tooltip.viewOptions.theme"></label>
+            <select id="interfaceThemeInput" data-title-i18n="tooltip.viewOptions.theme">
+              <option value="legacy" data-i18n="viewOptions.theme.legacy"></option>
+              <option value="minimalist" data-i18n="viewOptions.theme.minimalist"></option>
+            </select>
+          </div>
+          <div class="view-options-checks">
+            <label id="minimalistNightModeRow" class="option-check" for="minimalistNightModeInput" data-title-i18n="tooltip.viewOptions.nightMode" hidden>
+              <input id="minimalistNightModeInput" type="checkbox" />
+              <span data-i18n="viewOptions.nightMode"></span>
+            </label>
+          </div>
+        </section>
+        <section class="view-options-section">
           <h4 data-i18n="viewOptions.execution"></h4>
           <div class="view-options-checks">
             <label class="option-check" for="strictDefinitionsInput" data-title-i18n="tooltip.model.strictDefinitions">

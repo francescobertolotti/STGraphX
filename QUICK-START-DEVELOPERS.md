@@ -1,6 +1,6 @@
 # DSGraph: Quick start per sviluppatori
 
-versione 12 settembre 2026
+versione 8 ottobre 2026
 
 Copyright (c) 2026 Luca Mari
 Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.

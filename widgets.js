@@ -824,6 +824,49 @@ function applyRuntimeModelInputOverrides(model, inputValueMap = new Map()) {
   });
 }
 
+function canvasThemePalette() {
+  const classList = globalThis.document?.body?.classList;
+  const minimalist = Boolean(classList?.contains("ui-theme-minimalist"));
+  const night = minimalist && Boolean(classList?.contains("ui-minimalist-night"));
+  if (night) {
+    return {
+      background: "#000000",
+      plotBorder: "#5b5b5b",
+      grid: "#282828",
+      axis: "#a8a8a8",
+      tick: "#6d6d6d",
+      text: "#f0f0ec",
+      legendBackground: "rgba(14, 14, 14, 0.94)",
+      legendBorder: "#454545",
+      legendText: "#f0f0ec",
+    };
+  }
+  if (minimalist) {
+    return {
+      background: "#ffffff",
+      plotBorder: "#cbd5e1",
+      grid: "#e2e8f0",
+      axis: "#64748b",
+      tick: "#94a3b8",
+      text: "#343936",
+      legendBackground: "rgba(255, 255, 255, 0.94)",
+      legendBorder: "#dfe3e8",
+      legendText: "#252a27",
+    };
+  }
+  return {
+    background: "#ffffff",
+    plotBorder: "#c4d3df",
+    grid: "#d3dee8",
+    axis: "#aebfd0",
+    tick: "#b8c8d8",
+    text: "#4e6072",
+    legendBackground: "rgba(255, 255, 255, 0.88)",
+    legendBorder: "#d2dde7",
+    legendText: "#334b60",
+  };
+}
+
 function drawXYChart(canvas, seriesList = [], options = null) {
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -849,8 +892,9 @@ function drawXYChart(canvas, seriesList = [], options = null) {
   };
   const width = canvas.width;
   const height = canvas.height;
+  const palette = canvasThemePalette();
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = palette.background;
   ctx.fillRect(0, 0, width, height);
 
   const activeSeries = (Array.isArray(seriesList) ? seriesList : [])
@@ -989,7 +1033,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
   const plotW = Math.max(10, width - leftPad - rightPad);
   const plotH = Math.max(10, height - topPad - bottomPad);
 
-  ctx.strokeStyle = "#c4d3df";
+  ctx.strokeStyle = palette.plotBorder;
   ctx.lineWidth = 1;
   ctx.strokeRect(leftPad, topPad, plotW, plotH);
 
@@ -1014,7 +1058,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
   };
 
   if (cfg.showGrid) {
-    ctx.strokeStyle = "#d3dee8";
+    ctx.strokeStyle = palette.grid;
     ctx.lineWidth = 1;
     xTicks.slice(1, -1).forEach((tick) => {
       const gx = sx(tick);
@@ -1032,7 +1076,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     });
   }
 
-  ctx.strokeStyle = "#aebfd0";
+  ctx.strokeStyle = palette.axis;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
   ctx.moveTo(leftPad, topPad + plotH);
@@ -1089,7 +1133,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     }
   });
 
-  ctx.strokeStyle = "#b8c8d8";
+  ctx.strokeStyle = palette.tick;
   ctx.lineWidth = 1;
   xTicks.forEach((tick) => {
     const x = sx(tick);
@@ -1106,7 +1150,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     ctx.stroke();
   });
 
-  ctx.fillStyle = "#4e6072";
+  ctx.fillStyle = palette.text;
   ctx.textBaseline = "top";
   ctx.textAlign = "center";
   xTicks.forEach((tick, index) => {
@@ -1187,8 +1231,8 @@ function drawXYChart(canvas, seriesList = [], options = null) {
       legendTop = topPad + plotH - legendHeight - 8;
     }
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
-    ctx.strokeStyle = "#d2dde7";
+    ctx.fillStyle = palette.legendBackground;
+    ctx.strokeStyle = palette.legendBorder;
     ctx.lineWidth = 1;
     drawRoundedRectPath(legendLeft, legendTop, legendWidth, legendHeight, 8);
     ctx.fill();
@@ -1211,7 +1255,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
         ctx.arc(sampleX + sampleWidth / 2, rowY, Math.min(3, series.pointSize || 2.4), 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.fillStyle = "#334b60";
+      ctx.fillStyle = palette.legendText;
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.fillText(series.label || `s${idx + 1}`, sampleX + sampleWidth + sampleGap, rowY);
@@ -1223,10 +1267,13 @@ function drawXYChart(canvas, seriesList = [], options = null) {
 function drawBarPlot(canvas, seriesList = [], options = {}) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  const palette = canvasThemePalette();
   const bars = seriesList.flatMap((series, index) => (series.points || []).map((point) => ({
     x: Number(point.x), y: Number(point.y), color: series.color || defaultChartSeriesColor(index),
   }))).filter((bar) => Number.isFinite(bar.x) && Number.isFinite(bar.y));
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = palette.background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (!bars.length) return;
   let minX = Math.min(...bars.map((bar) => bar.x)); let maxX = Math.max(...bars.map((bar) => bar.x));
   let minY = Math.min(0, ...bars.map((bar) => bar.y)); let maxY = Math.max(0, ...bars.map((bar) => bar.y));
@@ -1255,14 +1302,14 @@ function drawBarPlot(canvas, seriesList = [], options = {}) {
   const sx = (value) => left + ((value - minX) / (maxX - minX)) * plotW;
   const sy = (value) => top + plotH - ((value - minY) / (maxY - minY)) * plotH;
   if (options.showGrid !== false) {
-    ctx.strokeStyle = "#d3dee8"; ctx.lineWidth = 1;
+    ctx.strokeStyle = palette.grid; ctx.lineWidth = 1;
     for (let i = 1; i < 5; i += 1) { const y = top + plotH * i / 5; ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(left + plotW, y); ctx.stroke(); }
   }
-  ctx.strokeStyle = "#aebfd0"; ctx.lineWidth = 1.2; ctx.strokeRect(left, top, plotW, plotH);
+  ctx.strokeStyle = palette.axis; ctx.lineWidth = 1.2; ctx.strokeRect(left, top, plotW, plotH);
   const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(left, zeroY); ctx.lineTo(left + plotW, zeroY); ctx.stroke();
   const width = Math.max(2, Math.min(plotW / Math.max(1, bars.length) * widthFactor, Math.abs(sx(uniqueX[0] + spacing * widthFactor) - sx(uniqueX[0]))));
   bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - width / 2, Math.min(y, zeroY), width, Math.abs(zeroY - y)); });
-  ctx.fillStyle = "#4e6072"; ctx.font = `${fontSize}px sans-serif`;
+  ctx.fillStyle = palette.text; ctx.font = `${fontSize}px sans-serif`;
   const xLabels = new Map((Array.isArray(options.xTickLabels) ? options.xTickLabels : []).map((entry) => [Number(entry?.value), String(entry?.label ?? "")]).filter(([value, label]) => Number.isFinite(value) && label));
   if (options.showXTicks !== false) {
     ctx.textAlign = "center";
@@ -1628,7 +1675,7 @@ function drawMatrixSurfaceCanvas(canvas, widget, matrix) {
     }
   }
   cells.sort((first, second) => first.depth - second.depth);
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = canvasThemePalette().background;
   ctx.fillRect(0, 0, width, height);
   cells.forEach(({ corners }) => {
     const path = corners.map(project);

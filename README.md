@@ -1,6 +1,6 @@
 # DSGraph: Readme
 
-versione 16 settembre 2026
+versione 8 ottobre 2026
 
 Copyright (c) 2026 Luca Mari
 
@@ -120,6 +120,7 @@ Ha un'interfaccia utente responsive, che lo rende utilizzabile anche su tablet.
 #### Funzionalità di interfaccia utente
 
 * Editor per espressioni, con controllo sintattico dinamico, visualizzazione dei valori attuali, help contestuale
+* Due stili dell'interfaccia selezionabili da `Vista > Opzioni di visualizzazione`: `Legacy` e `Minimalista` (Minimalism & Swiss), con variante OLED scura disponibile per il secondo
 * Visualizzazione alternata per il grafo e i widget
 * Gestione di una dashboard a più pagine per raggruppare widget (**)
 * Enfatizzazione delle frecce sul nodo selezionato

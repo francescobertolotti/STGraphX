@@ -8,7 +8,7 @@
 
 window.STGraphXAppMeta = {
   author: "Luca Mari (original work); Francesco Bertolotti (modifications)",
-  releaseDate: "2026.09.19",
+  releaseDate: "2026.10.08",
   license: "MPL-2.0",
   copyright: "Original work Copyright (c) 2026 Luca Mari; Modifications and additional features Copyright (c) 2026 Francesco Bertolotti",
 };
@@ -381,9 +381,14 @@ window.STGraphXI18nBundles = {
     "view.btn.showGraph": "Mostra grafo",
     "view.btn.showWidgets": "Mostra widget",
     "viewOptions.canvas": "Canvas",
+    "viewOptions.appearance": "Aspetto",
     "viewOptions.execution": "Esecuzione",
     "viewOptions.interface": "Interfaccia e valori",
     "viewOptions.language": "Lingua dell'interfaccia",
+    "viewOptions.nightMode": "Modalità notturna",
+    "viewOptions.theme": "Stile dell'interfaccia",
+    "viewOptions.theme.legacy": "Legacy",
+    "viewOptions.theme.minimalist": "Minimalista",
     "viewOptions.title": "Opzioni di visualizzazione",
 
     // Expression editor
@@ -1053,6 +1058,8 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.view.zoomIn": "Aumenta lo zoom della finestra del grafo.",
     "tooltip.menu.view.zoomOut": "Riduce lo zoom della finestra del grafo.",
     "tooltip.menu.view.zoomReset": "Riporta lo zoom al 100%.",
+    "tooltip.viewOptions.theme": "Scegli Legacy per mantenere l'aspetto precedente oppure Minimalista per lo stile grafico Minimalism & Swiss.",
+    "tooltip.viewOptions.nightMode": "Attiva la variante OLED scura dello stile Minimalista.",
     "tooltip.model.addProperty": "Aggiunge una proprietà descrittiva al modello, salvata nel file JSON.",
     "tooltip.model.currentTime": "Tempo corrente dell'esecuzione.",
     "tooltip.model.decimals": "Numero massimo di cifre decimali mostrate per i valori numerici.",
@@ -1676,9 +1683,14 @@ window.STGraphXI18nBundles = {
     "view.btn.showGraph": "Show graph",
     "view.btn.showWidgets": "Show widgets",
     "viewOptions.canvas": "Canvas",
+    "viewOptions.appearance": "Appearance",
     "viewOptions.execution": "Execution",
     "viewOptions.interface": "Interface and values",
     "viewOptions.language": "Interface language",
+    "viewOptions.nightMode": "Night mode",
+    "viewOptions.theme": "Interface style",
+    "viewOptions.theme.legacy": "Legacy",
+    "viewOptions.theme.minimalist": "Minimalist",
     "viewOptions.title": "View options",
 
     // Expression editor
@@ -2348,6 +2360,8 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.view.zoomIn": "Increases the zoom of the graph window.",
     "tooltip.menu.view.zoomOut": "Decreases the zoom of the graph window.",
     "tooltip.menu.view.zoomReset": "Restores zoom to 100%.",
+    "tooltip.viewOptions.theme": "Choose Legacy to keep the previous appearance, or Minimalist for the Minimalism & Swiss visual style.",
+    "tooltip.viewOptions.nightMode": "Enables the OLED-dark variant of the Minimalist style.",
     "tooltip.model.addProperty": "Adds a descriptive model property, saved in the JSON file.",
     "tooltip.model.currentTime": "Current execution time.",
     "tooltip.model.decimals": "Maximum number of decimal digits shown for numeric values.",

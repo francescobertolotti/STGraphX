@@ -1,6 +1,6 @@
 # DSGraph: Manuale di uso dell'editor (bozza)
 
-versione 19 settembre 2026
+versione 8 ottobre 2026
 
 Modifications and additional features Copyright (c) 2026 Francesco Bertolotti.
 
@@ -21,6 +21,10 @@ Luca Mari and the original STGraphX project are not necessarily responsible, mai
 ## Definizione dei nodi prima dell'esecuzione
 
 In `Vista > Opzioni di visualizzazione`, la casella `Blocca l'esecuzione se non tutti i nodi sono definiti` è attiva per impostazione predefinita. Con la casella attiva, DSGraph evidenzia in rosso i nodi privi di una definizione valida e blocca l'esecuzione, mostrando nella barra superiore il primo nodo problematico e il motivo. Disattivandola, i nodi vuoti non sono evidenziati e il modello conserva il comportamento permissivo precedente.
+
+## Aspetto dell'interfaccia
+
+In `Vista > Opzioni di visualizzazione > Aspetto` è possibile scegliere tra `Legacy`, che conserva integralmente l'interfaccia precedente, e `Minimalista`, una variante Minimalism & Swiss a contrasto elevato, con superfici essenziali, griglia tipografica e controlli più netti. La scelta è una preferenza locale dell'utente: non viene salvata nel modello e quindi non modifica la visualizzazione di chi apre lo stesso file. Con `Minimalista` è disponibile anche `Modalità notturna`, la variante OLED nera; tornando a `Legacy` l'opzione viene nascosta senza perdere la scelta per un eventuale ritorno a Minimalista.
 
 ## Diagramma dei Loop Funzionali
 

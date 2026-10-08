@@ -1,6 +1,6 @@
 # DSGraph: Readme tecnico
 
-versione 31 agosto 2026
+versione 8 ottobre 2026
 
 Copyright (c) 2026 Luca Mari
 

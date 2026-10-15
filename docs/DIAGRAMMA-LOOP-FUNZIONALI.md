@@ -6,7 +6,7 @@ Copyright (c) 2026 Francesco Bertolotti.
 
 # Diagramma dei Loop Funzionali
 
-Il **Diagramma dei Loop Funzionali** è un'analisi qualitativa e strutturale del grafo diretto già presente nel modello. Si apre da **Esegui > Esegui Diagramma dei Loop Funzionali** e non richiede equazioni, dati quantitativi né simulazioni temporali. Non modifica il grafo: legge soltanto nodi, frecce e tipo di relazione funzionale.
+Il **Diagramma dei Loop Funzionali** è un'analisi qualitativa e strutturale del grafo diretto già presente nel modello. Si apre da **Tools > Esegui Diagramma dei Loop Funzionali** e non richiede equazioni, dati quantitativi né simulazioni temporali. Non modifica il grafo: legge soltanto nodi, frecce e tipo di relazione funzionale.
 
 ## Preparare il grafo
 
@@ -19,7 +19,7 @@ Seleziona una freccia e, nel pannello delle proprietà, scegli il suo **Tipo di 
 
 Ogni freccia nuova riceve per default `1`. Il valore `1` non significa `+1`: è un rapporto funzionalmente indeterminato per il calcolo dei segni. I modelli precedenti restano compatibili: le loro frecce senza campo esplicito assumono il valore `1`.
 
-Con una relazione `+` o `−`, se il campo **Etichetta** è vuoto, DSGraph mostra automaticamente il segno sopra l'arco. Se viene inserita un'etichetta personalizzata, questa sostituisce il segno automatico; posizione, rotazione e sfondo dell'etichetta restano quindi completamente controllabili dall'utente.
+Con una relazione `+` o `−`, se il campo **Etichetta** è vuoto, DSGraph mostra automaticamente il segno sopra l'arco oppure accanto a esso per i collegamenti verticali. La posizione iniziale si adatta alla direzione dell'arco; il segno automatico può comunque essere trascinato e ruotato come un'etichetta personalizzata, mantenendo il proprio testo aggiornato al tipo di relazione. Lo spostamento viene salvato come offset rispetto all'arco, quindi segue nodi e punti di controllo. Da **Vista > Opzioni visualizzazione** è possibile nascondere tutte le etichette degli archi. Le proprietà dell'arco includono inoltre una **Descrizione** libera.
 
 ## Risultati dell'analisi
 

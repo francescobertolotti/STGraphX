@@ -553,6 +553,42 @@
     return mapDistributionValue(valueArg, (item) => poissonPmf(item, rate));
   }
 
+  function powerLawParameters(alphaValue, xminValue) {
+    const alpha = toFiniteNumber(alphaValue, "alpha");
+    const xmin = toFiniteNumber(xminValue, "xmin");
+    if (alpha <= 1) throw new Error("alpha must be > 1");
+    if (xmin <= 0) throw new Error("xmin must be > 0");
+    return { alpha, xmin };
+  }
+
+  function powerLawPdf(x, alphaValue, xminValue) {
+    const xValue = toFiniteNumber(x, "x");
+    const { alpha, xmin } = powerLawParameters(alphaValue, xminValue);
+    return xValue < xmin ? 0 : (alpha - 1) * (xmin ** (alpha - 1)) * (xValue ** -alpha);
+  }
+
+  function powerLawCdf(x, alphaValue, xminValue) {
+    const xValue = toFiniteNumber(x, "x");
+    const { alpha, xmin } = powerLawParameters(alphaValue, xminValue);
+    return xValue < xmin ? 0 : 1 - ((xmin / xValue) ** (alpha - 1));
+  }
+
+  function powerLawIcdf(probabilityValue, alphaValue, xminValue) {
+    const probability = toFiniteNumber(probabilityValue, "probability");
+    const { alpha, xmin } = powerLawParameters(alphaValue, xminValue);
+    if (probability < 0 || probability >= 1) throw new Error("probability must be in [0, 1)");
+    return xmin * ((1 - probability) ** (-1 / (alpha - 1)));
+  }
+
+  function powerLaw() {
+    const { params, valueArg, mode } = parseDistributionCallArgs(arguments, [2, 1]);
+    const [alpha, xmin] = params;
+    if (valueArg === undefined) return powerLawIcdf(Math.random(), alpha, xmin);
+    if (mode === 1) return mapDistributionValue(valueArg, (item) => powerLawCdf(item, alpha, xmin));
+    if (mode === 2) return mapDistributionValue(valueArg, (item) => powerLawIcdf(item, alpha, xmin));
+    return mapDistributionValue(valueArg, (item) => powerLawPdf(item, alpha, xmin));
+  }
+
   function signalControlPoints(cxValue, cyValue, name) {
     if (!Array.isArray(cxValue) || !Array.isArray(cyValue) || cxValue.length < 2 || cxValue.length !== cyValue.length) {
       throw new Error(`${name} expects two numeric vectors of the same length, with at least two points`);
@@ -1770,6 +1806,8 @@
       exp: vectorizeFunction(Math.exp),
       floor: vectorizeFunction(Math.floor),
       int: vectorizeFunction(Math.trunc),
+      odd: vectorizeFunction((value) => Number.isInteger(Number(value)) && Math.abs(Number(value)) % 2 === 1 ? 1 : 0),
+      even: vectorizeFunction((value) => Number.isInteger(Number(value)) && Math.abs(Number(value)) % 2 === 0 ? 1 : 0),
       log: vectorizeFunction(Math.log),
       logBase: vectorizeFunction((base, value) => Math.log(value) / Math.log(base)),
       log10: vectorizeFunction(Math.log10),
@@ -1798,6 +1836,7 @@
       exponential,
       gaussian,
       poisson,
+      powerLaw,
       rand: randomFloatInRange,
       randInt: randomIntInRange,
       stdev: stdevArrayValues,
@@ -1957,6 +1996,7 @@
       exponential: { kind: "probability", signature: "exponential([params], x, mode)", descriptionKey: "expr.help.exponential", insertText: "exponential()", cursorOffset: 12 },
       gaussian: { kind: "probability", signature: "gaussian([mu, sigma], x, mode)", descriptionKey: "expr.help.gaussian", insertText: "gaussian()", cursorOffset: 9 },
       poisson: { kind: "probability", signature: "poisson([rate], x, mode)", descriptionKey: "expr.help.poisson", insertText: "poisson()", cursorOffset: 8 },
+      powerLaw: { kind: "probability", signature: "powerLaw([alpha, xmin], x, mode)", descriptionKey: "expr.help.powerLaw", insertText: "powerLaw()", cursorOffset: 9 },
       rand: { kind: "probability", signature: "rand([max]) | rand(min, max)", descriptionKey: "expr.help.rand", insertText: "rand()", cursorOffset: 5 },
       randInt: { kind: "probability", signature: "randInt(max) | randInt(min, max)", descriptionKey: "expr.help.randInt", insertText: "randInt()", cursorOffset: 8 },
       stdev: { kind: "probability", signature: "stdev(array[, axis])", descriptionKey: "expr.help.stdev", insertText: "stdev()", cursorOffset: 6 },
@@ -1975,6 +2015,8 @@
       exp: { kind: "math", signature: "exp(x)", descriptionKey: "expr.help.exp", insertText: "exp()", cursorOffset: 4 },
       floor: { kind: "math", signature: "floor(x)", descriptionKey: "expr.help.floor", insertText: "floor()", cursorOffset: 6 },
       int: { kind: "math", signature: "int(x)", descriptionKey: "expr.help.int", insertText: "int()", cursorOffset: 4 },
+      odd: { kind: "math", signature: "odd(x)", descriptionKey: "expr.help.odd", insertText: "odd()", cursorOffset: 4 },
+      even: { kind: "math", signature: "even(x)", descriptionKey: "expr.help.even", insertText: "even()", cursorOffset: 5 },
       log: { kind: "math", signature: "log(x)", descriptionKey: "expr.help.log", insertText: "log()", cursorOffset: 4 },
       logBase: { kind: "math", signature: "logBase(b, x)", descriptionKey: "expr.help.logBase", insertText: "logBase()", cursorOffset: 8 },
       log10: { kind: "math", signature: "log10(x)", descriptionKey: "expr.help.log10", insertText: "log10()", cursorOffset: 6 },

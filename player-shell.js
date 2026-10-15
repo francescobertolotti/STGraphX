@@ -348,9 +348,11 @@
       step: Number.isFinite(Number(widget?.step)) ? Number(widget.step) : 1,
       value: widget?.type === "button"
         ? Boolean(widget?.value)
-        : (Number.isFinite(Number(widget?.value)) ? Number(widget.value) : 0),
+        : (widget?.type === "dpad" && [0, 1, 2, 3, 4].includes(Number(widget?.value)) ? Number(widget.value) : (Number.isFinite(Number(widget?.value)) ? Number(widget.value) : 0)),
       initialValue: widget?.type === "button" ? Boolean(widget?.initialValue ?? widget?.value) : undefined,
-      buttonMode: widget?.type === "button" && widget?.buttonMode === "momentary" ? "momentary" : "toggle",
+      buttonMode: (widget?.type === "button" || widget?.type === "dpad") && widget?.buttonMode === "momentary" ? "momentary" : "toggle",
+      keyBinding: String(widget?.keyBinding ?? ""),
+      keyBindings: widget?.keyBindings && typeof widget.keyBindings === "object" ? { ...widget.keyBindings } : {},
       options: Array.isArray(widget?.options)
         ? widget.options.map((option) => ({
           label: String(option?.label ?? ""),
@@ -505,7 +507,7 @@
     if (title) {
       return title;
     }
-    if (widget.type === "slider" || widget.type === "button" || widget.type === "select") {
+    if (widget.type === "slider" || widget.type === "button" || widget.type === "dpad" || widget.type === "select") {
       return widget.source || t("text.unnamed");
     }
     if (widget.type === "text" || widget.type === "led" || widget.type === "matrix") {
@@ -520,6 +522,7 @@
       led: t("menu.insert.ledWidget"),
       slider: t("menu.insert.sliderWidget"),
       button: t("menu.insert.buttonWidget"),
+      dpad: t("menu.insert.dpadWidget"),
       select: t("menu.insert.selectWidget"),
     }[widget.type] || widget.type;
   }
@@ -545,6 +548,7 @@
     if (!ctx) {
       return;
     }
+    canvas.__dsgraphChartHitTest = () => "";
     const width = canvas.width;
     const height = canvas.height;
     ctx.clearRect(0, 0, width, height);
@@ -589,6 +593,7 @@
     const pad = 18;
     const sx = (width - pad * 2) / (maxX - minX);
     const sy = (height - pad * 2) / (maxY - minY);
+    const chartHitTargets = [];
 
     ctx.strokeStyle = "#9fb0c0";
     ctx.beginPath();
@@ -614,6 +619,16 @@
           }
         });
         ctx.stroke();
+        for (let index = 1; index < pair.points.length; index += 1) {
+          const start = pair.points[index - 1];
+          const end = pair.points[index];
+          chartHitTargets.push({
+            kind: "line",
+            x1: pad + (start.x - minX) * sx, y1: height - pad - (start.y - minY) * sy,
+            x2: pad + (end.x - minX) * sx, y2: height - pad - (end.y - minY) * sy,
+            valueAt: (ratio) => ({ x: start.x + (end.x - start.x) * ratio, y: start.y + (end.y - start.y) * ratio }),
+          });
+        }
       }
       ctx.setLineDash([]);
       const pointMode = String(pair.pointMode || "last").toLowerCase();
@@ -624,6 +639,7 @@
         pointsToDraw.forEach((pt) => {
           const x = pad + (pt.x - minX) * sx;
           const y = height - pad - (pt.y - minY) * sy;
+          chartHitTargets.push({ kind: "point", x, y, radius: Math.max(7, (pair.pointSize || 2) + 4), value: pt });
           ctx.fillStyle = pair.color || "#2d7ff9";
           ctx.beginPath();
           ctx.arc(x, y, pair.pointSize || 2, 0, Math.PI * 2);
@@ -688,6 +704,7 @@
 
   function drawSimpleBarPlot(canvas, pairs, execution, fontSize) {
     const ctx = canvas.getContext("2d");
+    canvas.__dsgraphChartHitTest = () => "";
     const bars = pairs.flatMap((pair, index) => (pair.points || []).map((point) => ({ x: Number(point.x), y: Number(point.y), color: pair.color || ["#2d7ff9", "#e67e22", "#20a464"][index % 3] }))).filter((bar) => Number.isFinite(bar.x) && Number.isFinite(bar.y));
     if (!ctx || !bars.length) return;
     const width = canvas.width; const height = canvas.height; const pad = 22;
@@ -699,8 +716,36 @@
     ctx.strokeStyle = "#9fb0c0"; ctx.strokeRect(pad, pad, width - pad * 2, height - pad * 2);
     const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(pad, zeroY); ctx.lineTo(width - pad, zeroY); ctx.stroke();
     const barWidth = Math.max(2, (width - pad * 2) / Math.max(1, bars.length) * 0.75);
-    bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - barWidth / 2, Math.min(y, zeroY), barWidth, Math.abs(y - zeroY)); });
+    const chartHitTargets = [];
+    bars.forEach((bar) => {
+      const y = sy(bar.y); const left = sx(bar.x) - barWidth / 2; const top = Math.min(y, zeroY); const barHeight = Math.abs(y - zeroY);
+      ctx.fillStyle = bar.color; ctx.fillRect(left, top, barWidth, barHeight);
+      chartHitTargets.push({ left, top, width: barWidth, height: barHeight, value: bar.y });
+    });
     ctx.fillStyle = "#506070"; ctx.font = `${Math.max(8, fontSize)}px sans-serif`; ctx.fillText(formatNumberValue(execution, minX), pad, height - 4); ctx.fillText(formatNumberValue(execution, maxX), width - pad - 24, height - 4);
+    canvas.__dsgraphChartHitTest = (x, y) => {
+      const target = chartHitTargets.find((bar) => x >= bar.left && x <= bar.left + bar.width && y >= bar.top && y <= bar.top + bar.height);
+      return target ? formatNumberValue(execution, target.value) : "";
+    };
+  }
+
+  function installChartValueTooltip(canvas, canvasWrap) {
+    const tooltip = document.createElement("div");
+    tooltip.className = "chart-value-tooltip";
+    tooltip.hidden = true;
+    canvasWrap.appendChild(tooltip);
+    const hide = () => { tooltip.hidden = true; canvas.style.cursor = "default"; };
+    canvas.addEventListener("pointermove", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const text = canvas.__dsgraphChartHitTest?.((event.clientX - rect.left) * canvas.width / rect.width, (event.clientY - rect.top) * canvas.height / rect.height) || "";
+      if (!text) { hide(); return; }
+      tooltip.textContent = text;
+      tooltip.hidden = false;
+      tooltip.style.left = `${Math.min(canvasWrap.clientWidth - 8, Math.max(8, event.clientX - rect.left + 12))}px`;
+      tooltip.style.top = `${Math.max(4, event.clientY - rect.top - 8)}px`;
+      canvas.style.cursor = "crosshair";
+    });
+    canvas.addEventListener("pointerleave", hide);
   }
 
   function drawMatrixWidgetCanvas(canvas, widget, matrix, execution, zoom) {
@@ -1153,6 +1198,7 @@
             font-variant-numeric: tabular-nums;
           }
           .xy-chart-canvas-wrap {
+            position: relative;
             min-height: 0;
           }
           .xy-chart-canvas {
@@ -1164,6 +1210,7 @@
             border-radius: 6px;
             background: #fff;
           }
+          .chart-value-tooltip { position:absolute; z-index:2; transform:translateY(-100%); padding:3px 6px; border:1px solid #91a8ba; border-radius:4px; color:#fff; background:#1f2937; font-size:11px; font-variant-numeric:tabular-nums; line-height:1.25; pointer-events:none; white-space:nowrap; }
           .led-wrap {
             display: grid;
             justify-items: center;
@@ -1236,6 +1283,13 @@
             align-content: center;
             min-height: 100%;
           }
+          .dpad-widget { display:grid; grid-template-columns:repeat(3,1fr); grid-template-areas:". up ." "left . right" ". down ."; gap:5px; height:100%; align-items:center; }
+          .dpad-widget-button { min-height:28px; border:1px solid #b7c7d6; border-radius:6px; color:#23415a; background:#dbeafe; font:inherit; font-weight:700; cursor:pointer; }
+          .dpad-widget-button.is-active, .dpad-widget-button:active, .dpad-widget-button[aria-pressed="true"] { color:#fff; border-color:#172554; background:linear-gradient(135deg,#2563eb,#1e3a8a); box-shadow:0 0 0 2px rgba(37,99,235,.28),inset 0 1px 0 rgba(255,255,255,.28); }
+          .dpad-up { grid-area:up; } .dpad-right { grid-area:right; } .dpad-down { grid-area:down; } .dpad-left { grid-area:left; }
+          .button-widget-toggle { width:100%; min-height:30px; border:1px solid #b7c7d6; border-radius:8px; padding:6px 8px; font:inherit; font-weight:600; cursor:pointer; }
+          .button-widget-toggle.is-on { color:#fff; border-color:#166534; background:linear-gradient(135deg,#22c55e,#15803d); box-shadow:0 2px 6px rgba(21,128,61,.32),inset 0 1px 0 rgba(255,255,255,.25); }
+          .button-widget-toggle.is-off { color:#fff; border-color:#991b1b; background:linear-gradient(135deg,#ef4444,#b91c1c); box-shadow:0 2px 6px rgba(185,28,28,.30),inset 0 1px 0 rgba(255,255,255,.22); }
           .select-widget-input {
             width: 100%;
             min-height: 28px;
@@ -2204,8 +2258,22 @@
           const items = memberships.get(nodeId) || [];
           items.push(group);
           memberships.set(nodeId, items);
-        });
       });
+    });
+
+    canvas.__dsgraphChartHitTest = (x, y) => {
+      const point = chartHitTargets.find((target) => target.kind === "point" && Math.hypot(x - target.x, y - target.y) <= target.radius);
+      if (point) return `(${formatNumberValue(execution, point.value.x)}, ${formatNumberValue(execution, point.value.y)})`;
+      let nearest = null;
+      chartHitTargets.filter((target) => target.kind === "line").forEach((target) => {
+        const dx = target.x2 - target.x1; const dy = target.y2 - target.y1;
+        const lengthSq = dx * dx + dy * dy;
+        const ratio = lengthSq > 0 ? clamp(((x - target.x1) * dx + (y - target.y1) * dy) / lengthSq, 0, 1) : 0;
+        const distance = Math.hypot(x - (target.x1 + dx * ratio), y - (target.y1 + dy * ratio));
+        if (distance <= 7 && (!nearest || distance < nearest.distance)) nearest = { distance, value: target.valueAt(ratio) };
+      });
+      return nearest ? `(${formatNumberValue(execution, nearest.value.x)}, ${formatNumberValue(execution, nearest.value.y)})` : "";
+    };
       return new Set(nodes.filter((node) => {
         const groups = memberships.get(node.id);
         return !groups || groups.some((group) => group.visible !== false);
@@ -2905,12 +2973,17 @@
         return;
       }
       if (widget.type === "xychart") {
+        const canvasWrap = document.createElement("div");
+        canvasWrap.className = "xy-chart-canvas-wrap";
         const canvas = document.createElement("canvas");
+        canvas.className = "xy-chart-canvas";
         canvas.style.display = "block";
         canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
         canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
         drawSimpleXYChart(canvas, widgetState?.pairs || widget.xyPairs || [], execution, widget.fontSize);
-        body.appendChild(canvas);
+        canvasWrap.appendChild(canvas);
+        installChartValueTooltip(canvas, canvasWrap);
+        body.appendChild(canvasWrap);
         return;
       }
       if (widget.type === "barplot") {
@@ -2920,12 +2993,17 @@
           const ys = flatten(nodeMap.get(pair.ySource)?.computedValue);
           return { ...pair, points: xs.slice(0, ys.length).map((x, index) => ({ x, y: ys[index] })) };
         });
+        const canvasWrap = document.createElement("div");
+        canvasWrap.className = "xy-chart-canvas-wrap";
         const canvas = document.createElement("canvas");
+        canvas.className = "xy-chart-canvas";
         canvas.style.display = "block";
         canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
         canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
         drawSimpleBarPlot(canvas, pairs, execution, widget.fontSize);
-        body.appendChild(canvas);
+        canvasWrap.appendChild(canvas);
+        installChartValueTooltip(canvas, canvasWrap);
+        body.appendChild(canvasWrap);
         return;
       }
       if (widget.type === "slider") {
@@ -3010,6 +3088,7 @@
         const current = Boolean(this._state.inputValues.get(widget.source) ?? (widget.value ? 1 : 0));
         button.type = "button";
         button.className = `button-widget-toggle${current ? " is-on" : " is-off"}`;
+        button.setAttribute("aria-pressed", String(current));
         button.textContent = widgetBinaryStateLabel(widget, current, this.t.bind(this));
         button.disabled = false;
         const momentary = widget.buttonMode === "momentary";
@@ -3018,6 +3097,7 @@
           widget.value = next === 1;
           button.classList.toggle("is-on", next === 1);
           button.classList.toggle("is-off", next !== 1);
+          button.setAttribute("aria-pressed", String(next === 1));
           button.textContent = widgetBinaryStateLabel(widget, next === 1, this.t.bind(this));
           this.queuePreviewRefresh("input");
         };
@@ -3032,10 +3112,43 @@
         button.addEventListener("blur", release);
         button.addEventListener("click", () => {
           if (momentary) return;
-          const next = current ? 0 : 1;
+          const next = widget.value ? 0 : 1;
           setValue(next);
         });
         wrap.appendChild(button);
+        body.appendChild(wrap);
+        return;
+      }
+      if (widget.type === "dpad") {
+        const wrap = document.createElement("div");
+        wrap.className = "dpad-widget";
+        const momentary = widget.buttonMode === "momentary";
+        const setValue = (value) => {
+          this._state.inputValues.set(widget.source, value);
+          widget.value = value;
+          wrap.querySelectorAll("button").forEach((button) => {
+            const isActive = value !== 0 && Number(button.dataset.value) === value;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+          });
+          this.queuePreviewRefresh("input");
+        };
+        [["up", "↑", 1], ["right", "→", 2], ["down", "↓", 3], ["left", "←", 4]].forEach(([direction, label, value]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `dpad-widget-button dpad-${direction}`;
+          button.dataset.value = String(value);
+          button.textContent = label;
+          button.setAttribute("aria-label", this.t(`widget.dpad.${direction}`));
+          const release = () => { if (momentary) setValue(0); };
+          button.addEventListener("pointerdown", (event) => { if (momentary) { button.setPointerCapture?.(event.pointerId); setValue(value); } });
+          button.addEventListener("pointerup", release);
+          button.addEventListener("pointercancel", release);
+          button.addEventListener("blur", release);
+          button.addEventListener("click", () => { if (!momentary) setValue(widget.value === value ? 0 : value); });
+          wrap.appendChild(button);
+        });
+        setValue(Number(this._state.inputValues.get(widget.source) ?? widget.value ?? 0));
         body.appendChild(wrap);
         return;
       }

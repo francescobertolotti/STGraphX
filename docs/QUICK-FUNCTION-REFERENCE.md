@@ -1,6 +1,6 @@
 # DSGraph - Quick Function Reference
 
-Generated automatically da `i18n-inline.js` e `graph-functions.js` (release 2026.09.19).
+Generated automatically da `i18n-inline.js` e `graph-functions.js` (release 2026.10.08).
 
 Regenerate with `npm run docs:functions`.
 
@@ -613,6 +613,19 @@ Poisson distribution with rate; rate defaults to 1. If x is omitted it samples a
 
 ---
 
+### `powerLaw`
+
+`powerLaw([alpha, xmin], x, mode)`
+
+Continuous power-law distribution: `alpha` must be greater than `1`; `xmin` is optional and defaults to `1`. If x is omitted it samples a value. With mode=0 it computes the pdf, with mode=1 the cdf, with mode=2 the icdf.
+
+**Examples**
+- `powerLaw([2.5])`
+- `powerLaw([2.5, 3], 4, 0)`
+- `powerLaw([2.5, 3], 0.5, 2)`
+
+---
+
 ### `rand`
 
 `rand([max]) | rand(min, max)`
@@ -761,6 +774,17 @@ Hyperbolic cosine.
 
 ---
 
+### `even`
+
+`even(x)`
+
+Returns `1` if `x` is an even integer, otherwise `0`.
+
+**Examples**
+- `even(4) -> 1`
+
+---
+
 ### `exp`
 
 `exp(x)`
@@ -868,6 +892,17 @@ Boolean operator equivalent to !.
 
 **Examples**
 - `not x`
+
+---
+
+### `odd`
+
+`odd(x)`
+
+Returns `1` if `x` is an odd integer, otherwise `0`.
+
+**Examples**
+- `odd(5) -> 1`
 
 ---
 

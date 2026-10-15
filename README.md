@@ -39,7 +39,7 @@ variabili di stato e ruoli Input/Parametro. La metodologia è disponibile in
 
 ## Diagramma dei Loop Funzionali
 
-Dal menu `Esegui` è disponibile il **Diagramma dei Loop Funzionali**, un'analisi
+Dal menu `Tools` è disponibile il **Diagramma dei Loop Funzionali**, un'analisi
 qualitativa del grafo che individua cicli rinforzanti, bilancianti e
 indeterminati, partecipazione delle variabili, portata funzionale e influenza
 firmata. I tipi di relazione `+`, `−`, `1` e `0` sono configurabili direttamente
@@ -105,6 +105,8 @@ Ha un'interfaccia utente responsive, che lo rende utilizzabile anche su tablet.
 * Definizione della base dei tempi e modalità varie di esecuzione; pannello di configurazione aggiornato dinamicamente
 * Gestione di esecuzione completa, passo-passo, temporizzata, con modello in modalità read-only durante l'esecuzione
 * Nelle Opzioni di visualizzazione, l'impostazione `Blocca l'esecuzione se non tutti i nodi sono definiti` evidenzia in rosso i nodi non definiti e blocca l'esecuzione con un messaggio di errore; disattivandola, l'esecuzione conserva il comportamento permissivo precedente (**)
+* Modalità sviluppo opzionale nelle Opzioni di visualizzazione: conserva in RAM gli ultimi cinque passi e permette di ripristinare un passo precedente senza ricalcolarlo; la cronologia non viene salvata nel modello ed è eliminata al termine o con il reset dell'esecuzione (**)
+* Analisi di sensibilità univariata in `Tools > Sensitivity analysis...`: varia un parametro o input per volta e riporta valore finale, grafico SVG ed esportazione CSV senza modificare il modello aperto (**)
 
 #### Funzionalità del linguaggio
 

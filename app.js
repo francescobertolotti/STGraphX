@@ -38,6 +38,7 @@ const addDiamondNodeItem = document.getElementById("addDiamondNodeItem");
 const addSubmodelNodeItem = document.getElementById("addSubmodelNodeItem");
 const addTextItem = document.getElementById("addTextItem");
 const addButtonWidgetItem = document.getElementById("addButtonWidgetItem");
+const addDpadWidgetItem = document.getElementById("addDpadWidgetItem");
 const addSelectWidgetItem = document.getElementById("addSelectWidgetItem");
 const addSliderWidgetItem = document.getElementById("addSliderWidgetItem");
 const addLedWidgetItem = document.getElementById("addLedWidgetItem");
@@ -61,12 +62,14 @@ const runStepBtn = document.getElementById("runStepBtn");
 const runTimedToggleBtn = document.getElementById("runTimedToggleBtn");
 const runResetBtn = document.getElementById("runResetBtn");
 const functionalLoopDiagramBtn = document.getElementById("functionalLoopDiagramBtn");
+const sensitivityAnalysisBtn = document.getElementById("sensitivityAnalysisBtn");
 const analyzeModelBtn = document.getElementById("analyzeModelBtn");
 const watchDebuggerBtn = document.getElementById("watchDebuggerBtn");
 const topRunEvalBtn = document.getElementById("topRunEvalBtn");
 const topRunStepBtn = document.getElementById("topRunStepBtn");
 const topRunTimedBtn = document.getElementById("topRunTimedBtn");
 const topRunResetBtn = document.getElementById("topRunResetBtn");
+const topRunBackStepBtn = document.getElementById("topRunBackStepBtn");
 const selectAllBtn = document.getElementById("selectAllBtn");
 const cutBtn = document.getElementById("cutBtn");
 const copyBtn = document.getElementById("copyBtn");
@@ -93,6 +96,7 @@ const showGridInput = document.getElementById("showGridInput");
 const highlightNodeEdgesInput = document.getElementById("highlightNodeEdgesInput");
 const showNodeValuesInput = document.getElementById("showNodeValuesInput");
 const showEdgeValuesInput = document.getElementById("showEdgeValuesInput");
+const showEdgeLabelsInput = document.getElementById("showEdgeLabelsInput");
 const gridSizeInput = document.getElementById("gridSizeInput");
 const tooltipDelayInput = document.getElementById("tooltipDelayInput");
 const interfaceLanguageInput = document.getElementById("interfaceLanguageInput");
@@ -100,6 +104,7 @@ const interfaceThemeInput = document.getElementById("interfaceThemeInput");
 const minimalistNightModeInput = document.getElementById("minimalistNightModeInput");
 const minimalistNightModeRow = document.getElementById("minimalistNightModeRow");
 const strictDefinitionsInput = document.getElementById("strictDefinitionsInput");
+const developmentModeInput = document.getElementById("developmentModeInput");
 
 const noSelection = document.getElementById("noSelection");
 const globalPanel = document.getElementById("globalPanel");
@@ -292,6 +297,20 @@ const functionalLoopMaxDepthInput = document.getElementById("functionalLoopMaxDe
 const functionalLoopValidation = document.getElementById("functionalLoopValidation");
 const functionalLoopSummary = document.getElementById("functionalLoopSummary");
 const functionalLoopContent = document.getElementById("functionalLoopContent");
+const sensitivityAnalysisModal = document.getElementById("sensitivityAnalysisModal");
+const sensitivityAnalysisCloseBtn = document.getElementById("sensitivityAnalysisCloseBtn");
+const sensitivityAnalysisDismissBtn = document.getElementById("sensitivityAnalysisDismissBtn");
+const sensitivityInputSelect = document.getElementById("sensitivityInputSelect");
+const sensitivityOutputSelect = document.getElementById("sensitivityOutputSelect");
+const sensitivityMinInput = document.getElementById("sensitivityMinInput");
+const sensitivityMaxInput = document.getElementById("sensitivityMaxInput");
+const sensitivitySamplesInput = document.getElementById("sensitivitySamplesInput");
+const sensitivityRunBtn = document.getElementById("sensitivityRunBtn");
+const sensitivityExportBtn = document.getElementById("sensitivityExportBtn");
+const sensitivityImageExportBtn = document.getElementById("sensitivityImageExportBtn");
+const sensitivityAnalysisStatus = document.getElementById("sensitivityAnalysisStatus");
+const sensitivityAnalysisResults = document.getElementById("sensitivityAnalysisResults");
+const sensitivityAnalysisChart = document.getElementById("sensitivityAnalysisChart");
 const watchDebuggerModal = document.getElementById("watchDebuggerModal");
 const watchDebuggerCloseBtn = document.getElementById("watchDebuggerCloseBtn");
 const watchDebuggerDismissBtn = document.getElementById("watchDebuggerDismissBtn");
@@ -352,6 +371,7 @@ const {
   addCanvasText,
   addLedWidget,
   addButtonWidget,
+  addDpadWidget,
   addSelectWidget,
   addTextWidget,
   addSliderWidget,
@@ -946,10 +966,12 @@ const ui = {
   highlightNodeEdges: false,
   showNodeValues: false,
   showEdgeValues: false,
+  showEdgeLabels: true,
   gridSize: 20,
   tooltipDelayMs: 300,
   visualTheme: "legacy",
   minimalistNightMode: false,
+  developmentMode: false,
   zoom: 1,
   nodeNameEditStart: null,
   timedRunHandle: null,
@@ -989,6 +1011,7 @@ const ui = {
   analysisFocus: null,
   functionalLoopFocus: null,
   watchPreviousSnapshot: new Map(),
+  sensitivityAnalysis: null,
   breakpointLastResult: null,
   localFunctionsEditor: null,
   sidebarCollapsed: false,
@@ -1303,6 +1326,9 @@ function updateCanvasGridAppearance() {
   if (showEdgeValuesInput) {
     showEdgeValuesInput.checked = ui.showEdgeValues === true;
   }
+  if (showEdgeLabelsInput) {
+    showEdgeLabelsInput.checked = ui.showEdgeLabels !== false;
+  }
   if (gridSizeInput && document.activeElement !== gridSizeInput) {
     gridSizeInput.value = String(ui.gridSize);
   }
@@ -1526,6 +1552,8 @@ function widgetMinDimensions(widget) {
       return { width: 120, height: 78 };
     case "button":
       return { width: 120, height: 76 };
+    case "dpad":
+      return { width: 120, height: 120 };
     case "select":
       return { width: 120, height: 82 };
     case "slider":
@@ -2827,6 +2855,8 @@ function widgetDisplayName(widget) {
           ? t("panel.widgetSlider")
           : widget.type === "button"
             ? t("panel.widgetButton")
+            : widget.type === "dpad"
+              ? t("panel.widgetDpad")
             : widget.type === "select"
               ? t("panel.widgetSelect")
               : widget.type === "led"
@@ -3712,6 +3742,285 @@ function exportFunctionalLoopDiagram() {
   functionalLoopUiHelpers.exportResults();
 }
 
+function sensitivityRangeForNode(node) {
+  const current = Number(node?.externalValueEnabled ? node.externalValue : node?.computedValue);
+  if (!Number.isFinite(current) || current === 0) {
+    return { min: -1, max: 1 };
+  }
+  const delta = Math.abs(current) * 0.2;
+  return { min: current - delta, max: current + delta };
+}
+
+function setSensitivityStatus(message = "", isError = false) {
+  if (!sensitivityAnalysisStatus) {
+    return;
+  }
+  sensitivityAnalysisStatus.textContent = String(message ?? "");
+  sensitivityAnalysisStatus.classList.toggle("error", Boolean(isError));
+}
+
+function renderSensitivityChart(rows, inputName, outputName) {
+  if (!sensitivityAnalysisChart) {
+    return;
+  }
+  sensitivityAnalysisChart.innerHTML = "";
+  const points = (rows || []).filter((row) => !row.error
+    && Number.isFinite(Number(row.inputValue))
+    && Number.isFinite(Number(row.outputValue)));
+  if (!points.length) {
+    sensitivityAnalysisChart.classList.add("hidden");
+    if (sensitivityImageExportBtn) sensitivityImageExportBtn.disabled = true;
+    return;
+  }
+  sensitivityAnalysisChart.classList.remove("hidden");
+  const width = 640;
+  const height = 300;
+  const margin = { top: 22, right: 24, bottom: 48, left: 64 };
+  let minX = Math.min(...points.map((point) => Number(point.inputValue)));
+  let maxX = Math.max(...points.map((point) => Number(point.inputValue)));
+  let minY = Math.min(...points.map((point) => Number(point.outputValue)));
+  let maxY = Math.max(...points.map((point) => Number(point.outputValue)));
+  if (minX === maxX) { minX -= 1; maxX += 1; }
+  if (minY === maxY) { minY -= 1; maxY += 1; }
+  const x = (value) => margin.left + ((Number(value) - minX) / (maxX - minX)) * (width - margin.left - margin.right);
+  const y = (value) => height - margin.bottom - ((Number(value) - minY) / (maxY - minY)) * (height - margin.top - margin.bottom);
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", t("sensitivity.chart.aria", { input: inputName, output: outputName }));
+  const add = (tag, attributes = {}, text = "") => {
+    const element = document.createElementNS(SVG_NS, tag);
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, String(value)));
+    if (text) element.textContent = text;
+    svg.appendChild(element);
+    return element;
+  };
+  for (let index = 0; index <= 4; index += 1) {
+    const ratio = index / 4;
+    const value = minY + ((maxY - minY) * ratio);
+    const chartY = y(value);
+    add("line", { x1: margin.left, x2: width - margin.right, y1: chartY, y2: chartY, class: "sensitivity-chart-grid" });
+    add("text", { x: margin.left - 10, y: chartY + 4, class: "sensitivity-chart-tick", "text-anchor": "end" }, formatNumberValue(value));
+  }
+  add("line", { x1: margin.left, x2: width - margin.right, y1: height - margin.bottom, y2: height - margin.bottom, class: "sensitivity-chart-axis" });
+  add("line", { x1: margin.left, x2: margin.left, y1: margin.top, y2: height - margin.bottom, class: "sensitivity-chart-axis" });
+  [minX, (minX + maxX) / 2, maxX].forEach((value) => {
+    const chartX = x(value);
+    add("line", { x1: chartX, x2: chartX, y1: height - margin.bottom, y2: height - margin.bottom + 5, class: "sensitivity-chart-axis" });
+    add("text", { x: chartX, y: height - margin.bottom + 20, class: "sensitivity-chart-tick", "text-anchor": "middle" }, formatNumberValue(value));
+  });
+  add("path", {
+    d: points.slice().sort((left, right) => Number(left.inputValue) - Number(right.inputValue))
+      .map((point, index) => `${index ? "L" : "M"}${x(point.inputValue)},${y(point.outputValue)}`).join(" "),
+    class: "sensitivity-chart-line",
+  });
+  points.forEach((point) => {
+    const circle = add("circle", { cx: x(point.inputValue), cy: y(point.outputValue), r: 3.5, class: "sensitivity-chart-point" });
+    const title = document.createElementNS(SVG_NS, "title");
+    title.textContent = `${inputName}: ${formatNumberValue(Number(point.inputValue))}; ${outputName}: ${formatNumberValue(Number(point.outputValue))}`;
+    circle.appendChild(title);
+  });
+  add("text", { x: (margin.left + width - margin.right) / 2, y: height - 10, class: "sensitivity-chart-label", "text-anchor": "middle" }, inputName);
+  add("text", { x: 16, y: (margin.top + height - margin.bottom) / 2, class: "sensitivity-chart-label", "text-anchor": "middle", transform: `rotate(-90 16 ${(margin.top + height - margin.bottom) / 2})` }, outputName);
+  sensitivityAnalysisChart.appendChild(svg);
+  if (sensitivityImageExportBtn) sensitivityImageExportBtn.disabled = false;
+}
+
+function renderSensitivityResults(rows, inputName, outputName) {
+  if (!sensitivityAnalysisResults) {
+    return;
+  }
+  sensitivityAnalysisResults.innerHTML = "";
+  if (!rows?.length) {
+    sensitivityAnalysisResults.textContent = t("sensitivity.empty");
+    renderSensitivityChart();
+    if (sensitivityExportBtn) sensitivityExportBtn.disabled = true;
+    if (sensitivityImageExportBtn) sensitivityImageExportBtn.disabled = true;
+    return;
+  }
+  const table = document.createElement("table");
+  const header = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  [
+    t("sensitivity.results.input", { name: inputName }),
+    t("sensitivity.results.output", { name: outputName }),
+  ].forEach((label) => {
+    const cell = document.createElement("th");
+    cell.textContent = label;
+    headerRow.appendChild(cell);
+  });
+  header.appendChild(headerRow);
+  table.appendChild(header);
+  const body = document.createElement("tbody");
+  rows.forEach((row) => {
+    const tableRow = document.createElement("tr");
+    const inputCell = document.createElement("td");
+    inputCell.textContent = formatNumberValue(row.inputValue);
+    const outputCell = document.createElement("td");
+    outputCell.textContent = row.error
+      ? (row.error === "nonNumeric" ? t("sensitivity.error.nonNumeric") : evalReasonText(row.error))
+      : formatNumberValue(row.outputValue);
+    if (row.error) {
+      outputCell.classList.add("error");
+    }
+    tableRow.append(inputCell, outputCell);
+    body.appendChild(tableRow);
+  });
+  table.appendChild(body);
+  sensitivityAnalysisResults.appendChild(table);
+  renderSensitivityChart(rows, inputName, outputName);
+  if (sensitivityExportBtn) sensitivityExportBtn.disabled = false;
+}
+
+function exportSensitivityAnalysis() {
+  const result = ui.sensitivityAnalysis;
+  if (!result?.rows?.length || !sensitivityAnalysisCore) {
+    return;
+  }
+  const csv = sensitivityAnalysisCore.sensitivityCsv(result.rows, result.inputName, result.outputName);
+  downloadTextFile("sensitivity-analysis.csv", csv, "text/csv;charset=utf-8");
+  setSensitivityStatus(t("sensitivity.exported"));
+}
+
+function exportSensitivityChart() {
+  const source = sensitivityAnalysisChart?.querySelector("svg");
+  if (!source) {
+    return;
+  }
+  const chart = source.cloneNode(true);
+  chart.setAttribute("width", "640");
+  chart.setAttribute("height", "300");
+  const style = document.createElementNS(SVG_NS, "style");
+  const rootStyle = getComputedStyle(document.documentElement);
+  style.textContent = [
+    `.sensitivity-chart-grid{stroke:${rootStyle.getPropertyValue("--line")};stroke-width:1}`,
+    `.sensitivity-chart-axis{stroke:${rootStyle.getPropertyValue("--muted")};stroke-width:1.25}`,
+    `.sensitivity-chart-line{fill:none;stroke:${rootStyle.getPropertyValue("--accent")};stroke-width:2.25}`,
+    `.sensitivity-chart-point{fill:#fff;stroke:${rootStyle.getPropertyValue("--accent")};stroke-width:2}`,
+    `.sensitivity-chart-tick{fill:${rootStyle.getPropertyValue("--muted")};font:12px ${getComputedStyle(document.body).fontFamily}}`,
+    `.sensitivity-chart-label{fill:#12212f;font:600 12px ${getComputedStyle(document.body).fontFamily}}`,
+  ].join("");
+  const background = document.createElementNS(SVG_NS, "rect");
+  background.setAttribute("width", "100%");
+  background.setAttribute("height", "100%");
+  background.setAttribute("fill", "#fff");
+  chart.insertBefore(style, chart.firstChild);
+  chart.insertBefore(background, style);
+  downloadTextFile("sensitivity-analysis.svg", new XMLSerializer().serializeToString(chart), "image/svg+xml;charset=utf-8");
+  setSensitivityStatus(t("sensitivity.exportedImage"));
+}
+
+function populateSensitivityChoices({ preserveSelection = true } = {}) {
+  if (!sensitivityAnalysisCore || !sensitivityInputSelect || !sensitivityOutputSelect) {
+    return;
+  }
+  const previousInput = preserveSelection ? sensitivityInputSelect.value : "";
+  const previousOutput = preserveSelection ? sensitivityOutputSelect.value : "";
+  const inputs = sensitivityAnalysisCore.sensitivityInputs(graph);
+  const outputs = sensitivityAnalysisCore.sensitivityOutputs(graph);
+  const populate = (select, nodes, previous) => {
+    select.innerHTML = "";
+    const empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = t("sensitivity.choose");
+    select.appendChild(empty);
+    nodes.forEach((node) => {
+      const option = document.createElement("option");
+      option.value = node.name;
+      option.textContent = node.name;
+      select.appendChild(option);
+    });
+    if (nodes.some((node) => node.name === previous)) {
+      select.value = previous;
+    } else if (nodes.length === 1) {
+      select.value = nodes[0].name;
+    }
+  };
+  populate(sensitivityInputSelect, inputs, previousInput);
+  populate(sensitivityOutputSelect, outputs, previousOutput);
+  const selectedInput = inputs.find((node) => node.name === sensitivityInputSelect.value);
+  if (selectedInput && sensitivityMinInput && sensitivityMaxInput && !preserveSelection) {
+    const range = sensitivityRangeForNode(selectedInput);
+    sensitivityMinInput.value = range.min;
+    sensitivityMaxInput.value = range.max;
+  }
+}
+
+function updateSensitivityRangeFromSelection() {
+  const selected = sensitivityAnalysisCore?.sensitivityInputs(graph)
+    .find((node) => node.name === sensitivityInputSelect?.value);
+  if (!selected || !sensitivityMinInput || !sensitivityMaxInput) {
+    return;
+  }
+  const range = sensitivityRangeForNode(selected);
+  sensitivityMinInput.value = range.min;
+  sensitivityMaxInput.value = range.max;
+}
+
+function openSensitivityAnalysis() {
+  if (!sensitivityAnalysisModal) {
+    return;
+  }
+  applyWidgetDrivenNodeValues();
+  populateSensitivityChoices({ preserveSelection: false });
+  ui.sensitivityAnalysis = null;
+  setSensitivityStatus();
+  renderSensitivityResults();
+  sensitivityAnalysisModal.classList.remove("hidden");
+  window.setTimeout(() => sensitivityInputSelect?.focus(), 0);
+}
+
+function closeSensitivityAnalysis() {
+  sensitivityAnalysisModal?.classList.add("hidden");
+}
+
+async function runSensitivityAnalysis() {
+  if (!sensitivityAnalysisCore || isEditingUiLocked()) {
+    setSensitivityStatus(t("sensitivity.error.running"), true);
+    return;
+  }
+  const inputName = sensitivityInputSelect?.value || "";
+  const outputName = sensitivityOutputSelect?.value || "";
+  const options = {
+    inputName,
+    outputName,
+    min: sensitivityMinInput?.value,
+    max: sensitivityMaxInput?.value,
+    samples: sensitivitySamplesInput?.value,
+  };
+  if (!inputName || !outputName) {
+    setSensitivityStatus(t("sensitivity.error.selection"), true);
+    return;
+  }
+  if (!sensitivityAnalysisCore.sampleValues(options.min, options.max, options.samples)) {
+    setSensitivityStatus(t("sensitivity.error.range"), true);
+    return;
+  }
+  ui.sensitivityAnalysis = null;
+  renderSensitivityResults();
+  sensitivityRunBtn.disabled = true;
+  setSensitivityStatus(t("sensitivity.running"));
+  try {
+    if (!await prepareSubmodelsForExecution()) {
+      setSensitivityStatus(t("sensitivity.error.preparation"), true);
+      return;
+    }
+    applyWidgetDrivenNodeValues();
+    const result = sensitivityAnalysisCore.runSensitivity(graph, options);
+    if (!result.ok) {
+      setSensitivityStatus(t(`sensitivity.error.${result.error}`), true);
+      return;
+    }
+    ui.sensitivityAnalysis = { rows: result.rows, inputName, outputName };
+    renderSensitivityResults(result.rows, inputName, outputName);
+    setSensitivityStatus(t("sensitivity.summary", { count: result.rows.length }));
+  } catch (_err) {
+    setSensitivityStatus(t("error.evalReason.runtime"), true);
+  } finally {
+    sensitivityRunBtn.disabled = false;
+  }
+}
+
 function showLocalFunctionsStatus(message = "", isError = false) {
   if (!localFunctionsStatus) {
     return;
@@ -4047,6 +4356,9 @@ function syncViewOptionsInputs() {
   if (showEdgeValuesInput) {
     showEdgeValuesInput.checked = ui.showEdgeValues === true;
   }
+  if (showEdgeLabelsInput) {
+    showEdgeLabelsInput.checked = ui.showEdgeLabels !== false;
+  }
   if (gridSizeInput) {
     gridSizeInput.value = String(ui.gridSize);
   }
@@ -4062,6 +4374,9 @@ function syncViewOptionsInputs() {
   }
   if (strictDefinitionsInput) {
     strictDefinitionsInput.checked = Boolean(graph.execution.strictDefinitions);
+  }
+  if (developmentModeInput) {
+    developmentModeInput.checked = ui.developmentMode === true;
   }
 }
 
@@ -6432,6 +6747,9 @@ function cloneRuntimeWidgetState(widget) {
   if (widget.type === "button") {
     state.value = Boolean(widget.value);
   }
+  if (widget.type === "dpad") {
+    state.value = Number(widget.value);
+  }
   if (widget.type === "select") {
     state.value = Number(widget.value);
   }
@@ -6496,6 +6814,12 @@ function buildChartPairSeriesDefinitionsForSync(pair, xValue, yValue) {
 function buildChartPairInstantSeriesDefinitionsForSync(pair, xValue, yValue) {
   const finiteScalar = (value) => typeof value === "number" && Number.isFinite(value);
   const finiteVector = (value) => Array.isArray(value) && value.every((item) => finiteScalar(item));
+  if (finiteScalar(xValue) && finiteScalar(yValue)) {
+    return [{
+      label: `${pair.xSource} -> ${pair.ySource}`,
+      points: [{ x: xValue, y: yValue }],
+    }];
+  }
   if (finiteScalar(xValue) && finiteVector(yValue)) {
     return [{
       label: `${pair.xSource} -> ${pair.ySource}`,
@@ -6726,6 +7050,8 @@ function applyRuntimeStateSnapshot(snapshot) {
       widget.value = Number(saved.value);
     } else if (widget.type === "button") {
       widget.value = Boolean(saved.value);
+    } else if (widget.type === "dpad") {
+      widget.value = Number(saved.value);
     } else if (widget.type === "select") {
       widget.value = Number(saved.value);
     }
@@ -7229,7 +7555,7 @@ function propagateNodeRenameInExpressions(oldName, newName) {
         }));
       }
     }
-    if ((widget.type === "slider" || widget.type === "button" || widget.type === "select") && widget.source === oldName) {
+    if ((widget.type === "slider" || widget.type === "button" || widget.type === "dpad" || widget.type === "select") && widget.source === oldName) {
       widget.source = newName;
     }
   });
@@ -7265,7 +7591,7 @@ function removeNodeFromInputWidgetBindings(nodeName) {
     return;
   }
   graph.widgets.forEach((widget) => {
-    if ((widget.type === "slider" || widget.type === "button" || widget.type === "select") && widget.source === nodeName) {
+    if ((widget.type === "slider" || widget.type === "button" || widget.type === "dpad" || widget.type === "select") && widget.source === nodeName) {
       widget.source = "";
     }
   });
@@ -7874,7 +8200,7 @@ function hasSliderBinding(node) {
 }
 
 function hasButtonBinding(node) {
-  return Boolean(node && graph.widgets.some((widget) => widget.type === "button" && widget.source === node.name));
+  return Boolean(node && graph.widgets.some((widget) => (widget.type === "button" || widget.type === "dpad") && widget.source === node.name));
 }
 
 function hasSelectBinding(node) {
@@ -8162,9 +8488,9 @@ function graphBounds() {
       maxX = Math.max(maxX, cp.x);
       maxY = Math.max(maxY, cp.y);
     });
-    const label = normalizeEdgeLabel(edge.label);
+    const label = resolveEdgeLabelPosition(edge, normalizeEdgeLabel(edge.label) || normalizeEdgeRelationLabelPosition(edge.relationLabelPosition));
     if (label) {
-      const halfWidth = Math.max(24, label.text.length * 3.8);
+      const halfWidth = Math.max(24, String(label.text || "±").length * 3.8);
       maxX = Math.max(maxX, label.x + halfWidth);
       maxY = Math.max(maxY, label.y + 8);
     }
@@ -8325,6 +8651,14 @@ function setTimedRunButtonIcon(button, isRunning) {
 }
 
 function updateModelRunButtons() {
+  if (topRunBackStepBtn) {
+    const available = ui.developmentMode === true && runtimeController?.canStepBackDevelopmentHistory?.();
+    topRunBackStepBtn.classList.toggle("hidden", ui.developmentMode !== true);
+    topRunBackStepBtn.disabled = !available;
+    const label = t("tooltip.menu.run.backStep");
+    setTooltipText(topRunBackStepBtn, label);
+    topRunBackStepBtn.setAttribute("aria-label", label);
+  }
   if (topRunEvalBtn) {
     setTooltipText(topRunEvalBtn, `${t("menu.run.execute")} (F7)`);
     topRunEvalBtn.disabled = false;
@@ -8535,6 +8869,16 @@ function closeTopMenus() {
   document.querySelectorAll(".menu-submenu.open").forEach((item) => item.classList.remove("open"));
 }
 
+function constrainTopMenuHeight(root) {
+  const panel = root?.querySelector(".menu-panel");
+  const title = root?.querySelector(".menu-title");
+  if (!panel || !title) {
+    return;
+  }
+  const panelTop = title.getBoundingClientRect().bottom + 4;
+  panel.style.maxHeight = `${Math.max(120, Math.floor(window.innerHeight - panelTop - 12))}px`;
+}
+
 function positionCompactTopMenu(root) {
   if (!root || !isCompactTabletLayout()) {
     return;
@@ -8563,7 +8907,11 @@ function toggleTopMenu(root) {
   closeTopMenus();
   if (!wasOpen) {
     root.classList.add("open");
-    positionCompactTopMenu(root);
+    if (isCompactTabletLayout()) {
+      positionCompactTopMenu(root);
+    } else {
+      constrainTopMenuHeight(root);
+    }
   }
 }
 
@@ -8674,7 +9022,7 @@ function syncNodeSelectionFocus() {
 
   if (ui.selected?.type === "edgeLabel") {
     const edge = getEdgeById(ui.selected.id);
-    if (!edge?.label?.text) {
+    if (!edge?.label?.text && !["+", "-"].includes(normalizeEdgeRelationType(edge?.relationType))) {
       ui.selected = null;
     }
     ui.selectedNodes.clear();
@@ -8721,25 +9069,66 @@ function selectEdgeLabel(id) {
 function normalizeEdgeLabel(label) {
   const text = String(label?.text ?? "").trim();
   if (!text) return null;
-  const x = Number(label?.x);
-  const y = Number(label?.y);
   return {
     text,
-    x: Number.isFinite(x) ? x : 0,
-    y: Number.isFinite(y) ? y : 0,
+    offsetX: Number.isFinite(Number(label?.offsetX)) ? Number(label.offsetX) : null,
+    offsetY: Number.isFinite(Number(label?.offsetY)) ? Number(label.offsetY) : null,
+    legacyX: Number.isFinite(Number(label?.x)) ? Number(label.x) : null,
+    legacyY: Number.isFinite(Number(label?.y)) ? Number(label.y) : null,
     rotation: Number.isFinite(Number(label?.rotation)) ? Number(label.rotation) : 0,
     transparent: Boolean(label?.transparent),
   };
 }
 
+function normalizeEdgeRelationLabelPosition(position) {
+  const hasOffset = Number.isFinite(Number(position?.offsetX)) && Number.isFinite(Number(position?.offsetY));
+  const hasLegacyPosition = Number.isFinite(Number(position?.x)) && Number.isFinite(Number(position?.y));
+  if (!hasOffset && !hasLegacyPosition) return null;
+  return {
+    offsetX: hasOffset ? Number(position.offsetX) : null,
+    offsetY: hasOffset ? Number(position.offsetY) : null,
+    legacyX: hasLegacyPosition ? Number(position.x) : null,
+    legacyY: hasLegacyPosition ? Number(position.y) : null,
+    rotation: Number.isFinite(Number(position?.rotation)) ? Number(position.rotation) : 0,
+  };
+}
+
+function edgeLabelAnchor(edge) {
+  return edgePolylineMidpoint(buildEdgeGeometry(edge)?.points || []) || { x: 0, y: 0 };
+}
+
+function resolveEdgeLabelPosition(edge, label) {
+  if (!label) return null;
+  const anchor = edgeLabelAnchor(edge);
+  const offsetX = Number.isFinite(label.offsetX) ? label.offsetX : (Number(label.legacyX) || anchor.x) - anchor.x;
+  const offsetY = Number.isFinite(label.offsetY) ? label.offsetY : (Number(label.legacyY) || anchor.y) - anchor.y;
+  return { ...label, offsetX, offsetY, x: anchor.x + offsetX, y: anchor.y + offsetY };
+}
+
+function relativeEdgeLabelPosition(edge, label, x, y) {
+  const anchor = edgeLabelAnchor(edge);
+  const { legacyX, legacyY, ...normalized } = label || {};
+  return { ...normalized, offsetX: x - anchor.x, offsetY: y - anchor.y };
+}
+
+function serializeEdgeLabelPosition(edge, label) {
+  const resolved = resolveEdgeLabelPosition(edge, label);
+  if (!resolved) return null;
+  const { legacyX, legacyY, x, y, ...serializable } = resolved;
+  return serializable;
+}
+
 function defaultEdgeLabel(edge, text = "") {
   const points = buildEdgeGeometry(edge)?.points || [];
-  const start = points[0] || { x: 0, y: 0 };
+  const start = points[0] || edgeLabelAnchor(edge);
   const end = points[points.length - 1] || start;
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const horizontal = Math.abs(dx) >= Math.abs(dy);
   return {
     text: String(text).trim(),
-    x: (start.x + end.x) / 2,
-    y: (start.y + end.y) / 2 - 18,
+    offsetX: horizontal ? 0 : (dy >= 0 ? 18 : -18),
+    offsetY: horizontal ? -18 : 0,
     rotation: 0,
     transparent: false,
   };
@@ -8861,6 +9250,7 @@ function exportGraphData() {
       highlightNodeEdges: ui.highlightNodeEdges === true,
       showNodeValues: ui.showNodeValues === true,
       showEdgeValues: ui.showEdgeValues === true,
+      showEdgeLabels: ui.showEdgeLabels !== false,
       gridSize: clamp(Number(ui.gridSize) || 20, 5, 100),
       tooltipDelayMs: normalizeTooltipDelayMs(ui.tooltipDelayMs),
       scrollLeft: Math.max(0, Number(graphViewport?.scrollLeft) || 0),
@@ -8950,8 +9340,10 @@ function exportGraphData() {
       from: e.from,
       to: e.to,
       relationType: normalizeEdgeRelationType(e.relationType),
+      description: String(e.description ?? ""),
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
-      label: normalizeEdgeLabel(e.label),
+      label: serializeEdgeLabelPosition(e, normalizeEdgeLabel(e.label)),
+      relationLabelPosition: serializeEdgeLabelPosition(e, normalizeEdgeRelationLabelPosition(e.relationLabelPosition)),
     })),
     textItems: graph.textItems.map((item) => ({
       id: item.id,
@@ -9021,9 +9413,11 @@ function exportGraphData() {
       step: Number.isFinite(Number(w.step)) ? Number(w.step) : 1,
       value: w.type === "button"
         ? Boolean(w.initialValue ?? w.value)
-        : (Number.isFinite(Number(w.value)) ? Number(w.value) : 0),
+        : (w.type === "dpad" && [0, 1, 2, 3, 4].includes(Number(w.value)) ? Number(w.value) : (Number.isFinite(Number(w.value)) ? Number(w.value) : 0)),
       initialValue: w.type === "button" ? Boolean(w.initialValue ?? w.value) : undefined,
-      buttonMode: w.type === "button" && w.buttonMode === "momentary" ? "momentary" : "toggle",
+      buttonMode: (w.type === "button" || w.type === "dpad") && w.buttonMode === "momentary" ? "momentary" : "toggle",
+      keyBinding: String(w.keyBinding ?? ""),
+      keyBindings: w.keyBindings && typeof w.keyBindings === "object" ? { ...w.keyBindings } : {},
       falseLabel: String(w.falseLabel ?? ""),
       trueLabel: String(w.trueLabel ?? ""),
       options: Array.isArray(w.options)
@@ -9083,6 +9477,7 @@ function captureCurrentModelContext(nodeName = "") {
       highlightNodeEdges: ui.highlightNodeEdges,
       showNodeValues: ui.showNodeValues,
       showEdgeValues: ui.showEdgeValues,
+      showEdgeLabels: ui.showEdgeLabels,
       gridSize: ui.gridSize,
       tooltipDelayMs: normalizeTooltipDelayMs(ui.tooltipDelayMs),
       scrollLeft: graphViewport.scrollLeft,
@@ -9097,6 +9492,7 @@ function restoreModelContext(context) {
     return;
   }
   stopTimedExecution(false);
+  runtimeController?.clearDevelopmentHistory?.();
   applyGraphData(context.data);
   currentFileHandle = context.currentFileHandle || null;
   currentFileName = context.currentFileName || "";
@@ -9112,6 +9508,7 @@ function restoreModelContext(context) {
   ui.highlightNodeEdges = context.view?.highlightNodeEdges === true;
   ui.showNodeValues = context.view?.showNodeValues === true;
   ui.showEdgeValues = context.view?.showEdgeValues === true;
+  ui.showEdgeLabels = context.view?.showEdgeLabels !== false;
   ui.gridSize = clamp(Number(context.view?.gridSize) || ui.gridSize || 20, 5, 100);
   ui.tooltipDelayMs = normalizeTooltipDelayMs(context.view?.tooltipDelayMs);
   setStatus(String(context.statusMessage || t("status.ready")));
@@ -9136,6 +9533,7 @@ function hasUnsavedChanges() {
 
 function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
   stopTimedExecution(false);
+  runtimeController?.clearDevelopmentHistory?.();
   clearRuntimeSubmodelState();
   ui.submodelsPrepared = false;
   ui.localFunctionsEditor = null;
@@ -9220,8 +9618,10 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
       from: e.from,
       to: e.to,
       relationType: normalizeEdgeRelationType(e.relationType),
+      description: String(e.description ?? ""),
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
       label: normalizeEdgeLabel(e.label),
+      relationLabelPosition: normalizeEdgeRelationLabelPosition(e.relationLabelPosition),
     }));
   graph.textItems = Array.isArray(data.textItems)
     ? data.textItems.map((item) => {
@@ -9242,7 +9642,7 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
     : [];
   graph.widgets = Array.isArray(data.widgets)
     ? data.widgets
-      .filter((w) => Number.isInteger(w.id) && (w.type === "table" || w.type === "xychart" || w.type === "barplot" || w.type === "slider" || w.type === "matrix" || w.type === "button" || w.type === "led" || w.type === "select" || w.type === "text"))
+      .filter((w) => Number.isInteger(w.id) && (w.type === "table" || w.type === "xychart" || w.type === "barplot" || w.type === "slider" || w.type === "matrix" || w.type === "button" || w.type === "dpad" || w.type === "led" || w.type === "select" || w.type === "text"))
       .map((w) => ({
         id: w.id,
         type: w.type,
@@ -9301,12 +9701,14 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
         value: w.type === "button"
           ? (w.initialValue === true || w.initialValue === "true" || w.initialValue === 1 || w.initialValue === "1"
             || ((w.initialValue == null) && (w.value === true || w.value === "true" || w.value === 1 || w.value === "1")))
-          : (Number.isFinite(Number(w.value)) ? Number(w.value) : 0),
+          : (w.type === "dpad" && [0, 1, 2, 3, 4].includes(Number(w.value)) ? Number(w.value) : (Number.isFinite(Number(w.value)) ? Number(w.value) : 0)),
         initialValue: w.type === "button"
           ? (w.initialValue === true || w.initialValue === "true" || w.initialValue === 1 || w.initialValue === "1"
             || ((w.initialValue == null) && (w.value === true || w.value === "true" || w.value === 1 || w.value === "1")))
           : undefined,
-        buttonMode: w.type === "button" && w.buttonMode === "momentary" ? "momentary" : "toggle",
+        buttonMode: (w.type === "button" || w.type === "dpad") && w.buttonMode === "momentary" ? "momentary" : "toggle",
+        keyBinding: String(w.keyBinding ?? ""),
+        keyBindings: w.keyBindings && typeof w.keyBindings === "object" ? { ...w.keyBindings } : {},
         falseLabel: String(w.falseLabel ?? ""),
         trueLabel: String(w.trueLabel ?? ""),
         options: Array.isArray(w.options)
@@ -9381,6 +9783,7 @@ function applyGraphData(data, { deferReadDataInitialization = false } = {}) {
   ui.highlightNodeEdges = savedView?.highlightNodeEdges === true;
   ui.showNodeValues = savedView?.showNodeValues === true;
   ui.showEdgeValues = savedView?.showEdgeValues === true;
+  ui.showEdgeLabels = savedView?.showEdgeLabels !== false;
   ui.gridSize = clamp(Number(savedView?.gridSize) || ui.gridSize || 20, 5, 100);
   ui.tooltipDelayMs = normalizeTooltipDelayMs(savedView?.tooltipDelayMs);
   normalizeInputNodeFlags();
@@ -9640,6 +10043,7 @@ function updateEditingLockUi() {
     addSubmodelNodeItem,
     addTextItem,
     addButtonWidgetItem,
+    addDpadWidgetItem,
     addSelectWidgetItem,
     addSliderWidgetItem,
     addLedWidgetItem,
@@ -9765,8 +10169,10 @@ function collectSelectedForClipboard() {
       from: e.from,
       to: e.to,
       relationType: normalizeEdgeRelationType(e.relationType),
+      description: String(e.description ?? ""),
       controlPoints: (e.controlPoints || []).map((cp) => ({ x: cp.x, y: cp.y })),
-      label: normalizeEdgeLabel(e.label),
+      label: serializeEdgeLabelPosition(e, normalizeEdgeLabel(e.label)),
+      relationLabelPosition: serializeEdgeLabelPosition(e, normalizeEdgeRelationLabelPosition(e.relationLabelPosition)),
     }));
   return { nodes, edges };
 }
@@ -9859,15 +10265,13 @@ async function pasteFromClipboard() {
         from,
         to,
         relationType: normalizeEdgeRelationType(e.relationType),
+        description: String(e.description ?? ""),
         controlPoints: (e.controlPoints || []).map((cp) => ({
           x: snap(cp.x + offset),
           y: snap(cp.y + offset),
         })),
-        label: e.label ? {
-          ...normalizeEdgeLabel(e.label),
-          x: snap(Number(e.label.x) + offset),
-          y: snap(Number(e.label.y) + offset),
-        } : null,
+        label: normalizeEdgeLabel(e.label),
+        relationLabelPosition: normalizeEdgeRelationLabelPosition(e.relationLabelPosition),
       });
     });
 
@@ -10690,7 +11094,7 @@ function refreshSidebar() {
           target.label = null;
           return;
         }
-        target.label = { ...(normalizeEdgeLabel(target.label) || defaultEdgeLabel(target)), text };
+        target.label = { ...(serializeEdgeLabelPosition(target, normalizeEdgeLabel(target.label) || defaultEdgeLabel(target))), text };
       });
     });
     textLabel.appendChild(textInput);
@@ -10710,6 +11114,23 @@ function refreshSidebar() {
     transparentLabel.append(transparentInput, document.createTextNode(t("label.edgeLabelTransparent")));
     labelSection.append(labelTitle, textLabel, transparentLabel);
     edgeInfo.appendChild(labelSection);
+
+    const descriptionSection = document.createElement("section");
+    descriptionSection.className = "edge-label-config";
+    const descriptionLabel = document.createElement("label");
+    descriptionLabel.textContent = t("label.description");
+    const descriptionInput = document.createElement("textarea");
+    descriptionInput.rows = 2;
+    descriptionInput.value = String(edge.description ?? "");
+    descriptionInput.addEventListener("change", () => {
+      runAction(() => {
+        const target = getEdgeById(edgeId);
+        if (target) target.description = String(descriptionInput.value ?? "");
+      });
+    });
+    descriptionLabel.appendChild(descriptionInput);
+    descriptionSection.appendChild(descriptionLabel);
+    edgeInfo.appendChild(descriptionSection);
 
     return;
   }
@@ -10742,6 +11163,8 @@ function refreshSidebar() {
               ? t("panel.widgetText")
               : widget.type === "button"
                 ? t("panel.widgetButton")
+                : widget.type === "dpad"
+                  ? t("panel.widgetDpad")
                 : widget.type === "led"
                   ? t("panel.widgetLed")
                   : (widget.type === "matrix" ? t("panel.widgetMatrix") : t("panel.widgetTable"));
@@ -11604,23 +12027,28 @@ function render(options = {}) {
     // A monotonic functional relationship communicates its sign even before a
     // custom label has been created.  Keep that indication derived from the
     // relationship type, rather than persisting a second label in the model.
-    const customEdgeLabel = normalizeEdgeLabel(edge.label);
+    const customEdgeLabel = resolveEdgeLabelPosition(edge, normalizeEdgeLabel(edge.label));
     const relationType = normalizeEdgeRelationType(edge.relationType);
+    const automaticRelationLabel = !customEdgeLabel && (relationType === "+" || relationType === "-");
     const edgeLabel = customEdgeLabel || (
       relationType === "+" || relationType === "-"
-        ? { ...defaultEdgeLabel(edge, relationType === "-" ? "−" : relationType), transparent: true }
+        ? {
+          ...(resolveEdgeLabelPosition(edge, normalizeEdgeRelationLabelPosition(edge.relationLabelPosition)) || resolveEdgeLabelPosition(edge, defaultEdgeLabel(edge))),
+          text: relationType === "-" ? "−" : relationType,
+          transparent: true,
+        }
         : null
     );
-    if (edgeLabel) {
+    if (ui.showEdgeLabels !== false && edgeLabel) {
       const labelGroup = document.createElementNS(SVG_NS, "g");
       labelGroup.classList.add("edge-label");
-      if (!customEdgeLabel) {
+      if (automaticRelationLabel) {
         labelGroup.classList.add("auto-relation-label");
       }
       if (edgeLabel.transparent) {
         labelGroup.classList.add("transparent");
       }
-      if (customEdgeLabel && ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
+      if ((customEdgeLabel || automaticRelationLabel) && ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
         labelGroup.classList.add("selected");
       }
       labelGroup.setAttribute(
@@ -11640,7 +12068,7 @@ function render(options = {}) {
       labelText.textContent = edgeLabel.text;
       labelGroup.append(labelHit, labelText);
 
-      if (customEdgeLabel && ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
+      if ((customEdgeLabel || automaticRelationLabel) && ui.selected?.type === "edgeLabel" && ui.selected.id === edge.id) {
         const rotateHandle = document.createElementNS(SVG_NS, "g");
         rotateHandle.classList.add("edge-label-rotate-handle");
         rotateHandle.setAttribute("transform", "translate(0 -30)");
@@ -11653,14 +12081,14 @@ function render(options = {}) {
           if (evt.button !== 0 || isTabletCanvasPanMode() || isEditingUiLocked()) return;
           evt.preventDefault();
           evt.stopPropagation();
-          ui.edgeLabelRotate = { edgeId: edge.id, pointerId: evt.pointerId };
+          ui.edgeLabelRotate = { edgeId: edge.id, pointerId: evt.pointerId, automatic: automaticRelationLabel };
           rotateHandle.setPointerCapture?.(evt.pointerId);
           beginTransaction();
         });
         labelGroup.appendChild(rotateHandle);
       }
 
-      if (customEdgeLabel) {
+      if (customEdgeLabel || automaticRelationLabel) {
         labelGroup.addEventListener("contextmenu", (evt) => {
           evt.preventDefault();
           evt.stopPropagation();
@@ -11682,6 +12110,7 @@ function render(options = {}) {
           ui.edgeLabelDrag = {
             edgeId: edge.id,
             pointerId: evt.pointerId,
+            automatic: automaticRelationLabel,
             offsetX: p.x - edgeLabel.x,
             offsetY: p.y - edgeLabel.y,
           };
@@ -12400,10 +12829,12 @@ function importGraphData(data) {
       from: e.from,
       to: e.to,
       relationType: normalizeEdgeRelationType(e.relationType),
+      description: String(e.description ?? ""),
       controlPoints: Array.isArray(e.controlPoints)
         ? e.controlPoints.filter(isValidPoint).map((cp) => ({ x: cp.x, y: cp.y }))
         : [],
       label: normalizeEdgeLabel(e.label),
+      relationLabelPosition: normalizeEdgeRelationLabelPosition(e.relationLabelPosition),
     }));
 
   const textItems = Array.isArray(data.textItems)
@@ -12431,7 +12862,7 @@ function importGraphData(data) {
   const maxTextItemId = textItems.reduce((max, item) => Math.max(max, item.id), 0);
   const widgets = Array.isArray(data.widgets)
     ? data.widgets
-      .filter((w) => Number.isInteger(w.id) && (w.type === "table" || w.type === "xychart" || w.type === "barplot" || w.type === "slider" || w.type === "matrix" || w.type === "button" || w.type === "led" || w.type === "select" || w.type === "text"))
+      .filter((w) => Number.isInteger(w.id) && (w.type === "table" || w.type === "xychart" || w.type === "barplot" || w.type === "slider" || w.type === "matrix" || w.type === "button" || w.type === "dpad" || w.type === "led" || w.type === "select" || w.type === "text"))
       .map((w) => ({
         id: w.id,
         type: (w.type === "xychart" || w.type === "barplot")
@@ -12440,8 +12871,8 @@ function importGraphData(data) {
             ? "slider"
             : (w.type === "matrix"
               ? "matrix"
-              : (w.type === "button"
-                ? "button"
+              : ((w.type === "button" || w.type === "dpad")
+                ? w.type
                 : (w.type === "led"
                   ? "led"
                   : (w.type === "select" ? "select" : (w.type === "text" ? "text" : "table")))))),
@@ -12455,8 +12886,8 @@ function importGraphData(data) {
               ? "slider"
               : (w.type === "matrix"
                 ? "matrix"
-                : (w.type === "button"
-                  ? "button"
+                : ((w.type === "button" || w.type === "dpad")
+                  ? w.type
                   : (w.type === "led"
                     ? "led"
                     : (w.type === "select" ? "select" : (w.type === "text" ? "text" : "table"))))))
@@ -12468,8 +12899,8 @@ function importGraphData(data) {
               ? "slider"
               : (w.type === "matrix"
                 ? "matrix"
-                : (w.type === "button"
-                  ? "button"
+                : ((w.type === "button" || w.type === "dpad")
+                  ? w.type
                   : (w.type === "led"
                     ? "led"
                     : (w.type === "select" ? "select" : (w.type === "text" ? "text" : "table"))))))
@@ -12524,12 +12955,14 @@ function importGraphData(data) {
         value: w.type === "button"
           ? (w.initialValue === true || w.initialValue === "true" || w.initialValue === 1 || w.initialValue === "1"
             || ((w.initialValue == null) && (w.value === true || w.value === "true" || w.value === 1 || w.value === "1")))
-          : (Number.isFinite(Number(w.value)) ? Number(w.value) : 0),
+          : (w.type === "dpad" && [0, 1, 2, 3, 4].includes(Number(w.value)) ? Number(w.value) : (Number.isFinite(Number(w.value)) ? Number(w.value) : 0)),
         initialValue: w.type === "button"
           ? (w.initialValue === true || w.initialValue === "true" || w.initialValue === 1 || w.initialValue === "1"
             || ((w.initialValue == null) && (w.value === true || w.value === "true" || w.value === 1 || w.value === "1")))
           : undefined,
-        buttonMode: w.type === "button" && w.buttonMode === "momentary" ? "momentary" : "toggle",
+        buttonMode: (w.type === "button" || w.type === "dpad") && w.buttonMode === "momentary" ? "momentary" : "toggle",
+        keyBinding: String(w.keyBinding ?? ""),
+        keyBindings: w.keyBindings && typeof w.keyBindings === "object" ? { ...w.keyBindings } : {},
         falseLabel: String(w.falseLabel ?? ""),
         trueLabel: String(w.trueLabel ?? ""),
         options: Array.isArray(w.options)
@@ -12602,6 +13035,7 @@ function importGraphData(data) {
         highlightNodeEdges: data.view.highlightNodeEdges === true,
         showNodeValues: data.view.showNodeValues === true,
         showEdgeValues: data.view.showEdgeValues === true,
+        showEdgeLabels: data.view.showEdgeLabels !== false,
         gridSize: clamp(Number(data.view.gridSize) || 20, 5, 100),
         tooltipDelayMs: normalizeTooltipDelayMs(data.view.tooltipDelayMs),
         scrollLeft: Math.max(0, Number(data.view.scrollLeft) || 0),
@@ -13435,6 +13869,17 @@ if (!runtimeCore) {
   throw new Error("STGraphX runtime core is unavailable");
 }
 
+const sensitivityAnalysisCore = globalThis.STGraphXSensitivityAnalysisCore?.createSensitivityAnalysisCore({
+  cloneRuntimeModel: (model) => runtimeCore.cloneRuntimeModel(model),
+  initializeStateNodesForModel: (model, timeValue, execution) => runtimeCore.initializeStateNodesForModel(model, timeValue, execution),
+  promotePendingStateNodesForModel: (model) => runtimeCore.promotePendingStateNodesForModel(model),
+  evaluateModelAtTimeRecursive: (model, timeValue, env) => runtimeCore.evaluateModelAtTimeRecursive(model, timeValue, env),
+});
+
+if (!sensitivityAnalysisCore) {
+  throw new Error("STGraphX sensitivity analysis core is unavailable");
+}
+
 const runtimeLoader = globalThis.STGraphXRuntimeLoader?.createRuntimeLoader({
   t,
   normalizeReadDataPath,
@@ -13509,6 +13954,9 @@ const runtimeController = globalThis.STGraphXRuntimeController?.createRuntimeCon
     clearAllTableWidgetRows();
   },
   clearSimulationHistory: () => clearSimulationOutputHistory(),
+  isDevelopmentMode: () => ui.developmentMode === true,
+  captureDevelopmentSnapshot: () => captureRuntimeStateSnapshot(),
+  restoreDevelopmentSnapshot: (snapshot) => applyRuntimeStateSnapshot(snapshot),
   hasStrictExecutionBlock: () => hasStrictExecutionBlock(),
   buildEvaluationEnv: () => ({
     rootExecution: graph.execution,
@@ -14064,6 +14512,10 @@ async function resetExecution() {
   await runtimeController.resetExecution();
 }
 
+function stepBackDevelopmentHistory() {
+  runtimeController.stepBackDevelopmentHistory();
+}
+
 async function toggleTimedExecution() {
   await runtimeController.toggleTimedExecution();
 }
@@ -14278,18 +14730,36 @@ window.addEventListener("pointermove", (evt) => {
 
   if (ui.edgeLabelDrag && evt.pointerId === ui.edgeLabelDrag.pointerId) {
     const edge = getEdgeById(ui.edgeLabelDrag.edgeId);
-    if (edge?.label) {
-      edge.label.x = ui.snapToGrid ? snap(pRaw.x - ui.edgeLabelDrag.offsetX) : pRaw.x - ui.edgeLabelDrag.offsetX;
-      edge.label.y = ui.snapToGrid ? snap(pRaw.y - ui.edgeLabelDrag.offsetY) : pRaw.y - ui.edgeLabelDrag.offsetY;
+    if (edge) {
+      const position = ui.edgeLabelDrag.automatic
+        ? resolveEdgeLabelPosition(edge, normalizeEdgeRelationLabelPosition(edge.relationLabelPosition) || defaultEdgeLabel(edge))
+        : resolveEdgeLabelPosition(edge, normalizeEdgeLabel(edge.label));
+      if (!position) return;
+      position.x = ui.snapToGrid ? snap(pRaw.x - ui.edgeLabelDrag.offsetX) : pRaw.x - ui.edgeLabelDrag.offsetX;
+      position.y = ui.snapToGrid ? snap(pRaw.y - ui.edgeLabelDrag.offsetY) : pRaw.y - ui.edgeLabelDrag.offsetY;
+      if (ui.edgeLabelDrag.automatic) {
+        edge.relationLabelPosition = relativeEdgeLabelPosition(edge, position, position.x, position.y);
+      } else {
+        edge.label = relativeEdgeLabelPosition(edge, position, position.x, position.y);
+      }
       render();
     }
   }
 
   if (ui.edgeLabelRotate && evt.pointerId === ui.edgeLabelRotate.pointerId) {
     const edge = getEdgeById(ui.edgeLabelRotate.edgeId);
-    if (edge?.label) {
-      const angle = Math.atan2(pRaw.y - edge.label.y, pRaw.x - edge.label.x) * (180 / Math.PI);
-      edge.label.rotation = angle + 90;
+    if (edge) {
+      const position = ui.edgeLabelRotate.automatic
+        ? resolveEdgeLabelPosition(edge, normalizeEdgeRelationLabelPosition(edge.relationLabelPosition) || defaultEdgeLabel(edge))
+        : resolveEdgeLabelPosition(edge, normalizeEdgeLabel(edge.label));
+      if (!position) return;
+      const angle = Math.atan2(pRaw.y - position.y, pRaw.x - position.x) * (180 / Math.PI);
+      position.rotation = angle + 90;
+      if (ui.edgeLabelRotate.automatic) {
+        edge.relationLabelPosition = relativeEdgeLabelPosition(edge, position, position.x, position.y);
+      } else {
+        edge.label = relativeEdgeLabelPosition(edge, position, position.x, position.y);
+      }
       render();
     }
   }
@@ -14802,6 +15272,13 @@ if (addButtonWidgetItem) {
   });
 }
 
+if (addDpadWidgetItem) {
+  addDpadWidgetItem.addEventListener("click", () => {
+    runWidgetAction(() => { addDpadWidget(); });
+    setStatusKey("status.widgetDpadCreated");
+  });
+}
+
 if (addSelectWidgetItem) {
   addSelectWidgetItem.addEventListener("click", () => {
     runWidgetAction(() => {
@@ -14915,6 +15392,9 @@ if (topRunStepBtn) {
   topRunStepBtn.addEventListener("click", () => {
     void runManualStep();
   });
+}
+if (topRunBackStepBtn) {
+  topRunBackStepBtn.addEventListener("click", stepBackDevelopmentHistory);
 }
 function bindTimedExecutionToggle(button) {
   if (!button) {
@@ -15076,6 +15556,14 @@ if (showEdgeValuesInput) {
   });
 }
 
+if (showEdgeLabelsInput) {
+  showEdgeLabelsInput.addEventListener("change", () => {
+    ui.showEdgeLabels = showEdgeLabelsInput.checked;
+    render();
+    scheduleFileStatusRefresh();
+  });
+}
+
 gridSizeInput.addEventListener("change", () => {
   ui.gridSize = clamp(Number(gridSizeInput.value) || 20, 5, 100);
   gridSizeInput.value = String(ui.gridSize);
@@ -15125,6 +15613,18 @@ if (strictDefinitionsInput) {
     graph.execution.strictDefinitions = strictDefinitionsInput.checked;
     scheduleFileStatusRefresh();
     setStatusKey(graph.execution.strictDefinitions ? "status.strictDefinitionsOn" : "status.strictDefinitionsOff");
+    render();
+  });
+}
+
+if (developmentModeInput) {
+  developmentModeInput.addEventListener("change", () => {
+    ui.developmentMode = developmentModeInput.checked;
+    if (ui.developmentMode) {
+      runtimeController.recordDevelopmentSnapshot();
+    } else {
+      runtimeController.clearDevelopmentHistory();
+    }
     render();
   });
 }
@@ -16140,6 +16640,12 @@ if (functionalLoopDiagramBtn) {
     openFunctionalLoopDiagram();
   });
 }
+if (sensitivityAnalysisBtn) {
+  sensitivityAnalysisBtn.addEventListener("click", () => {
+    closeTopMenus();
+    openSensitivityAnalysis();
+  });
+}
 if (watchDebuggerBtn) {
   watchDebuggerBtn.addEventListener("click", () => {
     closeTopMenus();
@@ -16239,6 +16745,36 @@ if (functionalLoopRunBtn) {
 if (functionalLoopExportBtn) {
   functionalLoopExportBtn.addEventListener("click", exportFunctionalLoopDiagram);
 }
+if (sensitivityAnalysisCloseBtn) {
+  sensitivityAnalysisCloseBtn.addEventListener("click", closeSensitivityAnalysis);
+}
+if (sensitivityAnalysisDismissBtn) {
+  sensitivityAnalysisDismissBtn.addEventListener("click", closeSensitivityAnalysis);
+}
+if (sensitivityInputSelect) {
+  sensitivityInputSelect.addEventListener("change", () => {
+    updateSensitivityRangeFromSelection();
+    setSensitivityStatus();
+    renderSensitivityResults();
+  });
+}
+if (sensitivityOutputSelect) {
+  sensitivityOutputSelect.addEventListener("change", () => {
+    setSensitivityStatus();
+    renderSensitivityResults();
+  });
+}
+if (sensitivityRunBtn) {
+  sensitivityRunBtn.addEventListener("click", () => {
+    void runSensitivityAnalysis();
+  });
+}
+if (sensitivityExportBtn) {
+  sensitivityExportBtn.addEventListener("click", exportSensitivityAnalysis);
+}
+if (sensitivityImageExportBtn) {
+  sensitivityImageExportBtn.addEventListener("click", exportSensitivityChart);
+}
 if (watchDebuggerCloseBtn) {
   watchDebuggerCloseBtn.addEventListener("click", closeWatchDebugger);
 }
@@ -16249,6 +16785,13 @@ if (watchDebuggerModal) {
   watchDebuggerModal.addEventListener("pointerdown", (evt) => {
     if (evt.target === watchDebuggerModal) {
       closeWatchDebugger();
+    }
+  });
+}
+if (sensitivityAnalysisModal) {
+  sensitivityAnalysisModal.addEventListener("pointerdown", (evt) => {
+    if (evt.target === sensitivityAnalysisModal) {
+      closeSensitivityAnalysis();
     }
   });
 }
@@ -16900,7 +17443,11 @@ window.addEventListener("resize", () => {
   applyResponsiveUiState();
   const openMenuRoot = menuRoots.find((root) => root.classList.contains("open"));
   if (openMenuRoot) {
-    positionCompactTopMenu(openMenuRoot);
+    if (isCompactTabletLayout()) {
+      positionCompactTopMenu(openMenuRoot);
+    } else {
+      constrainTopMenuHeight(openMenuRoot);
+    }
   }
 });
 

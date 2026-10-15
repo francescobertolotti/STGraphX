@@ -1,6 +1,6 @@
 /*!
  * STGraphX Embedded Player Bundle
- * Generated: 2026-10-08T13:28:48.199Z
+ * Generated: 2026-10-15T09:29:38.576Z
  */
 
 /* --- i18n-inline.js --- */
@@ -81,6 +81,7 @@ window.STGraphXI18nBundles = {
     "confirm.selectModelFolder": "Il modello usa sottomodelli. Vuoi selezionare la cartella del modello per consentirne il caricamento automatico?",
     "context.bg.insertTitle": "Inserisci",
     "context.bg.newButtonWidget": "Pulsante",
+    "context.bg.newDpadWidget": "D-pad",
     "context.bg.newDiamond": "Parametro",
     "context.bg.newEllipse": "Variabile algebrica",
     "context.bg.newLedWidget": "LED",
@@ -149,6 +150,7 @@ window.STGraphXI18nBundles = {
     "menu.help.functions": "Funzioni disponibili...",
     "menu.insert": "Inserisci",
     "menu.insert.buttonWidget": "Pulsante",
+    "menu.insert.dpadWidget": "D-pad",
     "menu.insert.diamond": "Parametro",
     "menu.insert.ellipse": "Variabile algebrica",
     "menu.insert.group.content": "Contenuti",
@@ -177,6 +179,8 @@ window.STGraphXI18nBundles = {
     "menu.run.strictDefinitions": "Definizioni rigorose",
     "menu.run.timedToggle": "Temporizzato",
     "menu.run.watch": "Watch / breakpoint",
+    "menu.tools": "Tools",
+    "menu.tools.sensitivity": "Analisi di sensibilità...",
     "menu.time": "t = {time}",
     "menu.view": "Vista",
     "menu.view.dashboard": "Dashboard...",
@@ -188,6 +192,7 @@ window.STGraphXI18nBundles = {
     "menu.view.showGrid": "Mostra griglia",
     "menu.view.showNodeValues": "Mostra valori correnti nei nodi",
     "menu.view.showEdgeValues": "Mostra valori correnti sui collegamenti",
+    "menu.view.showEdgeLabels": "Mostra etichette degli archi",
     "menu.view.snap": "Snap griglia",
     "menu.view.toggleGraph": "Mostra grafo",
     "qualitativeGraph.title": "Qualitative Graph Building",
@@ -213,6 +218,26 @@ window.STGraphXI18nBundles = {
     "qualitativeGraph.error.matrix": "Nella matrice usa solo 0, 1, +, − oppure celle vuote.",
     "status.qualitativeGraphCreated": "Grafo qualitativo creato con {nodes} variabili e {edges} relazioni.",
     "functionalLoops.title": "Diagramma dei Loop Funzionali",
+    "sensitivity.title": "Analisi di sensibilità",
+    "sensitivity.intro": "Varia un solo input o parametro alla volta e osserva il valore finale di un output.",
+    "sensitivity.input": "Input o parametro",
+    "sensitivity.output": "Output",
+    "sensitivity.min": "Minimo",
+    "sensitivity.max": "Massimo",
+    "sensitivity.samples": "Campioni",
+    "sensitivity.choose": "Seleziona...",
+    "sensitivity.run": "Esegui analisi",
+    "sensitivity.running": "Analisi in corso...",
+    "sensitivity.empty": "Scegli input, output e intervallo, quindi esegui l'analisi.",
+    "sensitivity.results.input": "Valore di {name}",
+    "sensitivity.results.output": "Valore finale di {name}",
+    "sensitivity.summary": "Analizzati {count} valori.",
+    "sensitivity.error.selection": "Seleziona un input o parametro e un output.",
+    "sensitivity.error.range": "Usa un minimo minore del massimo e almeno due campioni.",
+    "sensitivity.error.time": "La configurazione temporale del modello non è valida.",
+    "sensitivity.error.preparation": "Impossibile preparare il modello per l'analisi.",
+    "sensitivity.error.running": "Ferma prima l'esecuzione temporizzata.",
+    "sensitivity.error.nonNumeric": "Output non numerico",
     "functionalLoops.run": "Esegui analisi",
     "functionalLoops.export": "Esporta CSV",
     "functionalLoops.maxCycles": "Numero massimo di loop",
@@ -317,6 +342,7 @@ window.STGraphXI18nBundles = {
     "label.stateTransition": "Stato prossimo",
     "label.strictDefinitions": "Blocca l'esecuzione se non tutti i nodi sono definiti",
     "label.strictDefinitionsShort": "Definizioni rigorose",
+    "label.developmentMode": "Modalità sviluppo",
     "label.submodelPath": "File sottomodello",
     "label.textHtml": "Contenuto formattato",
     "label.timeCurrent": "Tempo corrente",
@@ -348,6 +374,7 @@ window.STGraphXI18nBundles = {
     "panel.text": "Testo",
     "panel.widget": "Widget",
     "panel.widgetButton": "Pulsante",
+    "panel.widgetDpad": "D-pad",
     "panel.widgetChart": "Grafico x-y",
     "panel.widgetBarPlot": "Grafico a barre",
     "panel.widgetLed": "LED",
@@ -446,6 +473,7 @@ window.STGraphXI18nBundles = {
     "expr.help.empty": "Seleziona o scrivi un simbolo per vedere l'help contestuale.",
     "expr.help.examples": "Esempi",
     "expr.help.exp": "Esponenziale naturale `e^x`. Esempio: `exp(0) -> 1`.",
+    "expr.help.even": "Restituisce `1` se `x` è un intero pari, altrimenti `0`. Esempio: `even(4) -> 1`.",
     "expr.help.exponential": "Distribuzione di probabilità esponenziale (parametro di default: `rate=1`). Se `x` manca, estrae un campione. Con `mode=0` calcola la pdf, con `mode=1` la cdf, con `mode=2` la icdf. Esempi: exponential() ; exponential([2]) ; exponential([2], 1.5, 0) ; exponential([2], 0.9, 2).",
     "expr.help.filter": "Selezione da un vettore o una matrice. Con modo omesso o 'elements' mantiene gli elementi per cui la condizione è vera. Con modo='rows' filtra le righe di una matrice, dove $value è la riga corrente e $0 il suo indice. Con modo='cols' filtra le colonne, dove $value è la colonna corrente e $0 il suo indice. Esempi: filter($value>0, [-2,0,3]) ; filter($0===$1, [[1,2],[3,4]]) ; filter(griglia[$value]==1, coordinate, 'rows').",
     "expr.help.filterAgents": "La sotto-popolazione degli agenti che soddisfano la condizione. Nella condizione self e la riga dell'agente corrente e $i il suo indice. Esempio: `filterAgents(self[ENERGY] > 0, agents)`.",
@@ -474,6 +502,7 @@ window.STGraphXI18nBundles = {
     "expr.help.logBase": "Logaritmo di `x` in base `b`. Esempio: `logBase(2, 8) -> 3`.",
     "expr.help.log2": "Logaritmo in base `2` di `x`. Esempio: `log2(8) -> 3`.",
     "expr.help.log10": "Logaritmo in base `10` di `x`. Esempio: `log10(100) -> 2`.",
+    "expr.help.odd": "Restituisce `1` se `x` è un intero dispari, altrimenti `0`. Esempio: `odd(5) -> 1`.",
     "expr.help.map": "Trasformazione elemento per elemento di un vettore o di una matrice. Dentro expr, $value è il valore corrente e $0, $1, ... sono gli indici locali. Esempi: map($value*2, [1,2,3]) ; map($0+$value, [10,20,30]) ; map($0+$1, [[1,2],[3,4]]).",
     "expr.help.mapAgents": "Trasformazione riga per riga di tutti gli agenti. expr deve restituire per ogni agente una nuova riga con la stessa lunghezza. In expr self e la riga dell'agente corrente e $i il suo indice. Esempio: `mapAgents(setAt(self, ENERGY, self[ENERGY] + 1), agents)`.",
     "expr.help.max": "Massimo tra `x1`, `x2`, ... . Esempio: `max(2, 7, 4) -> 7`.",
@@ -487,6 +516,7 @@ window.STGraphXI18nBundles = {
     "expr.help.or": "Disgiunzione logica (equivalente a `||`). Esempio: `a or b`.",
     "expr.help.piecewise": "Segnale definito dai punti di controllo `cx` e `cy` con interpolazione lineare: `cx` e `cy` sono vettori numerici della stessa lunghezza, con almeno due elementi; `cx` deve essere strettamente crescente. `x` puo essere scalare, vettore o matrice. Fuori dall'intervallo di `cx` restituisce il valore dell'estremo piu vicino. Esempio: piecewise([0,2,5], [0,10,4], time).",
     "expr.help.poisson": "Distribuzione di Poisson (parametro predefinito: `rate=1`). Se `x` manca, estrae un campione. Con `mode=0` calcola la pmf, con `mode=1` la cdf, con `mode=2` il quantile discreto. Esempi: `poisson()`; `poisson([4], 2, 0)`.",
+    "expr.help.powerLaw": "Distribuzione power law continua: `alpha` deve essere maggiore di `1`, `xmin` è opzionale e vale `1` per default. Se `x` manca, estrae un campione. Con `mode=0` calcola la pdf, con `mode=1` la cdf, con `mode=2` la icdf. Esempi: `powerLaw([2.5])`; `powerLaw([2.5, 3], 4, 0)`; `powerLaw([2.5, 3], 0.5, 2)`.",
     "expr.help.pos": "Parte positiva di `x`: `x` se positivo, altrimenti `0`. Esempio: `pos(-2) -> 0`.",
     "expr.help.pow": "Potenza: `base` elevata a `exp`. Esempio: `pow(2, 3) -> 8`.",
     "expr.help.rand": "Numero casuale da una distribuzione di probabilità uniforme. Senza argomenti restituisce un valore tra `0` e `1`; con un argomento tra `0` e `max`; con due argomenti tra `min` e `max`. Esempi: rand() ; rand(10) ; rand(-1, 1).",
@@ -748,6 +778,15 @@ window.STGraphXI18nBundles = {
     "widget.buttonState.false": "Falso",
     "widget.buttonState.true": "Vero",
     "widget.buttonTitle": "Pulsante {id}",
+    "widget.dpadTitle": "D-pad {id}",
+    "widget.dpad.up": "Su (1)",
+    "widget.dpad.right": "Destra (2)",
+    "widget.dpad.down": "Giù (3)",
+    "widget.dpad.left": "Sinistra (4)",
+    "widget.keyBinding": "Tasto associato",
+    "widget.keyBindingAssociate": "Associa",
+    "widget.keyBindingCapturing": "Premi un tasto…",
+    "widget.keyBindingRemove": "Rimuovi",
     "widget.buttonValueLabel": "Valore iniziale vero",
     "widget.chartTitle": "Grafico x-y {id}",
     "widget.barPlotTitle": "Grafico a barre {id}",
@@ -960,6 +999,7 @@ window.STGraphXI18nBundles = {
     "status.timeEndReached": "Fine intervallo temporale raggiunta.",
     "status.undo": "Undo eseguito.",
     "status.widgetButtonCreated": "Widget pulsante creato.",
+    "status.widgetDpadCreated": "Widget D-pad creato.",
     "status.widgetChartCreated": "Widget grafico x-y creato.",
     "status.widgetBarPlotCreated": "Widget grafico a barre creato.",
     "status.widgetCopied": "Contenuto del widget copiato.",
@@ -1022,6 +1062,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.insert": "Inserisce nuovi nodi o widget nel modello.",
     "tooltip.menu.insert.qualitativeGraph": "Guida la creazione iniziale di un grafo qualitativo a partire da variabili, relazioni e stati.",
     "tooltip.menu.insert.button": "Inserisce un widget pulsante per pilotare ingressi booleani.",
+    "tooltip.menu.insert.dpad": "Inserisce un D-pad di input: su vale 1, destra 2, giù 3 e sinistra 4; a riposo vale 0.",
     "tooltip.menu.insert.chart": "Inserisce un widget grafico x-y.",
     "tooltip.menu.insert.barPlot": "Inserisce un widget grafico a barre usando due array: X e Y.",
     "tooltip.widget.barXSource": "Array con le posizioni X delle barre; deve avere la stessa lunghezza dell'array Y.",
@@ -1046,9 +1087,12 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.run.execute": "Esegue il modello fino a t1 o completa l'esecuzione già avviata.",
     "tooltip.menu.run.reset": "Reimposta l'esecuzione a t0 e pulisce i risultati dinamici.",
     "tooltip.menu.run.step": "Esegue un solo passo temporale.",
+    "tooltip.menu.run.backStep": "Ripristina il passo temporale precedente dalla cronologia di debug.",
     "tooltip.menu.run.timed": "Avvia o ferma l'esecuzione temporizzata.",
     "tooltip.menu.run.functionalLoops": "Analizza qualitativamente i loop funzionali del grafo, senza eseguire una simulazione.",
     "tooltip.menu.run.watch": "Apre lo strumento di watch e breakpoint per il debugging del modello.",
+    "tooltip.menu.tools": "Strumenti per analizzare il comportamento del modello.",
+    "tooltip.menu.tools.sensitivity": "Varia un input o parametro alla volta e misura il valore finale di un output.",
     "tooltip.menu.view": "Controlli di visualizzazione, zoom e griglia.",
     "tooltip.menu.view.fit": "Adatta zoom e vista al contenuto attuale di grafo e widget.",
     "tooltip.menu.view.gridStep": "Imposta la distanza tra le linee della griglia.",
@@ -1057,6 +1101,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.view.showGrid": "Mostra o nasconde la griglia sul canvas.",
     "tooltip.menu.view.showNodeValues": "Durante l'esecuzione mostra il valore corrente sotto il nome di ciascun nodo.",
     "tooltip.menu.view.showEdgeValues": "Durante l'esecuzione mostra il valore passato dalla sorgente sotto il centro di ciascun collegamento.",
+    "tooltip.menu.view.showEdgeLabels": "Mostra o nasconde le etichette manuali e automatiche degli archi.",
     "tooltip.menu.view.snap": "Aggancia movimenti e ridimensionamenti alla griglia.",
     "tooltip.menu.view.toggleGraph": "Mostra o nasconde il grafo nella finestra principale.",
     "tooltip.menu.view.toggleWidgets": "Mostra o nasconde widget e testi nella finestra principale.",
@@ -1066,6 +1111,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.view.zoomReset": "Riporta lo zoom al 100%.",
     "tooltip.viewOptions.theme": "Scegli Legacy per mantenere l'aspetto precedente oppure Minimalista per lo stile grafico Minimalism & Swiss.",
     "tooltip.viewOptions.nightMode": "Attiva la variante OLED scura dello stile Minimalista.",
+    "tooltip.viewOptions.developmentMode": "Mostra il controllo per tornare indietro di un passo temporale e conserva in RAM gli ultimi cinque stati per il debugging. La cronologia non viene salvata nel modello.",
     "tooltip.model.addProperty": "Aggiunge una proprietà descrittiva al modello, salvata nel file JSON.",
     "tooltip.model.currentTime": "Tempo corrente dell'esecuzione.",
     "tooltip.model.decimals": "Numero massimo di cifre decimali mostrate per i valori numerici.",
@@ -1113,6 +1159,7 @@ window.STGraphXI18nBundles = {
     "tooltip.widget.binaryTrueLabel": "Testo sovrapposto al widget quando il valore booleano e 1 o vero. Lascia vuoto per non mostrare testo.",
     "tooltip.widget.buttonInitialValue": "Imposta il valore del pulsante al reset del modello; non modifica l'esecuzione in corso.",
     "tooltip.widget.buttonMode": "Alterna cambia valore a ogni clic; Attivo quando premuto usa il valore opposto solo mentre il pulsante è premuto, poi torna al valore iniziale.",
+    "tooltip.widget.dpadMode": "Alterna al clic mantiene la direzione selezionata; Attivo quando premuto restituisce 0 al rilascio.",
     "tooltip.widget.customTitle": "Titolo visualizzato nel widget. Se vuoto, viene generato dal tipo di widget e dal nodo selezionato.",
     "tooltip.widget.expandNonScalarValues": "Mostra vettori e matrici distribuendone i valori in celle separate. Alternativo alla serie storica.",
     "tooltip.widget.fontSize": "Dimensione del testo visualizzato dal widget, in pixel.",
@@ -1383,6 +1430,7 @@ window.STGraphXI18nBundles = {
     "confirm.selectModelFolder": "This model uses submodels. Do you want to select the model folder so they can be loaded automatically?",
     "context.bg.insertTitle": "Insert",
     "context.bg.newButtonWidget": "Button",
+    "context.bg.newDpadWidget": "D-pad",
     "context.bg.newDiamond": "Parameter",
     "context.bg.newEllipse": "Algebraic variable",
     "context.bg.newLedWidget": "LED",
@@ -1451,6 +1499,7 @@ window.STGraphXI18nBundles = {
     "menu.help.functions": "Available functions...",
     "menu.insert": "Insert",
     "menu.insert.buttonWidget": "Button",
+    "menu.insert.dpadWidget": "D-pad",
     "menu.insert.diamond": "Parameter",
     "menu.insert.ellipse": "Algebraic variable",
     "menu.insert.group.content": "Content",
@@ -1479,6 +1528,8 @@ window.STGraphXI18nBundles = {
     "menu.run.strictDefinitions": "Strict definitions",
     "menu.run.timedToggle": "Timed",
     "menu.run.watch": "Watch / breakpoint",
+    "menu.tools": "Tools",
+    "menu.tools.sensitivity": "Sensitivity analysis...",
     "menu.time": "t = {time}",
     "menu.view": "View",
     "menu.view.dashboard": "Dashboard...",
@@ -1490,6 +1541,7 @@ window.STGraphXI18nBundles = {
     "menu.view.showGrid": "Show grid",
     "menu.view.showNodeValues": "Show current node values",
     "menu.view.showEdgeValues": "Show current values on links",
+    "menu.view.showEdgeLabels": "Show edge labels",
     "menu.view.snap": "Snap to grid",
     "menu.view.toggleGraph": "Show graph",
     "qualitativeGraph.title": "Qualitative Graph Building",
@@ -1515,6 +1567,26 @@ window.STGraphXI18nBundles = {
     "qualitativeGraph.error.matrix": "Use only 0, 1, +, −, or blank cells in the matrix.",
     "status.qualitativeGraphCreated": "Qualitative graph created with {nodes} variables and {edges} relationships.",
     "functionalLoops.title": "Functional Loop Diagram",
+    "sensitivity.title": "Sensitivity analysis",
+    "sensitivity.intro": "Vary one input or parameter at a time and observe an output's final value.",
+    "sensitivity.input": "Input or parameter",
+    "sensitivity.output": "Output",
+    "sensitivity.min": "Minimum",
+    "sensitivity.max": "Maximum",
+    "sensitivity.samples": "Samples",
+    "sensitivity.choose": "Select...",
+    "sensitivity.run": "Run analysis",
+    "sensitivity.running": "Analysis running...",
+    "sensitivity.empty": "Select an input, output, and range, then run the analysis.",
+    "sensitivity.results.input": "Value of {name}",
+    "sensitivity.results.output": "Final value of {name}",
+    "sensitivity.summary": "Analysed {count} values.",
+    "sensitivity.error.selection": "Select an input or parameter and an output.",
+    "sensitivity.error.range": "Use a minimum lower than the maximum and at least two samples.",
+    "sensitivity.error.time": "The model time configuration is not valid.",
+    "sensitivity.error.preparation": "The model could not be prepared for analysis.",
+    "sensitivity.error.running": "Stop the timed execution first.",
+    "sensitivity.error.nonNumeric": "Non-numeric output",
     "functionalLoops.run": "Run analysis",
     "functionalLoops.export": "Export CSV",
     "functionalLoops.maxCycles": "Maximum loop count",
@@ -1619,6 +1691,7 @@ window.STGraphXI18nBundles = {
     "label.stateTransition": "Next state",
     "label.strictDefinitions": "Block execution if not all the nodes are defined",
     "label.strictDefinitionsShort": "Strict definitions",
+    "label.developmentMode": "Development mode",
     "label.submodelPath": "Submodel file",
     "label.textHtml": "Formatted content",
     "label.timeCurrent": "Current time",
@@ -1650,6 +1723,7 @@ window.STGraphXI18nBundles = {
     "panel.text": "Text",
     "panel.widget": "Widget",
     "panel.widgetButton": "Button",
+    "panel.widgetDpad": "D-pad",
     "panel.widgetChart": "X-Y chart",
     "panel.widgetBarPlot": "Bar plot",
     "panel.widgetLed": "LED",
@@ -1748,6 +1822,7 @@ window.STGraphXI18nBundles = {
     "expr.help.empty": "Select or type a symbol to see contextual help.",
     "expr.help.examples": "Examples",
     "expr.help.exp": "Natural exponential e^x. Example: `exp(0) -> 1`.",
+    "expr.help.even": "Returns `1` if `x` is an even integer, otherwise `0`. Example: `even(4) -> 1`.",
     "expr.help.exponential": "Exponential distribution; rate defaults to 1. If x is omitted it samples a value. With mode=0 it computes the pdf, with mode=1 the cdf, with mode=2 the icdf. Examples: exponential() ; exponential([2]) ; exponential([2], 1.5, 0) ; exponential([2], 0.9, 2).",
     "expr.help.filter": "Selection from a vector or matrix. With omitted mode or 'elements' it keeps the elements for which the condition is true. With mode='rows' it filters matrix rows, where $value is the current row and $0 its index. With mode='cols' it filters matrix columns, where $value is the current column and $0 its index. Examples: filter($value>0, [-2,0,3]) ; filter($0===$1, [[1,2],[3,4]]) ; filter(grid[$value]==1, coordinates, 'rows').",
     "expr.help.filterAgents": "The sub-population of agents satisfying the condition. Inside the condition self is the current agent row and $i its index. Example: `filterAgents(self[ENERGY] > 0, agents)`.",
@@ -1776,6 +1851,7 @@ window.STGraphXI18nBundles = {
     "expr.help.logBase": "Logarithm of `x` with base `b`. Example: `logBase(2, 8) -> 3`.",
     "expr.help.log2": "Base-2 logarithm. Example: `log2(8) -> 3`.",
     "expr.help.log10": "Base-10 logarithm. Example: `log10(100) -> 2`.",
+    "expr.help.odd": "Returns `1` if `x` is an odd integer, otherwise `0`. Example: `odd(5) -> 1`.",
     "expr.help.map": "Element-by-element transformation of a vector or matrix. Inside expr, $value is the current value and $0, $1, ... are local indices. Examples: map($value*2, [1,2,3]) ; map($0+$value, [10,20,30]) ; map($0+$1, [[1,2],[3,4]]).",
     "expr.help.mapAgents": "Row-by-row transformation of all agents. expr must return a new row with the same length for each agent. Inside expr self is the current agent row and $i its index. Example: `mapAgents(setAt(self, ENERGY, self[ENERGY] + 1), agents)`.",
     "expr.help.max": "Maximum of the provided values. Example: `max(2, 7, 4) -> 7`.",
@@ -1789,6 +1865,7 @@ window.STGraphXI18nBundles = {
     "expr.help.or": "Boolean operator equivalent to ||. Example: a or b.",
     "expr.help.piecewise": "Signal defined by control points with linear interpolation. cx and cy are numeric vectors of the same length, with at least two items; cx must be strictly increasing. x can be a scalar, vector, or matrix. Outside the cx interval it returns the nearest endpoint value. Example: piecewise([0,2,5], [0,10,4], time).",
     "expr.help.poisson": "Poisson distribution with rate; rate defaults to 1. If x is omitted it samples a value. With mode=0 it computes the probability mass, with mode=1 the cdf, with mode=2 the discrete quantile. Examples: poisson() ; poisson([4], 2, 0).",
+    "expr.help.powerLaw": "Continuous power-law distribution: `alpha` must be greater than `1`; `xmin` is optional and defaults to `1`. If x is omitted it samples a value. With mode=0 it computes the pdf, with mode=1 the cdf, with mode=2 the icdf. Examples: powerLaw([2.5]) ; powerLaw([2.5, 3], 4, 0) ; powerLaw([2.5, 3], 0.5, 2).",
     "expr.help.pos": "Positive part of x: x if positive, otherwise 0. It also operates element by element on vectors and matrices. Example: `pos(-2) -> 0`.",
     "expr.help.pow": "Power: base raised to exponent. Example: `pow(2, 3) -> 8`.",
     "expr.help.rand": "Uniform random number. With no arguments it returns a value between 0 and 1; with one argument between 0 and max; with two arguments between min and max. Examples: rand() ; rand(10) ; rand(-1, 1).",
@@ -2050,6 +2127,15 @@ window.STGraphXI18nBundles = {
     "widget.buttonState.false": "False",
     "widget.buttonState.true": "True",
     "widget.buttonTitle": "Button {id}",
+    "widget.dpadTitle": "D-pad {id}",
+    "widget.dpad.up": "Up (1)",
+    "widget.dpad.right": "Right (2)",
+    "widget.dpad.down": "Down (3)",
+    "widget.dpad.left": "Left (4)",
+    "widget.keyBinding": "Assigned key",
+    "widget.keyBindingAssociate": "Associate",
+    "widget.keyBindingCapturing": "Press a key…",
+    "widget.keyBindingRemove": "Remove",
     "widget.buttonValueLabel": "Initial true value",
     "widget.chartTitle": "x-y Chart {id}",
     "widget.barPlotTitle": "Bar plot {id}",
@@ -2262,6 +2348,7 @@ window.STGraphXI18nBundles = {
     "status.timeEndReached": "Time range reached.",
     "status.undo": "Undo executed.",
     "status.widgetButtonCreated": "Button widget created.",
+    "status.widgetDpadCreated": "D-pad widget created.",
     "status.widgetChartCreated": "x-y chart widget created.",
     "status.widgetBarPlotCreated": "Bar plot widget created.",
     "status.widgetCopied": "Widget content copied.",
@@ -2324,6 +2411,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.insert": "Inserts new nodes or widgets into the model.",
     "tooltip.menu.insert.qualitativeGraph": "Guides the initial creation of a qualitative graph from variables, relationships, and state variables.",
     "tooltip.menu.insert.button": "Inserts a button widget to drive boolean inputs.",
+    "tooltip.menu.insert.dpad": "Inserts an input D-pad: up is 1, right 2, down 3 and left 4; idle is 0.",
     "tooltip.menu.insert.chart": "Inserts an x-y chart widget.",
     "tooltip.menu.insert.barPlot": "Inserts a bar plot widget using two arrays: X and Y.",
     "tooltip.widget.barXSource": "Array containing the X positions of the bars; it must have the same length as the Y array.",
@@ -2348,9 +2436,12 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.run.execute": "Runs the model up to t1 or completes an execution already in progress.",
     "tooltip.menu.run.reset": "Resets execution to t0 and clears dynamic results.",
     "tooltip.menu.run.step": "Runs a single time step.",
+    "tooltip.menu.run.backStep": "Restores the previous time step from the debugging history.",
     "tooltip.menu.run.timed": "Starts or stops timed execution.",
     "tooltip.menu.run.functionalLoops": "Qualitatively analyzes the graph's functional loops without running a simulation.",
     "tooltip.menu.run.watch": "Opens the watch and breakpoint tool for model debugging.",
+    "tooltip.menu.tools": "Tools for analysing model behaviour.",
+    "tooltip.menu.tools.sensitivity": "Varies one input or parameter at a time and measures an output's final value.",
     "tooltip.menu.view": "View, zoom, and grid controls.",
     "tooltip.menu.view.fit": "Fits zoom and viewport to the current graph and widget content.",
     "tooltip.menu.view.gridStep": "Sets the spacing between grid lines.",
@@ -2359,6 +2450,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.view.showGrid": "Shows or hides the grid on the canvas.",
     "tooltip.menu.view.showNodeValues": "During execution, shows the current value below each node name.",
     "tooltip.menu.view.showEdgeValues": "During execution, shows the value passed by the source below the center of each link.",
+    "tooltip.menu.view.showEdgeLabels": "Shows or hides manual and automatic edge labels.",
     "tooltip.menu.view.snap": "Snaps moves and resizes to the grid.",
     "tooltip.menu.view.toggleGraph": "Shows or hides the graph in the main viewport.",
     "tooltip.menu.view.toggleWidgets": "Shows or hides widgets and text in the main viewport.",
@@ -2368,6 +2460,7 @@ window.STGraphXI18nBundles = {
     "tooltip.menu.view.zoomReset": "Restores zoom to 100%.",
     "tooltip.viewOptions.theme": "Choose Legacy to keep the previous appearance, or Minimalist for the Minimalism & Swiss visual style.",
     "tooltip.viewOptions.nightMode": "Enables the OLED-dark variant of the Minimalist style.",
+    "tooltip.viewOptions.developmentMode": "Shows a control to step back one time step and keeps the five most recent states in RAM for debugging. The history is not saved in the model.",
     "tooltip.model.addProperty": "Adds a descriptive model property, saved in the JSON file.",
     "tooltip.model.currentTime": "Current execution time.",
     "tooltip.model.decimals": "Maximum number of decimal digits shown for numeric values.",
@@ -2415,6 +2508,7 @@ window.STGraphXI18nBundles = {
     "tooltip.widget.binaryTrueLabel": "Text overlaid on the widget when the Boolean value is 1 or true. Leave blank to show no text.",
     "tooltip.widget.buttonInitialValue": "Sets the button value when the model is reset; it does not change an ongoing execution.",
     "tooltip.widget.buttonMode": "Toggle changes value on each click; Active while pressed uses the opposite value only while the button is pressed, then returns to its initial value.",
+    "tooltip.widget.dpadMode": "Toggle on click keeps the selected direction; Active while pressed returns to 0 on release.",
     "tooltip.widget.customTitle": "Title displayed by the widget. If empty, it is generated from the widget type and selected node.",
     "tooltip.widget.expandNonScalarValues": "Shows vectors and matrices in separate cells. Alternative to history series.",
     "tooltip.widget.fontSize": "Size of the text displayed by the widget, in pixels.",
@@ -3181,6 +3275,42 @@ window.STGraphXI18nBundles = {
     if (mode === 1) return mapDistributionValue(valueArg, (item) => poissonCdf(item, rate));
     if (mode === 2) return mapDistributionValue(valueArg, (item) => poissonIcdf(item, rate));
     return mapDistributionValue(valueArg, (item) => poissonPmf(item, rate));
+  }
+
+  function powerLawParameters(alphaValue, xminValue) {
+    const alpha = toFiniteNumber(alphaValue, "alpha");
+    const xmin = toFiniteNumber(xminValue, "xmin");
+    if (alpha <= 1) throw new Error("alpha must be > 1");
+    if (xmin <= 0) throw new Error("xmin must be > 0");
+    return { alpha, xmin };
+  }
+
+  function powerLawPdf(x, alphaValue, xminValue) {
+    const xValue = toFiniteNumber(x, "x");
+    const { alpha, xmin } = powerLawParameters(alphaValue, xminValue);
+    return xValue < xmin ? 0 : (alpha - 1) * (xmin ** (alpha - 1)) * (xValue ** -alpha);
+  }
+
+  function powerLawCdf(x, alphaValue, xminValue) {
+    const xValue = toFiniteNumber(x, "x");
+    const { alpha, xmin } = powerLawParameters(alphaValue, xminValue);
+    return xValue < xmin ? 0 : 1 - ((xmin / xValue) ** (alpha - 1));
+  }
+
+  function powerLawIcdf(probabilityValue, alphaValue, xminValue) {
+    const probability = toFiniteNumber(probabilityValue, "probability");
+    const { alpha, xmin } = powerLawParameters(alphaValue, xminValue);
+    if (probability < 0 || probability >= 1) throw new Error("probability must be in [0, 1)");
+    return xmin * ((1 - probability) ** (-1 / (alpha - 1)));
+  }
+
+  function powerLaw() {
+    const { params, valueArg, mode } = parseDistributionCallArgs(arguments, [2, 1]);
+    const [alpha, xmin] = params;
+    if (valueArg === undefined) return powerLawIcdf(Math.random(), alpha, xmin);
+    if (mode === 1) return mapDistributionValue(valueArg, (item) => powerLawCdf(item, alpha, xmin));
+    if (mode === 2) return mapDistributionValue(valueArg, (item) => powerLawIcdf(item, alpha, xmin));
+    return mapDistributionValue(valueArg, (item) => powerLawPdf(item, alpha, xmin));
   }
 
   function signalControlPoints(cxValue, cyValue, name) {
@@ -4400,6 +4530,8 @@ window.STGraphXI18nBundles = {
       exp: vectorizeFunction(Math.exp),
       floor: vectorizeFunction(Math.floor),
       int: vectorizeFunction(Math.trunc),
+      odd: vectorizeFunction((value) => Number.isInteger(Number(value)) && Math.abs(Number(value)) % 2 === 1 ? 1 : 0),
+      even: vectorizeFunction((value) => Number.isInteger(Number(value)) && Math.abs(Number(value)) % 2 === 0 ? 1 : 0),
       log: vectorizeFunction(Math.log),
       logBase: vectorizeFunction((base, value) => Math.log(value) / Math.log(base)),
       log10: vectorizeFunction(Math.log10),
@@ -4428,6 +4560,7 @@ window.STGraphXI18nBundles = {
       exponential,
       gaussian,
       poisson,
+      powerLaw,
       rand: randomFloatInRange,
       randInt: randomIntInRange,
       stdev: stdevArrayValues,
@@ -4587,6 +4720,7 @@ window.STGraphXI18nBundles = {
       exponential: { kind: "probability", signature: "exponential([params], x, mode)", descriptionKey: "expr.help.exponential", insertText: "exponential()", cursorOffset: 12 },
       gaussian: { kind: "probability", signature: "gaussian([mu, sigma], x, mode)", descriptionKey: "expr.help.gaussian", insertText: "gaussian()", cursorOffset: 9 },
       poisson: { kind: "probability", signature: "poisson([rate], x, mode)", descriptionKey: "expr.help.poisson", insertText: "poisson()", cursorOffset: 8 },
+      powerLaw: { kind: "probability", signature: "powerLaw([alpha, xmin], x, mode)", descriptionKey: "expr.help.powerLaw", insertText: "powerLaw()", cursorOffset: 9 },
       rand: { kind: "probability", signature: "rand([max]) | rand(min, max)", descriptionKey: "expr.help.rand", insertText: "rand()", cursorOffset: 5 },
       randInt: { kind: "probability", signature: "randInt(max) | randInt(min, max)", descriptionKey: "expr.help.randInt", insertText: "randInt()", cursorOffset: 8 },
       stdev: { kind: "probability", signature: "stdev(array[, axis])", descriptionKey: "expr.help.stdev", insertText: "stdev()", cursorOffset: 6 },
@@ -4605,6 +4739,8 @@ window.STGraphXI18nBundles = {
       exp: { kind: "math", signature: "exp(x)", descriptionKey: "expr.help.exp", insertText: "exp()", cursorOffset: 4 },
       floor: { kind: "math", signature: "floor(x)", descriptionKey: "expr.help.floor", insertText: "floor()", cursorOffset: 6 },
       int: { kind: "math", signature: "int(x)", descriptionKey: "expr.help.int", insertText: "int()", cursorOffset: 4 },
+      odd: { kind: "math", signature: "odd(x)", descriptionKey: "expr.help.odd", insertText: "odd()", cursorOffset: 4 },
+      even: { kind: "math", signature: "even(x)", descriptionKey: "expr.help.even", insertText: "even()", cursorOffset: 5 },
       log: { kind: "math", signature: "log(x)", descriptionKey: "expr.help.log", insertText: "log()", cursorOffset: 4 },
       logBase: { kind: "math", signature: "logBase(b, x)", descriptionKey: "expr.help.logBase", insertText: "logBase()", cursorOffset: 8 },
       log10: { kind: "math", signature: "log10(x)", descriptionKey: "expr.help.log10", insertText: "log10()", cursorOffset: 6 },
@@ -9055,6 +9191,9 @@ window.STGraphXI18nBundles = {
       openWatchDebugger,
       clearVisualHistory,
       clearSimulationHistory,
+      isDevelopmentMode = () => false,
+      captureDevelopmentSnapshot = null,
+      restoreDevelopmentSnapshot = null,
       onTimedExecutionStarted = null,
       onTimedExecutionStopped = null,
       hasStrictExecutionBlock = () => false,
@@ -9064,6 +9203,10 @@ window.STGraphXI18nBundles = {
       nowFn = () => Date.now(),
       monotonicNowFn = () => (global.performance?.now ? global.performance.now() : Date.now()),
     } = options;
+
+    const developmentHistory = [];
+    let developmentHistoryCursor = -1;
+    const maxDevelopmentHistorySteps = 5;
 
     if (!session || typeof getExecution !== "function" || !timedState || !t) {
       throw new Error("STGraphXRuntimeController requires session, execution access, timedState, and translation dependencies");
@@ -9141,6 +9284,84 @@ window.STGraphXI18nBundles = {
       return true;
     }
 
+    function hasDevelopmentHistorySupport() {
+      return Boolean(
+        isDevelopmentMode?.()
+        && typeof captureDevelopmentSnapshot === "function"
+        && typeof restoreDevelopmentSnapshot === "function",
+      );
+    }
+
+    function clearDevelopmentHistory() {
+      developmentHistory.length = 0;
+      developmentHistoryCursor = -1;
+    }
+
+    function developmentTimeMatches(left, right) {
+      const a = Number(left);
+      const b = Number(right);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) {
+        return false;
+      }
+      return Math.abs(a - b) <= Math.max(1e-12, Math.abs(a) * 1e-9, Math.abs(b) * 1e-9);
+    }
+
+    function recordDevelopmentSnapshot() {
+      if (!hasDevelopmentHistorySupport()) {
+        return false;
+      }
+      const snapshot = captureDevelopmentSnapshot();
+      const time = snapshot?.executionCurrentTime;
+      if (!Number.isFinite(Number(time))) {
+        return false;
+      }
+
+      const entry = { time: Number(time), snapshot };
+      if (developmentHistoryCursor >= 0 && developmentTimeMatches(developmentHistory[developmentHistoryCursor]?.time, entry.time)) {
+        developmentHistory[developmentHistoryCursor] = entry;
+        return true;
+      }
+      if (developmentHistoryCursor < developmentHistory.length - 1) {
+        developmentHistory.splice(developmentHistoryCursor + 1);
+      }
+      developmentHistory.push(entry);
+      while (developmentHistory.length > maxDevelopmentHistorySteps) {
+        developmentHistory.shift();
+      }
+      developmentHistoryCursor = developmentHistory.length - 1;
+      return true;
+    }
+
+    function restoreNextDevelopmentSnapshot(timeValue) {
+      if (!hasDevelopmentHistorySupport() || developmentHistoryCursor >= developmentHistory.length - 1) {
+        return false;
+      }
+      const nextEntry = developmentHistory[developmentHistoryCursor + 1];
+      if (!developmentTimeMatches(nextEntry?.time, timeValue)) {
+        return false;
+      }
+      developmentHistoryCursor += 1;
+      restoreDevelopmentSnapshot(nextEntry.snapshot);
+      return true;
+    }
+
+    function canStepBackDevelopmentHistory() {
+      return hasDevelopmentHistorySupport()
+        && timedState.timedRunHandle == null
+        && !timedState.timedStepRunning
+        && developmentHistoryCursor > 0;
+    }
+
+    function stepBackDevelopmentHistory() {
+      if (!canStepBackDevelopmentHistory()) {
+        return false;
+      }
+      developmentHistoryCursor -= 1;
+      restoreDevelopmentSnapshot(developmentHistory[developmentHistoryCursor].snapshot);
+      refreshAfterStep(true);
+      return true;
+    }
+
     async function ensureExecutionReady() {
       if (!enforceStrictDefinitions?.()) {
         return null;
@@ -9180,6 +9401,41 @@ window.STGraphXI18nBundles = {
       }
       const nextTime = execution.currentTime == null ? cfg.t0 : execution.currentTime + cfg.dt;
 
+      if (restarted) {
+        clearDevelopmentHistory();
+      }
+      if (restoreNextDevelopmentSnapshot(nextTime)) {
+        const breakpointResult = evaluateBreakpointConditionAtTime?.(nextTime) || { hit: false, invalid: false };
+        if (breakpointResult.invalid) {
+          if (refreshView) {
+            refreshAfterStep(true);
+          }
+          setStatus?.(
+            t("error.breakpointInvalid", {
+              reason: breakpointResult.message || t("error.evalReason.runtime"),
+            }),
+            true,
+          );
+          openWatchDebugger?.();
+          return { ok: false, breakpointHit: false };
+        }
+        if (refreshView) {
+          refreshAfterStep(true);
+        }
+        if (breakpointResult.hit) {
+          setStatusKey?.("status.breakpointHit", {
+            time: formatNumberValue?.(Number(nextTime)),
+          });
+          openWatchDebugger?.();
+          return { ok: true, breakpointHit: true, completed: false };
+        }
+        const completed = hasReachedExecutionEnd(nextTime, cfg);
+        if (completed) {
+          clearDevelopmentHistory();
+        }
+        return { ok: true, breakpointHit: false, completed, reused: true };
+      }
+
       const startingFresh = execution.currentTime == null;
       if (restarted) {
         clearVisualHistory?.();
@@ -9197,6 +9453,7 @@ window.STGraphXI18nBundles = {
 
       const stepResult = session.evaluateAtTime(nextTime, evaluationEnv());
       execution.currentTime = nextTime;
+      recordDevelopmentSnapshot();
       const breakpointResult = evaluateBreakpointConditionAtTime?.(nextTime) || { hit: false, invalid: false };
 
       if (breakpointResult.invalid) {
@@ -9225,6 +9482,9 @@ window.STGraphXI18nBundles = {
       }
 
       const completed = hasReachedExecutionEnd(nextTime, cfg);
+      if (completed) {
+        clearDevelopmentHistory();
+      }
 
       if (restarted && stepResult.errorCount === 0) {
         setStatusKey?.("status.executionRestarted", {
@@ -9272,6 +9532,7 @@ window.STGraphXI18nBundles = {
       }
 
       if (!continuing) {
+        clearDevelopmentHistory();
         execution.currentTime = null;
         clearVisualHistory?.();
         clearSimulationHistory?.();
@@ -9312,16 +9573,21 @@ window.STGraphXI18nBundles = {
 
       for (let idx = 0; idx < timeValues.length; idx += 1) {
         const timeValue = timeValues[idx];
-        if (continuing || idx > 0) {
-          session.promotePending();
-        }
-        const stepResult = session.evaluateAtTime(timeValue, evaluationEnv());
-        successCount = stepResult.successCount;
-        totalErrorCount += stepResult.errorCount;
-        if (!firstErrorNode && stepResult.firstErrorNode) {
-          firstErrorNode = stepResult.firstErrorNode;
-          firstErrorReason = stepResult.firstErrorReason;
-          firstErrorTime = timeValue;
+        const reused = restoreNextDevelopmentSnapshot(timeValue);
+        if (!reused) {
+          if (continuing || idx > 0) {
+            session.promotePending();
+          }
+          const stepResult = session.evaluateAtTime(timeValue, evaluationEnv());
+          successCount = stepResult.successCount;
+          totalErrorCount += stepResult.errorCount;
+          if (!firstErrorNode && stepResult.firstErrorNode) {
+            firstErrorNode = stepResult.firstErrorNode;
+            firstErrorReason = stepResult.firstErrorReason;
+            firstErrorTime = timeValue;
+          }
+          execution.currentTime = timeValue;
+          recordDevelopmentSnapshot();
         }
         lastTime = timeValue;
         const breakpointResult = evaluateBreakpointConditionAtTime?.(timeValue) || { hit: false, invalid: false };
@@ -9342,6 +9608,10 @@ window.STGraphXI18nBundles = {
         }
       }
 
+      const completed = !breakpointHit && hasReachedExecutionEnd(lastTime, cfg);
+      if (completed) {
+        clearDevelopmentHistory();
+      }
       execution.currentTime = lastTime;
       refreshRuntimeView?.();
 
@@ -9386,6 +9656,7 @@ window.STGraphXI18nBundles = {
         return;
       }
       execution.currentTime = null;
+      clearDevelopmentHistory();
       clearVisualHistory?.();
       clearSimulationHistory?.();
       session.clearSubmodelState();
@@ -9488,6 +9759,10 @@ window.STGraphXI18nBundles = {
       runManualStep,
       resetExecution,
       toggleTimedExecution,
+      clearDevelopmentHistory,
+      recordDevelopmentSnapshot,
+      canStepBackDevelopmentHistory,
+      stepBackDevelopmentHistory,
     };
   }
 
@@ -10799,9 +11074,11 @@ window.STGraphXI18nBundles = {
       step: Number.isFinite(Number(widget?.step)) ? Number(widget.step) : 1,
       value: widget?.type === "button"
         ? Boolean(widget?.value)
-        : (Number.isFinite(Number(widget?.value)) ? Number(widget.value) : 0),
+        : (widget?.type === "dpad" && [0, 1, 2, 3, 4].includes(Number(widget?.value)) ? Number(widget.value) : (Number.isFinite(Number(widget?.value)) ? Number(widget.value) : 0)),
       initialValue: widget?.type === "button" ? Boolean(widget?.initialValue ?? widget?.value) : undefined,
-      buttonMode: widget?.type === "button" && widget?.buttonMode === "momentary" ? "momentary" : "toggle",
+      buttonMode: (widget?.type === "button" || widget?.type === "dpad") && widget?.buttonMode === "momentary" ? "momentary" : "toggle",
+      keyBinding: String(widget?.keyBinding ?? ""),
+      keyBindings: widget?.keyBindings && typeof widget.keyBindings === "object" ? { ...widget.keyBindings } : {},
       options: Array.isArray(widget?.options)
         ? widget.options.map((option) => ({
           label: String(option?.label ?? ""),
@@ -10956,7 +11233,7 @@ window.STGraphXI18nBundles = {
     if (title) {
       return title;
     }
-    if (widget.type === "slider" || widget.type === "button" || widget.type === "select") {
+    if (widget.type === "slider" || widget.type === "button" || widget.type === "dpad" || widget.type === "select") {
       return widget.source || t("text.unnamed");
     }
     if (widget.type === "text" || widget.type === "led" || widget.type === "matrix") {
@@ -10971,6 +11248,7 @@ window.STGraphXI18nBundles = {
       led: t("menu.insert.ledWidget"),
       slider: t("menu.insert.sliderWidget"),
       button: t("menu.insert.buttonWidget"),
+      dpad: t("menu.insert.dpadWidget"),
       select: t("menu.insert.selectWidget"),
     }[widget.type] || widget.type;
   }
@@ -10996,6 +11274,7 @@ window.STGraphXI18nBundles = {
     if (!ctx) {
       return;
     }
+    canvas.__dsgraphChartHitTest = () => "";
     const width = canvas.width;
     const height = canvas.height;
     ctx.clearRect(0, 0, width, height);
@@ -11040,6 +11319,7 @@ window.STGraphXI18nBundles = {
     const pad = 18;
     const sx = (width - pad * 2) / (maxX - minX);
     const sy = (height - pad * 2) / (maxY - minY);
+    const chartHitTargets = [];
 
     ctx.strokeStyle = "#9fb0c0";
     ctx.beginPath();
@@ -11065,6 +11345,16 @@ window.STGraphXI18nBundles = {
           }
         });
         ctx.stroke();
+        for (let index = 1; index < pair.points.length; index += 1) {
+          const start = pair.points[index - 1];
+          const end = pair.points[index];
+          chartHitTargets.push({
+            kind: "line",
+            x1: pad + (start.x - minX) * sx, y1: height - pad - (start.y - minY) * sy,
+            x2: pad + (end.x - minX) * sx, y2: height - pad - (end.y - minY) * sy,
+            valueAt: (ratio) => ({ x: start.x + (end.x - start.x) * ratio, y: start.y + (end.y - start.y) * ratio }),
+          });
+        }
       }
       ctx.setLineDash([]);
       const pointMode = String(pair.pointMode || "last").toLowerCase();
@@ -11075,6 +11365,7 @@ window.STGraphXI18nBundles = {
         pointsToDraw.forEach((pt) => {
           const x = pad + (pt.x - minX) * sx;
           const y = height - pad - (pt.y - minY) * sy;
+          chartHitTargets.push({ kind: "point", x, y, radius: Math.max(7, (pair.pointSize || 2) + 4), value: pt });
           ctx.fillStyle = pair.color || "#2d7ff9";
           ctx.beginPath();
           ctx.arc(x, y, pair.pointSize || 2, 0, Math.PI * 2);
@@ -11139,6 +11430,7 @@ window.STGraphXI18nBundles = {
 
   function drawSimpleBarPlot(canvas, pairs, execution, fontSize) {
     const ctx = canvas.getContext("2d");
+    canvas.__dsgraphChartHitTest = () => "";
     const bars = pairs.flatMap((pair, index) => (pair.points || []).map((point) => ({ x: Number(point.x), y: Number(point.y), color: pair.color || ["#2d7ff9", "#e67e22", "#20a464"][index % 3] }))).filter((bar) => Number.isFinite(bar.x) && Number.isFinite(bar.y));
     if (!ctx || !bars.length) return;
     const width = canvas.width; const height = canvas.height; const pad = 22;
@@ -11150,8 +11442,36 @@ window.STGraphXI18nBundles = {
     ctx.strokeStyle = "#9fb0c0"; ctx.strokeRect(pad, pad, width - pad * 2, height - pad * 2);
     const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(pad, zeroY); ctx.lineTo(width - pad, zeroY); ctx.stroke();
     const barWidth = Math.max(2, (width - pad * 2) / Math.max(1, bars.length) * 0.75);
-    bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - barWidth / 2, Math.min(y, zeroY), barWidth, Math.abs(y - zeroY)); });
+    const chartHitTargets = [];
+    bars.forEach((bar) => {
+      const y = sy(bar.y); const left = sx(bar.x) - barWidth / 2; const top = Math.min(y, zeroY); const barHeight = Math.abs(y - zeroY);
+      ctx.fillStyle = bar.color; ctx.fillRect(left, top, barWidth, barHeight);
+      chartHitTargets.push({ left, top, width: barWidth, height: barHeight, value: bar.y });
+    });
     ctx.fillStyle = "#506070"; ctx.font = `${Math.max(8, fontSize)}px sans-serif`; ctx.fillText(formatNumberValue(execution, minX), pad, height - 4); ctx.fillText(formatNumberValue(execution, maxX), width - pad - 24, height - 4);
+    canvas.__dsgraphChartHitTest = (x, y) => {
+      const target = chartHitTargets.find((bar) => x >= bar.left && x <= bar.left + bar.width && y >= bar.top && y <= bar.top + bar.height);
+      return target ? formatNumberValue(execution, target.value) : "";
+    };
+  }
+
+  function installChartValueTooltip(canvas, canvasWrap) {
+    const tooltip = document.createElement("div");
+    tooltip.className = "chart-value-tooltip";
+    tooltip.hidden = true;
+    canvasWrap.appendChild(tooltip);
+    const hide = () => { tooltip.hidden = true; canvas.style.cursor = "default"; };
+    canvas.addEventListener("pointermove", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const text = canvas.__dsgraphChartHitTest?.((event.clientX - rect.left) * canvas.width / rect.width, (event.clientY - rect.top) * canvas.height / rect.height) || "";
+      if (!text) { hide(); return; }
+      tooltip.textContent = text;
+      tooltip.hidden = false;
+      tooltip.style.left = `${Math.min(canvasWrap.clientWidth - 8, Math.max(8, event.clientX - rect.left + 12))}px`;
+      tooltip.style.top = `${Math.max(4, event.clientY - rect.top - 8)}px`;
+      canvas.style.cursor = "crosshair";
+    });
+    canvas.addEventListener("pointerleave", hide);
   }
 
   function drawMatrixWidgetCanvas(canvas, widget, matrix, execution, zoom) {
@@ -11604,6 +11924,7 @@ window.STGraphXI18nBundles = {
             font-variant-numeric: tabular-nums;
           }
           .xy-chart-canvas-wrap {
+            position: relative;
             min-height: 0;
           }
           .xy-chart-canvas {
@@ -11615,6 +11936,7 @@ window.STGraphXI18nBundles = {
             border-radius: 6px;
             background: #fff;
           }
+          .chart-value-tooltip { position:absolute; z-index:2; transform:translateY(-100%); padding:3px 6px; border:1px solid #91a8ba; border-radius:4px; color:#fff; background:#1f2937; font-size:11px; font-variant-numeric:tabular-nums; line-height:1.25; pointer-events:none; white-space:nowrap; }
           .led-wrap {
             display: grid;
             justify-items: center;
@@ -11687,6 +12009,13 @@ window.STGraphXI18nBundles = {
             align-content: center;
             min-height: 100%;
           }
+          .dpad-widget { display:grid; grid-template-columns:repeat(3,1fr); grid-template-areas:". up ." "left . right" ". down ."; gap:5px; height:100%; align-items:center; }
+          .dpad-widget-button { min-height:28px; border:1px solid #b7c7d6; border-radius:6px; color:#23415a; background:#dbeafe; font:inherit; font-weight:700; cursor:pointer; }
+          .dpad-widget-button.is-active, .dpad-widget-button:active, .dpad-widget-button[aria-pressed="true"] { color:#fff; border-color:#172554; background:linear-gradient(135deg,#2563eb,#1e3a8a); box-shadow:0 0 0 2px rgba(37,99,235,.28),inset 0 1px 0 rgba(255,255,255,.28); }
+          .dpad-up { grid-area:up; } .dpad-right { grid-area:right; } .dpad-down { grid-area:down; } .dpad-left { grid-area:left; }
+          .button-widget-toggle { width:100%; min-height:30px; border:1px solid #b7c7d6; border-radius:8px; padding:6px 8px; font:inherit; font-weight:600; cursor:pointer; }
+          .button-widget-toggle.is-on { color:#fff; border-color:#166534; background:linear-gradient(135deg,#22c55e,#15803d); box-shadow:0 2px 6px rgba(21,128,61,.32),inset 0 1px 0 rgba(255,255,255,.25); }
+          .button-widget-toggle.is-off { color:#fff; border-color:#991b1b; background:linear-gradient(135deg,#ef4444,#b91c1c); box-shadow:0 2px 6px rgba(185,28,28,.30),inset 0 1px 0 rgba(255,255,255,.22); }
           .select-widget-input {
             width: 100%;
             min-height: 28px;
@@ -12655,8 +12984,22 @@ window.STGraphXI18nBundles = {
           const items = memberships.get(nodeId) || [];
           items.push(group);
           memberships.set(nodeId, items);
-        });
       });
+    });
+
+    canvas.__dsgraphChartHitTest = (x, y) => {
+      const point = chartHitTargets.find((target) => target.kind === "point" && Math.hypot(x - target.x, y - target.y) <= target.radius);
+      if (point) return `(${formatNumberValue(execution, point.value.x)}, ${formatNumberValue(execution, point.value.y)})`;
+      let nearest = null;
+      chartHitTargets.filter((target) => target.kind === "line").forEach((target) => {
+        const dx = target.x2 - target.x1; const dy = target.y2 - target.y1;
+        const lengthSq = dx * dx + dy * dy;
+        const ratio = lengthSq > 0 ? clamp(((x - target.x1) * dx + (y - target.y1) * dy) / lengthSq, 0, 1) : 0;
+        const distance = Math.hypot(x - (target.x1 + dx * ratio), y - (target.y1 + dy * ratio));
+        if (distance <= 7 && (!nearest || distance < nearest.distance)) nearest = { distance, value: target.valueAt(ratio) };
+      });
+      return nearest ? `(${formatNumberValue(execution, nearest.value.x)}, ${formatNumberValue(execution, nearest.value.y)})` : "";
+    };
       return new Set(nodes.filter((node) => {
         const groups = memberships.get(node.id);
         return !groups || groups.some((group) => group.visible !== false);
@@ -13356,12 +13699,17 @@ window.STGraphXI18nBundles = {
         return;
       }
       if (widget.type === "xychart") {
+        const canvasWrap = document.createElement("div");
+        canvasWrap.className = "xy-chart-canvas-wrap";
         const canvas = document.createElement("canvas");
+        canvas.className = "xy-chart-canvas";
         canvas.style.display = "block";
         canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
         canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
         drawSimpleXYChart(canvas, widgetState?.pairs || widget.xyPairs || [], execution, widget.fontSize);
-        body.appendChild(canvas);
+        canvasWrap.appendChild(canvas);
+        installChartValueTooltip(canvas, canvasWrap);
+        body.appendChild(canvasWrap);
         return;
       }
       if (widget.type === "barplot") {
@@ -13371,12 +13719,17 @@ window.STGraphXI18nBundles = {
           const ys = flatten(nodeMap.get(pair.ySource)?.computedValue);
           return { ...pair, points: xs.slice(0, ys.length).map((x, index) => ({ x, y: ys[index] })) };
         });
+        const canvasWrap = document.createElement("div");
+        canvasWrap.className = "xy-chart-canvas-wrap";
         const canvas = document.createElement("canvas");
+        canvas.className = "xy-chart-canvas";
         canvas.style.display = "block";
         canvas.width = Math.max(160, Math.floor(widget.width * this._zoom - 24));
         canvas.height = Math.max(120, Math.floor(widget.height * this._zoom - 54));
         drawSimpleBarPlot(canvas, pairs, execution, widget.fontSize);
-        body.appendChild(canvas);
+        canvasWrap.appendChild(canvas);
+        installChartValueTooltip(canvas, canvasWrap);
+        body.appendChild(canvasWrap);
         return;
       }
       if (widget.type === "slider") {
@@ -13461,6 +13814,7 @@ window.STGraphXI18nBundles = {
         const current = Boolean(this._state.inputValues.get(widget.source) ?? (widget.value ? 1 : 0));
         button.type = "button";
         button.className = `button-widget-toggle${current ? " is-on" : " is-off"}`;
+        button.setAttribute("aria-pressed", String(current));
         button.textContent = widgetBinaryStateLabel(widget, current, this.t.bind(this));
         button.disabled = false;
         const momentary = widget.buttonMode === "momentary";
@@ -13469,6 +13823,7 @@ window.STGraphXI18nBundles = {
           widget.value = next === 1;
           button.classList.toggle("is-on", next === 1);
           button.classList.toggle("is-off", next !== 1);
+          button.setAttribute("aria-pressed", String(next === 1));
           button.textContent = widgetBinaryStateLabel(widget, next === 1, this.t.bind(this));
           this.queuePreviewRefresh("input");
         };
@@ -13483,10 +13838,43 @@ window.STGraphXI18nBundles = {
         button.addEventListener("blur", release);
         button.addEventListener("click", () => {
           if (momentary) return;
-          const next = current ? 0 : 1;
+          const next = widget.value ? 0 : 1;
           setValue(next);
         });
         wrap.appendChild(button);
+        body.appendChild(wrap);
+        return;
+      }
+      if (widget.type === "dpad") {
+        const wrap = document.createElement("div");
+        wrap.className = "dpad-widget";
+        const momentary = widget.buttonMode === "momentary";
+        const setValue = (value) => {
+          this._state.inputValues.set(widget.source, value);
+          widget.value = value;
+          wrap.querySelectorAll("button").forEach((button) => {
+            const isActive = value !== 0 && Number(button.dataset.value) === value;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+          });
+          this.queuePreviewRefresh("input");
+        };
+        [["up", "↑", 1], ["right", "→", 2], ["down", "↓", 3], ["left", "←", 4]].forEach(([direction, label, value]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `dpad-widget-button dpad-${direction}`;
+          button.dataset.value = String(value);
+          button.textContent = label;
+          button.setAttribute("aria-label", this.t(`widget.dpad.${direction}`));
+          const release = () => { if (momentary) setValue(0); };
+          button.addEventListener("pointerdown", (event) => { if (momentary) { button.setPointerCapture?.(event.pointerId); setValue(value); } });
+          button.addEventListener("pointerup", release);
+          button.addEventListener("pointercancel", release);
+          button.addEventListener("blur", release);
+          button.addEventListener("click", () => { if (!momentary) setValue(widget.value === value ? 0 : value); });
+          wrap.appendChild(button);
+        });
+        setValue(Number(this._state.inputValues.get(widget.source) ?? widget.value ?? 0));
         body.appendChild(wrap);
         return;
       }

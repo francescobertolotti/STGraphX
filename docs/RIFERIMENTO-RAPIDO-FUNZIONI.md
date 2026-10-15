@@ -1,6 +1,6 @@
 # DSGraph - Riferimento rapido alle funzioni
 
-Generato automaticamente da `i18n-inline.js` e `graph-functions.js` (release 2026.09.19).
+Generato automaticamente da `i18n-inline.js` e `graph-functions.js` (release 2026.10.08).
 
 Rigenerare con `npm run docs:functions`.
 
@@ -615,6 +615,19 @@ Distribuzione di Poisson (parametro predefinito: `rate=1`). Se `x` manca, estrae
 
 ---
 
+### `powerLaw`
+
+`powerLaw([alpha, xmin], x, mode)`
+
+Distribuzione power law continua: `alpha` deve essere maggiore di `1`, `xmin` è opzionale e vale `1` per default. Se `x` manca, estrae un campione. Con `mode=0` calcola la pdf, con `mode=1` la cdf, con `mode=2` la icdf.
+
+**Esempi**
+- `powerLaw([2.5])`
+- `powerLaw([2.5, 3], 4, 0)`
+- `powerLaw([2.5, 3], 0.5, 2)`
+
+---
+
 ### `rand`
 
 `rand([max]) | rand(min, max)`
@@ -764,6 +777,17 @@ Coseno iperbolico di `x`.
 
 ---
 
+### `even`
+
+`even(x)`
+
+Restituisce `1` se `x` è un intero pari, altrimenti `0`.
+
+**Esempi**
+- `even(4) -> 1`
+
+---
+
 ### `exp`
 
 `exp(x)`
@@ -871,6 +895,17 @@ Negazione logica (equivalente a `!`).
 
 **Esempi**
 - `not x. Esempio: `not active``
+
+---
+
+### `odd`
+
+`odd(x)`
+
+Restituisce `1` se `x` è un intero dispari, altrimenti `0`.
+
+**Esempi**
+- `odd(5) -> 1`
 
 ---
 

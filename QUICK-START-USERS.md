@@ -128,6 +128,14 @@ sopra l'etichetta per ruotarla. Puoi cancellarla con
 **Elimina etichetta** oppure selezionandola e premendo Canc/Backspace. Le
 etichette fanno parte del modello e vengono quindi salvate nel JSON.
 
+Le etichette automatiche `+` e `−` delle relazioni funzionali si posizionano
+automaticamente sopra gli archi orizzontali e accanto a quelli verticali. Puoi
+trascinarle e ruotarle allo stesso modo; il simbolo resta aggiornato al tipo di
+relazione e lo spostamento segue l'arco quando nodi o punti di controllo si
+muovono. Da **Vista > Opzioni visualizzazione** puoi nascondere tutte le
+etichette degli archi. Nelle proprietà di ogni arco puoi inoltre aggiungere una
+**Descrizione**.
+
 ### 1.5.2 Costruzione qualitativa guidata del grafo
 
 Apri **Inserisci > Grafo > Qualitative Graph Building...** per avviare una

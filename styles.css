@@ -45,7 +45,7 @@ body {
   align-items: center;
   padding: 6px 8px;
   border-bottom: 1px solid var(--line);
-  background: #fff;
+  background: var(--surface);
 }
 
 .workspace-tabs {
@@ -310,6 +310,11 @@ body {
   left: 0;
   display: none;
   min-width: 268px;
+  max-height: calc(100dvh - 80px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -320,6 +325,14 @@ body {
 
 .menu-root.open .menu-panel {
   display: block;
+}
+
+/* The File menu owns the desktop-only recent-models flyout. A scrolling
+   ancestor clips that flyout, so keep this short parent panel un-clipped. */
+@media (min-width: 1101px) {
+  body:not(.tablet-sidebar-layout) #fileMenu {
+    overflow: visible;
+  }
 }
 
 .menu-command {
@@ -807,7 +820,25 @@ body {
 }
 
 .xy-chart-canvas-wrap {
+  position: relative;
   min-height: 0;
+}
+
+.chart-value-tooltip {
+  position: absolute;
+  z-index: 2;
+  transform: translateY(-100%);
+  max-width: calc(100% - 16px);
+  padding: 3px 6px;
+  border: 1px solid #91a8ba;
+  border-radius: 4px;
+  color: #fff;
+  background: #1f2937;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .xy-chart-actions {
@@ -841,6 +872,61 @@ body {
 .button-widget-wrap {
   display: grid;
   gap: 6px;
+}
+
+.dpad-widget {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas: ". up ." "left . right" ". down .";
+  gap: 5px;
+  height: 100%;
+  align-items: center;
+}
+
+.dpad-widget-button {
+  min-height: 28px;
+  border: 1px solid #b7c7d6;
+  border-radius: 6px;
+  color: #23415a;
+  background: #dbeafe;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dpad-widget-button:hover:not(:disabled),
+.dpad-widget-button:active:not(:disabled),
+.dpad-widget-button.is-active,
+.dpad-widget-button[aria-pressed="true"] {
+  color: #fff;
+  border-color: #172554;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.dpad-widget-button:disabled { cursor: not-allowed; opacity: 0.7; }
+.dpad-up { grid-area: up; }
+.dpad-right { grid-area: right; }
+.dpad-down { grid-area: down; }
+.dpad-left { grid-area: left; }
+
+.widget-key-binding-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  min-height: 30px;
+}
+
+.widget-key-binding-row kbd {
+  min-width: 2.2em;
+  padding: 2px 5px;
+  border: 1px solid #b7c7d6;
+  border-radius: 4px;
+  color: #23415a;
+  background: #fff;
+  font: inherit;
+  text-align: center;
 }
 
 .slider-widget-source {
@@ -969,15 +1055,17 @@ body {
 }
 
 .button-widget-toggle.is-on {
-  color: #183d2c;
-  border-color: #6aa57f;
-  background: linear-gradient(180deg, #e6f4ea 0%, #d8ecde 100%);
+  color: #fff;
+  border-color: #166534;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .button-widget-toggle.is-off {
-  color: #5a2b2b;
-  border-color: #c7a1a1;
-  background: linear-gradient(180deg, #fbf1f1 0%, #f3e4e4 100%);
+  color: #fff;
+  border-color: #991b1b;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  box-shadow: 0 2px 6px rgba(185, 28, 28, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .button-widget-toggle:disabled {
@@ -2139,6 +2227,139 @@ button:disabled {
   overflow: hidden;
 }
 
+.sensitivity-analysis-card {
+  width: min(620px, calc(100vw - 40px));
+  max-width: calc(100vw - 20px);
+  height: min(88vh, 760px);
+  max-height: calc(100vh - 20px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sensitivity-analysis-intro {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.sensitivity-analysis-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 0.75fr);
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.sensitivity-analysis-controls label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.sensitivity-analysis-controls input,
+.sensitivity-analysis-controls select {
+  min-width: 0;
+}
+
+.sensitivity-analysis-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sensitivity-analysis-status {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.sensitivity-analysis-status.error,
+.sensitivity-analysis-results .error {
+  color: var(--danger);
+}
+
+.sensitivity-analysis-results {
+  flex: 0 0 auto;
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+}
+
+.sensitivity-analysis-results table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text);
+}
+
+.sensitivity-analysis-results th,
+.sensitivity-analysis-results td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.sensitivity-analysis-results th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.sensitivity-analysis-results tr:last-child td {
+  border-bottom: 0;
+}
+
+.sensitivity-analysis-chart {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+}
+
+.sensitivity-analysis-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 240px;
+  font-family: inherit;
+}
+
+.sensitivity-chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.sensitivity-chart-axis {
+  stroke: var(--muted);
+  stroke-width: 1.25;
+}
+
+.sensitivity-chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.25;
+}
+
+.sensitivity-chart-point {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.sensitivity-chart-tick,
+.sensitivity-chart-label {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.sensitivity-chart-label {
+  fill: var(--text);
+  font-weight: 600;
+}
+
 #watchDebuggerModal.modal-modeless {
   z-index: 1492;
 }
@@ -2184,6 +2405,10 @@ button:disabled {
   grid-template-columns: repeat(2, max-content);
   gap: 2px 16px;
   justify-content: start;
+}
+
+.execution-options-checks {
+  grid-template-columns: 1fr;
 }
 
 .option-check {
@@ -4336,8 +4561,7 @@ body.tablet-sidebar-layout .expression-editor-resize-handle {
 }
 
 .edge-label.auto-relation-label {
-  cursor: default;
-  pointer-events: none;
+  cursor: move;
 }
 
 .edge-label.auto-relation-label .edge-label-text {
@@ -5355,6 +5579,24 @@ body.ui-theme-minimalist .menu-run-btn.active:not(:disabled) {
   color: #ffffff;
   background: var(--accent);
   border-color: var(--accent);
+}
+
+body.ui-theme-minimalist .button-widget-toggle.is-on {
+  color: #fff;
+  border-color: #166534;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+}
+
+body.ui-theme-minimalist .button-widget-toggle.is-off {
+  color: #fff;
+  border-color: #991b1b;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+body.ui-theme-minimalist .dpad-widget-button.is-active {
+  color: #fff;
+  border-color: #172554;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
 }
 
 body.ui-theme-minimalist .menu-title,

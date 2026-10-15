@@ -72,6 +72,7 @@
             <hr class="menu-sep" />
             <div class="menu-section-title" data-i18n="menu.insert.group.inputWidgets"></div>
             <button id="addButtonWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.button"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">◉</span><span data-i18n="menu.insert.buttonWidget"></span></span></button>
+            <button id="addDpadWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.dpad"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">✥</span><span data-i18n="menu.insert.dpadWidget"></span></span></button>
             <button id="addSelectWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.select"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">▾</span><span data-i18n="menu.insert.selectWidget"></span></span></button>
             <button id="addSliderWidgetItem" class="menu-command" type="button" data-title-i18n="tooltip.menu.insert.slider"><span class="menu-command-label"><span class="menu-item-icon" aria-hidden="true">━●</span><span data-i18n="menu.insert.sliderWidget"></span></span></button>
             <hr class="menu-sep" />
@@ -114,8 +115,15 @@
             <button id="runTimedToggleBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.timed"><span data-i18n="menu.run.timedToggle"></span><span class="menu-shortcut">F9</span></button>
             <button id="runResetBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.reset"><span data-i18n="menu.run.reset"></span><span class="menu-shortcut">F10</span></button>
             <hr class="menu-sep" />
-            <button id="functionalLoopDiagramBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.functionalLoops"><span data-i18n="menu.run.functionalLoops"></span></button>
             <button id="watchDebuggerBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.run.watch"><span data-i18n="menu.run.watch"></span></button>
+          </div>
+        </div>
+
+        <div class="menu-root">
+          <button class="menu-title" type="button" data-menu="toolsMenu" data-i18n="menu.tools" data-title-i18n="tooltip.menu.tools"></button>
+          <div class="menu-panel" id="toolsMenu">
+            <button id="functionalLoopDiagramBtn" class="menu-command" type="button" data-title-i18n="tooltip.menu.tools.functionalLoops"><span data-i18n="menu.tools.functionalLoops"></span></button>
+            <button id="sensitivityAnalysisBtn" class="menu-command" type="button" data-i18n="menu.tools.sensitivity" data-title-i18n="tooltip.menu.tools.sensitivity"></button>
           </div>
         </div>
 
@@ -131,6 +139,7 @@
         </div>
 
         <div class="menu-run-toolbar" id="topRunToolbar">
+          <button id="topRunBackStepBtn" class="icon-btn menu-run-btn hidden" type="button">◀</button>
           <button id="topRunEvalBtn" class="icon-btn menu-run-btn" type="button">▶▶</button>
           <button id="topRunStepBtn" class="icon-btn menu-run-btn" type="button">▶</button>
           <button id="topRunTimedBtn" class="icon-btn menu-run-btn" type="button"><span class="timed-start-icon" aria-hidden="true"><span class="timed-start-play">▶</span><span class="timed-start-clock">⏱</span></span></button>
@@ -668,6 +677,38 @@
         </div>
       </div>
     </div>
+    <div id="sensitivityAnalysisModal" class="modal-backdrop modal-modeless hidden">
+      <div class="modal-card sensitivity-analysis-card" role="dialog" aria-modal="false" aria-labelledby="sensitivityAnalysisTitle">
+        <div class="modal-head">
+          <h3 id="sensitivityAnalysisTitle" data-i18n="sensitivity.title"></h3>
+          <button id="sensitivityAnalysisCloseBtn" class="icon-btn modal-close-btn" type="button" data-i18n-aria-label="aria.close">×</button>
+        </div>
+        <p class="sensitivity-analysis-intro" data-i18n="sensitivity.intro"></p>
+        <div class="sensitivity-analysis-controls">
+          <label for="sensitivityInputSelect" data-i18n="sensitivity.input"></label>
+          <select id="sensitivityInputSelect"></select>
+          <label for="sensitivityOutputSelect" data-i18n="sensitivity.output"></label>
+          <select id="sensitivityOutputSelect"></select>
+          <label for="sensitivityMinInput" data-i18n="sensitivity.min"></label>
+          <input id="sensitivityMinInput" type="number" step="any" />
+          <label for="sensitivityMaxInput" data-i18n="sensitivity.max"></label>
+          <input id="sensitivityMaxInput" type="number" step="any" />
+          <label for="sensitivitySamplesInput" data-i18n="sensitivity.samples"></label>
+          <input id="sensitivitySamplesInput" type="number" min="2" max="100" step="1" value="5" />
+        </div>
+        <div class="sensitivity-analysis-toolbar">
+          <button id="sensitivityRunBtn" class="small-btn" type="button" data-i18n="sensitivity.run"></button>
+          <button id="sensitivityExportBtn" class="small-btn" type="button" data-i18n="sensitivity.export" disabled></button>
+          <button id="sensitivityImageExportBtn" class="small-btn" type="button" data-i18n="sensitivity.exportImage" disabled></button>
+          <span id="sensitivityAnalysisStatus" class="sensitivity-analysis-status" aria-live="polite"></span>
+        </div>
+        <div id="sensitivityAnalysisResults" class="sensitivity-analysis-results" aria-live="polite"></div>
+        <div id="sensitivityAnalysisChart" class="sensitivity-analysis-chart" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button id="sensitivityAnalysisDismissBtn" type="button" data-i18n="action.close"></button>
+        </div>
+      </div>
+    </div>
     <div id="watchDebuggerModal" class="modal-backdrop modal-modeless hidden">
       <div class="modal-card watch-debugger-card" role="dialog" aria-modal="false" aria-labelledby="watchDebuggerTitle">
         <div class="modal-head">
@@ -761,6 +802,10 @@
               <input id="showEdgeValuesInput" type="checkbox" />
               <span data-i18n="menu.view.showEdgeValues"></span>
             </label>
+            <label class="option-check" for="showEdgeLabelsInput" data-title-i18n="tooltip.menu.view.showEdgeLabels">
+              <input id="showEdgeLabelsInput" type="checkbox" checked />
+              <span data-i18n="menu.view.showEdgeLabels"></span>
+            </label>
           </div>
         </section>
         <section class="view-options-section">
@@ -803,10 +848,14 @@
         </section>
         <section class="view-options-section">
           <h4 data-i18n="viewOptions.execution"></h4>
-          <div class="view-options-checks">
+          <div class="view-options-checks execution-options-checks">
             <label class="option-check" for="strictDefinitionsInput" data-title-i18n="tooltip.model.strictDefinitions">
               <input id="strictDefinitionsInput" type="checkbox" checked />
               <span data-i18n="label.strictDefinitions"></span>
+            </label>
+            <label class="option-check" for="developmentModeInput" data-title-i18n="tooltip.viewOptions.developmentMode">
+              <input id="developmentModeInput" type="checkbox" />
+              <span data-i18n="label.developmentMode"></span>
             </label>
           </div>
         </section>
@@ -886,6 +935,7 @@
     <script src="watch-debugger-ui.js"></script>
     <script src="widgets.js"></script>
     <script src="runtime-core.js"></script>
+    <script src="sensitivity-analysis-core.js"></script>
     <script src="runtime-shared.js"></script>
     <script src="platform/platform-contract.js"></script>
     <script src="platform/tauri-platform.js"></script>

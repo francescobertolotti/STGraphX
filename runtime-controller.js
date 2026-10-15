@@ -29,6 +29,9 @@
       openWatchDebugger,
       clearVisualHistory,
       clearSimulationHistory,
+      isDevelopmentMode = () => false,
+      captureDevelopmentSnapshot = null,
+      restoreDevelopmentSnapshot = null,
       onTimedExecutionStarted = null,
       onTimedExecutionStopped = null,
       hasStrictExecutionBlock = () => false,
@@ -38,6 +41,10 @@
       nowFn = () => Date.now(),
       monotonicNowFn = () => (global.performance?.now ? global.performance.now() : Date.now()),
     } = options;
+
+    const developmentHistory = [];
+    let developmentHistoryCursor = -1;
+    const maxDevelopmentHistorySteps = 5;
 
     if (!session || typeof getExecution !== "function" || !timedState || !t) {
       throw new Error("STGraphXRuntimeController requires session, execution access, timedState, and translation dependencies");
@@ -115,6 +122,84 @@
       return true;
     }
 
+    function hasDevelopmentHistorySupport() {
+      return Boolean(
+        isDevelopmentMode?.()
+        && typeof captureDevelopmentSnapshot === "function"
+        && typeof restoreDevelopmentSnapshot === "function",
+      );
+    }
+
+    function clearDevelopmentHistory() {
+      developmentHistory.length = 0;
+      developmentHistoryCursor = -1;
+    }
+
+    function developmentTimeMatches(left, right) {
+      const a = Number(left);
+      const b = Number(right);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) {
+        return false;
+      }
+      return Math.abs(a - b) <= Math.max(1e-12, Math.abs(a) * 1e-9, Math.abs(b) * 1e-9);
+    }
+
+    function recordDevelopmentSnapshot() {
+      if (!hasDevelopmentHistorySupport()) {
+        return false;
+      }
+      const snapshot = captureDevelopmentSnapshot();
+      const time = snapshot?.executionCurrentTime;
+      if (!Number.isFinite(Number(time))) {
+        return false;
+      }
+
+      const entry = { time: Number(time), snapshot };
+      if (developmentHistoryCursor >= 0 && developmentTimeMatches(developmentHistory[developmentHistoryCursor]?.time, entry.time)) {
+        developmentHistory[developmentHistoryCursor] = entry;
+        return true;
+      }
+      if (developmentHistoryCursor < developmentHistory.length - 1) {
+        developmentHistory.splice(developmentHistoryCursor + 1);
+      }
+      developmentHistory.push(entry);
+      while (developmentHistory.length > maxDevelopmentHistorySteps) {
+        developmentHistory.shift();
+      }
+      developmentHistoryCursor = developmentHistory.length - 1;
+      return true;
+    }
+
+    function restoreNextDevelopmentSnapshot(timeValue) {
+      if (!hasDevelopmentHistorySupport() || developmentHistoryCursor >= developmentHistory.length - 1) {
+        return false;
+      }
+      const nextEntry = developmentHistory[developmentHistoryCursor + 1];
+      if (!developmentTimeMatches(nextEntry?.time, timeValue)) {
+        return false;
+      }
+      developmentHistoryCursor += 1;
+      restoreDevelopmentSnapshot(nextEntry.snapshot);
+      return true;
+    }
+
+    function canStepBackDevelopmentHistory() {
+      return hasDevelopmentHistorySupport()
+        && timedState.timedRunHandle == null
+        && !timedState.timedStepRunning
+        && developmentHistoryCursor > 0;
+    }
+
+    function stepBackDevelopmentHistory() {
+      if (!canStepBackDevelopmentHistory()) {
+        return false;
+      }
+      developmentHistoryCursor -= 1;
+      restoreDevelopmentSnapshot(developmentHistory[developmentHistoryCursor].snapshot);
+      refreshAfterStep(true);
+      return true;
+    }
+
     async function ensureExecutionReady() {
       if (!enforceStrictDefinitions?.()) {
         return null;
@@ -154,6 +239,41 @@
       }
       const nextTime = execution.currentTime == null ? cfg.t0 : execution.currentTime + cfg.dt;
 
+      if (restarted) {
+        clearDevelopmentHistory();
+      }
+      if (restoreNextDevelopmentSnapshot(nextTime)) {
+        const breakpointResult = evaluateBreakpointConditionAtTime?.(nextTime) || { hit: false, invalid: false };
+        if (breakpointResult.invalid) {
+          if (refreshView) {
+            refreshAfterStep(true);
+          }
+          setStatus?.(
+            t("error.breakpointInvalid", {
+              reason: breakpointResult.message || t("error.evalReason.runtime"),
+            }),
+            true,
+          );
+          openWatchDebugger?.();
+          return { ok: false, breakpointHit: false };
+        }
+        if (refreshView) {
+          refreshAfterStep(true);
+        }
+        if (breakpointResult.hit) {
+          setStatusKey?.("status.breakpointHit", {
+            time: formatNumberValue?.(Number(nextTime)),
+          });
+          openWatchDebugger?.();
+          return { ok: true, breakpointHit: true, completed: false };
+        }
+        const completed = hasReachedExecutionEnd(nextTime, cfg);
+        if (completed) {
+          clearDevelopmentHistory();
+        }
+        return { ok: true, breakpointHit: false, completed, reused: true };
+      }
+
       const startingFresh = execution.currentTime == null;
       if (restarted) {
         clearVisualHistory?.();
@@ -171,6 +291,7 @@
 
       const stepResult = session.evaluateAtTime(nextTime, evaluationEnv());
       execution.currentTime = nextTime;
+      recordDevelopmentSnapshot();
       const breakpointResult = evaluateBreakpointConditionAtTime?.(nextTime) || { hit: false, invalid: false };
 
       if (breakpointResult.invalid) {
@@ -199,6 +320,9 @@
       }
 
       const completed = hasReachedExecutionEnd(nextTime, cfg);
+      if (completed) {
+        clearDevelopmentHistory();
+      }
 
       if (restarted && stepResult.errorCount === 0) {
         setStatusKey?.("status.executionRestarted", {
@@ -246,6 +370,7 @@
       }
 
       if (!continuing) {
+        clearDevelopmentHistory();
         execution.currentTime = null;
         clearVisualHistory?.();
         clearSimulationHistory?.();
@@ -286,16 +411,21 @@
 
       for (let idx = 0; idx < timeValues.length; idx += 1) {
         const timeValue = timeValues[idx];
-        if (continuing || idx > 0) {
-          session.promotePending();
-        }
-        const stepResult = session.evaluateAtTime(timeValue, evaluationEnv());
-        successCount = stepResult.successCount;
-        totalErrorCount += stepResult.errorCount;
-        if (!firstErrorNode && stepResult.firstErrorNode) {
-          firstErrorNode = stepResult.firstErrorNode;
-          firstErrorReason = stepResult.firstErrorReason;
-          firstErrorTime = timeValue;
+        const reused = restoreNextDevelopmentSnapshot(timeValue);
+        if (!reused) {
+          if (continuing || idx > 0) {
+            session.promotePending();
+          }
+          const stepResult = session.evaluateAtTime(timeValue, evaluationEnv());
+          successCount = stepResult.successCount;
+          totalErrorCount += stepResult.errorCount;
+          if (!firstErrorNode && stepResult.firstErrorNode) {
+            firstErrorNode = stepResult.firstErrorNode;
+            firstErrorReason = stepResult.firstErrorReason;
+            firstErrorTime = timeValue;
+          }
+          execution.currentTime = timeValue;
+          recordDevelopmentSnapshot();
         }
         lastTime = timeValue;
         const breakpointResult = evaluateBreakpointConditionAtTime?.(timeValue) || { hit: false, invalid: false };
@@ -316,6 +446,10 @@
         }
       }
 
+      const completed = !breakpointHit && hasReachedExecutionEnd(lastTime, cfg);
+      if (completed) {
+        clearDevelopmentHistory();
+      }
       execution.currentTime = lastTime;
       refreshRuntimeView?.();
 
@@ -360,6 +494,7 @@
         return;
       }
       execution.currentTime = null;
+      clearDevelopmentHistory();
       clearVisualHistory?.();
       clearSimulationHistory?.();
       session.clearSubmodelState();
@@ -462,6 +597,10 @@
       runManualStep,
       resetExecution,
       toggleTimedExecution,
+      clearDevelopmentHistory,
+      recordDevelopmentSnapshot,
+      canStepBackDevelopmentHistory,
+      stepBackDevelopmentHistory,
     };
   }
 

@@ -22,13 +22,21 @@ Luca Mari and the original STGraphX project are not necessarily responsible, mai
 
 In `Vista > Opzioni di visualizzazione`, la casella `Blocca l'esecuzione se non tutti i nodi sono definiti` è attiva per impostazione predefinita. Con la casella attiva, DSGraph evidenzia in rosso i nodi privi di una definizione valida e blocca l'esecuzione, mostrando nella barra superiore il primo nodo problematico e il motivo. Disattivandola, i nodi vuoti non sono evidenziati e il modello conserva il comportamento permissivo precedente.
 
+## Modalità sviluppo e cronologia temporale
+
+In `Vista > Opzioni di visualizzazione > Esecuzione`, attiva `Modalità sviluppo` per mostrare, a sinistra dei controlli di esecuzione, la freccia che riporta indietro di un passo temporale. DSGraph conserva in RAM soltanto gli ultimi cinque stati calcolati; tornando avanti verso uno stato già presente, lo ripristina senza ricalcolarlo. La cronologia è solo temporanea, non viene inclusa nel file JSON e viene eliminata al termine o al reset dell'esecuzione, oppure disattivando la modalità sviluppo.
+
+## Analisi di sensibilità
+
+Da `Tools > Analisi di sensibilità...` puoi variare **una sola** variabile alla volta: scegli un parametro oppure una variabile algebrica marcata come input, un output, l'intervallo minimo-massimo e il numero di campioni. DSGraph esegue una copia temporanea del modello per ogni valore e mostra in tabella il valore finale dell'output a `t1`; il modello aperto, i suoi valori e la sua cronologia non vengono modificati. L'analisi richiede almeno due campioni, un intervallo crescente e una configurazione temporale valida. Non effettua variazioni simultanee di più variabili. Al termine, `Scarica CSV` esporta valori ed eventuali errori, mentre `Scarica immagine` salva il grafico vettoriale SVG: input sull'asse X e output sull'asse Y, pronto per le presentazioni.
+
 ## Aspetto dell'interfaccia
 
 In `Vista > Opzioni di visualizzazione > Aspetto` è possibile scegliere tra `Legacy`, che conserva integralmente l'interfaccia precedente, e `Minimalista`, una variante Minimalism & Swiss a contrasto elevato, con superfici essenziali, griglia tipografica e controlli più netti. La scelta è una preferenza locale dell'utente: non viene salvata nel modello e quindi non modifica la visualizzazione di chi apre lo stesso file. Con `Minimalista` è disponibile anche `Modalità notturna`, la variante OLED nera; tornando a `Legacy` l'opzione viene nascosta senza perdere la scelta per un eventuale ritorno a Minimalista.
 
 ## Diagramma dei Loop Funzionali
 
-Da `Esegui > Esegui Diagramma dei Loop Funzionali` puoi analizzare la struttura funzionale del grafo anche se le formule non sono ancora state scritte. Seleziona una freccia e imposta nel pannello laterale il tipo di relazione: `+` diretta, `−` inversa, `1` non monotona o non specificata, oppure `0` per rimuovere la freccia. Con `+` e `−`, il segno compare automaticamente sopra la freccia se il campo Etichetta è vuoto; un'etichetta personalizzata lo sostituisce. I loop composti solo da `+` e `−` risultano rinforzanti (R) o bilancianti (B); un loop che contiene `1` resta neutro o indeterminato (N). La finestra riporta loop, partecipazione delle variabili, portata funzionale, influenza firmata, ranking dei punti di leva ed esportazione CSV. La guida completa, inclusi limiti e esempio, è in [docs/DIAGRAMMA-LOOP-FUNZIONALI.md](docs/DIAGRAMMA-LOOP-FUNZIONALI.md).
+Da `Tools > Esegui Diagramma dei Loop Funzionali` puoi analizzare la struttura funzionale del grafo anche se le formule non sono ancora state scritte. Seleziona una freccia e imposta nel pannello laterale il tipo di relazione: `+` diretta, `−` inversa, `1` non monotona o non specificata, oppure `0` per rimuovere la freccia. Con `+` e `−`, il segno compare automaticamente sopra la freccia se il campo Etichetta è vuoto; un'etichetta personalizzata lo sostituisce. I loop composti solo da `+` e `−` risultano rinforzanti (R) o bilancianti (B); un loop che contiene `1` resta neutro o indeterminato (N). La finestra riporta loop, partecipazione delle variabili, portata funzionale, influenza firmata, ranking dei punti di leva ed esportazione CSV. La guida completa, inclusi limiti e esempio, è in [docs/DIAGRAMMA-LOOP-FUNZIONALI.md](docs/DIAGRAMMA-LOOP-FUNZIONALI.md).
 
 ## Gruppi di presentazione
 
@@ -473,6 +481,22 @@ Le funzioni e gli operatori non scalari sono pensati per lavorare in modo coeren
 
 ## Numeri casuali
 
+### Distribuzioni
+
+- `powerLaw([alpha, xmin], x, mode)`
+  - distribuzione power law continua, con `alpha > 1` e `xmin` opzionale
+    (predefinito `1`)
+  - se `x` manca estrae un valore casuale; `mode=0` calcola la pdf, `mode=1`
+    la cdf e `mode=2` la icdf
+
+Esempi: `powerLaw([2.5])`, `powerLaw([2.5,3], 4, 0)`,
+`powerLaw([2.5,3], 0.5, 2)`.
+
+### Parità
+
+- `odd(x)` restituisce `1` per un intero dispari e `0` altrimenti.
+- `even(x)` restituisce `1` per un intero pari e `0` altrimenti.
+
 - `rand()`
   - numero casuale uniforme tra `0` e `1`
 
@@ -742,3 +766,17 @@ Se il nodo selezionato:
 - oppure non produce una matrice rettangolare
 
 il widget mostra un messaggio esplicito invece della griglia.
+
+## Widget D-pad
+
+Il D-pad è un widget di input numerico. A riposo vale `0`; le direzioni
+restituiscono rispettivamente `1` in alto, `2` a destra, `3` in basso e `4` a
+sinistra. Nelle proprietà scegli il nodo di input o parametro e il comportamento:
+`Toggle on click` mantiene la direzione scelta fino al clic successivo sulla
+stessa direzione; `Active while pressed` restituisce `0` al rilascio.
+
+Ogni direzione del D-pad e ogni pulsante standard può associare un tasto della
+tastiera tramite `Associa`. Alla pressione il tasto viene acquisito e il
+controllo `Associa` lascia posto al tasto memorizzato e a `Rimuovi`. Uno stesso
+tasto può appartenere a un solo controllo: una nuova associazione sostituisce
+automaticamente la precedente.

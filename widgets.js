@@ -172,11 +172,22 @@ function addButtonWidget(at = null) {
     value: false,
     initialValue: false,
     buttonMode: "toggle",
+    keyBinding: "",
     falseLabel: "",
     trueLabel: "",
     rows: [],
     columns: [],
     xyPairs: [],
+  });
+}
+
+function addDpadWidget(at = null) {
+  const id = widgetCounter++;
+  const { x, y } = getSmartCanvasInsertionPoint({ width: 150, height: 150, anchor: at });
+  graph.widgets.push({
+    id, type: "dpad", customTitle: "", x, y, width: 150, height: 150,
+    minimized: false, showTitleBar: true, fontSize: 13, outputOnly: false,
+    source: "", value: 0, buttonMode: "toggle", keyBindings: { up: "", right: "", down: "", left: "" }, rows: [], columns: [], xyPairs: [],
   });
 }
 
@@ -595,6 +606,13 @@ function buildChartPairSeriesDefinitions(pair, xValue, yValue) {
 }
 
 function buildChartPairInstantSeriesDefinitions(pair, xValue, yValue) {
+  if (isFiniteScalar(xValue) && isFiniteScalar(yValue)) {
+    return [{
+      label: `${pair.xSource} -> ${pair.ySource}`,
+      points: [{ x: xValue, y: yValue }],
+    }];
+  }
+
   if (isFiniteScalar(xValue) && isFiniteVector(yValue)) {
     return [
       {
@@ -657,9 +675,134 @@ function sanitizeButtonWidgetOptions(widget) {
   widget.value = normalizedValue;
   widget.initialValue = normalizedInitialValue;
   widget.buttonMode = widget.buttonMode === "momentary" ? "momentary" : "toggle";
+  widget.keyBinding = typeof widget.keyBinding === "string" ? widget.keyBinding : "";
   widget.falseLabel = String(widget.falseLabel ?? "").trim();
   widget.trueLabel = String(widget.trueLabel ?? "").trim();
 }
+
+function sanitizeDpadWidgetOptions(widget) {
+  const allowedNames = new Set(buttonBindableNodeNames(widget.id, widget.source));
+  widget.source = String(widget.source ?? "");
+  if (widget.source && !allowedNames.has(widget.source)) widget.source = "";
+  widget.value = [0, 1, 2, 3, 4].includes(Number(widget.value)) ? Number(widget.value) : 0;
+  widget.buttonMode = widget.buttonMode === "momentary" ? "momentary" : "toggle";
+  const bindings = widget.keyBindings && typeof widget.keyBindings === "object" ? widget.keyBindings : {};
+  widget.keyBindings = Object.fromEntries(["up", "right", "down", "left"].map((direction) => [
+    direction,
+    typeof bindings[direction] === "string" ? bindings[direction] : "",
+  ]));
+}
+
+function keyboardKeyLabel(code) {
+  const named = { ArrowUp: "↑", ArrowRight: "→", ArrowDown: "↓", ArrowLeft: "←", Space: "Space", Enter: "Enter", Escape: "Esc" };
+  return named[code] || String(code || "").replace(/^Key/, "").replace(/^Digit/, "");
+}
+
+function removeWidgetKeyBinding(code, exceptWidgetId, exceptDirection = null) {
+  graph.widgets.forEach((other) => {
+    if (other.type === "button" && other.id !== exceptWidgetId && other.keyBinding === code) other.keyBinding = "";
+    if (other.type === "dpad") {
+      sanitizeDpadWidgetOptions(other);
+      Object.keys(other.keyBindings).forEach((direction) => {
+        if (other.keyBindings[direction] === code && (other.id !== exceptWidgetId || direction !== exceptDirection)) other.keyBindings[direction] = "";
+      });
+    }
+  });
+}
+
+function assignWidgetKeyBinding(widget, direction, code) {
+  removeWidgetKeyBinding(code, widget.id, direction);
+  if (widget.type === "button") widget.keyBinding = code;
+  if (widget.type === "dpad") {
+    sanitizeDpadWidgetOptions(widget);
+    widget.keyBindings[direction] = code;
+  }
+}
+
+function clearWidgetKeyBinding(widget, direction = null) {
+  if (widget.type === "button") widget.keyBinding = "";
+  if (widget.type === "dpad") {
+    sanitizeDpadWidgetOptions(widget);
+    widget.keyBindings[direction] = "";
+  }
+}
+
+function widgetKeyboardInputTarget(target = document.activeElement) {
+  return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+}
+
+function setWidgetKeyboardValue(widget, direction, pressed) {
+  if (widget.type === "button") {
+    if (widget.buttonMode === "momentary") widget.value = pressed ? !widget.initialValue : widget.initialValue;
+    else if (pressed) widget.value = !widget.value;
+    applyButtonWidgetValueToNode(widget);
+    return;
+  }
+  if (widget.type === "dpad") {
+    const values = { up: 1, right: 2, down: 3, left: 4 };
+    if (widget.buttonMode === "momentary") widget.value = pressed ? values[direction] : 0;
+    else if (pressed) widget.value = widget.value === values[direction] ? 0 : values[direction];
+    applyDpadWidgetValueToNode(widget);
+  }
+}
+
+window.addEventListener("keydown", (evt) => {
+  const capture = ui?.widgetKeyBindingCapture;
+  if (capture) {
+    if (evt.key === "Escape") {
+      ui.widgetKeyBindingCapture = null;
+      refreshSidebar();
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
+      return;
+    }
+    if (["Shift", "Control", "Alt", "Meta"].includes(evt.key) || evt.repeat) return;
+    const widget = graph.widgets.find((item) => item.id === capture.widgetId);
+    if (widget) {
+      runWidgetAction(() => assignWidgetKeyBinding(widget, capture.direction, evt.code));
+    }
+    ui.widgetKeyBindingCapture = null;
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+    return;
+  }
+  if (evt.repeat || evt.ctrlKey || evt.metaKey || evt.altKey || evt.shiftKey || widgetKeyboardInputTarget(evt.target) || document.querySelector(".modal-overlay:not(.hidden)")) return;
+  const matches = [];
+  graph.widgets.forEach((widget) => {
+    if (widget.type === "button") {
+      sanitizeButtonWidgetOptions(widget);
+      if (widget.keyBinding === evt.code) matches.push([widget, null]);
+    } else if (widget.type === "dpad") {
+      sanitizeDpadWidgetOptions(widget);
+      Object.entries(widget.keyBindings).forEach(([direction, code]) => { if (code === evt.code) matches.push([widget, direction]); });
+    }
+  });
+  if (!matches.length) return;
+  matches.forEach(([widget, direction]) => setWidgetKeyboardValue(widget, direction, true));
+  refreshSidebar();
+  scheduleFileStatusRefresh();
+  renderWidgets();
+  evt.preventDefault();
+  evt.stopImmediatePropagation();
+}, true);
+
+window.addEventListener("keyup", (evt) => {
+  if (widgetKeyboardInputTarget(evt.target)) return;
+  const matches = [];
+  graph.widgets.forEach((widget) => {
+    if (widget.type === "button" && widget.buttonMode === "momentary" && widget.keyBinding === evt.code) matches.push([widget, null]);
+    if (widget.type === "dpad" && widget.buttonMode === "momentary") {
+      Object.entries(widget.keyBindings || {}).forEach(([direction, code]) => { if (code === evt.code) matches.push([widget, direction]); });
+    }
+  });
+  if (!matches.length) return;
+  matches.forEach(([widget, direction]) => setWidgetKeyboardValue(widget, direction, false));
+  refreshSidebar();
+  scheduleFileStatusRefresh();
+  renderWidgets();
+  evt.preventDefault();
+  evt.stopImmediatePropagation();
+}, true);
 
 function normalizeSelectWidgetOptions(options) {
   const normalized = Array.isArray(options)
@@ -740,6 +883,8 @@ function applyWidgetDrivenNodeValues() {
       applySliderWidgetValueToNode(widget);
     } else if (widget.type === "button") {
       applyButtonWidgetValueToNode(widget);
+    } else if (widget.type === "dpad") {
+      applyDpadWidgetValueToNode(widget);
     } else if (widget.type === "select") {
       applySelectWidgetValueToNode(widget);
     }
@@ -781,6 +926,18 @@ function applyButtonWidgetValueToNode(widget) {
   node.externalValueEnabled = true;
   node.externalValue = value;
   node.computedValue = value;
+  node.computedError = "";
+}
+
+function applyDpadWidgetValueToNode(widget) {
+  if (!widget || widget.type !== "dpad") return;
+  sanitizeDpadWidgetOptions(widget);
+  if (!widget.source) return;
+  const node = getNodeByName(widget.source);
+  if (!canBindButtonToNode(node)) return;
+  node.externalValueEnabled = true;
+  node.externalValue = widget.value;
+  node.computedValue = widget.value;
   node.computedError = "";
 }
 
@@ -872,6 +1029,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
   if (!ctx) {
     return;
   }
+  canvas.__dsgraphChartHitTest = () => "";
   const drawRoundedRectPath = (x, y, w, h, r) => {
     const radius = Math.max(0, Math.min(r, w / 2, h / 2));
     if (typeof ctx.roundRect === "function") {
@@ -1039,6 +1197,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
 
   const sx = (x) => leftPad + ((x - minX) / (maxX - minX)) * plotW;
   const sy = (y) => topPad + plotH - ((y - minY) / (maxY - minY)) * plotH;
+  const chartHitTargets = [];
   const xTicks = buildTicks(minX, maxX, Math.max(4, Math.floor(plotW / 90)));
   const yTicks = buildTicks(minY, maxY, Math.max(4, Math.floor(plotH / 60)));
   const chartPointBudget = Math.max(200, Math.floor(plotW * 2));
@@ -1087,6 +1246,10 @@ function drawXYChart(canvas, seriesList = [], options = null) {
   ctx.lineTo(leftPad, topPad + plotH);
   ctx.stroke();
 
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(leftPad, topPad, plotW, plotH);
+  ctx.clip();
   activeSeries.forEach((series, s) => {
     const color = series.color || defaultChartSeriesColor(s);
     // Decimation is appropriate for a continuous path, but not for a scatter
@@ -1112,6 +1275,16 @@ function drawXYChart(canvas, seriesList = [], options = null) {
       if (moved) {
         ctx.stroke();
       }
+      for (let i = 1; i < linePoints.length; i += 1) {
+        const start = linePoints[i - 1];
+        const end = linePoints[i];
+        chartHitTargets.push({
+          kind: "line",
+          x1: sx(start.x), y1: sy(start.y), x2: sx(end.x), y2: sy(end.y),
+          valueAt: (ratio) => ({ x: start.x + (end.x - start.x) * ratio, y: start.y + (end.y - start.y) * ratio }),
+          tolerance: Math.max(7, series.lineWidth + 4),
+        });
+      }
     }
     ctx.setLineDash([]);
     if (series.pointMode !== "none") {
@@ -1122,6 +1295,7 @@ function drawXYChart(canvas, seriesList = [], options = null) {
       pointsToDraw.forEach((p) => {
         const x = sx(p.x);
         const y = sy(p.y);
+        chartHitTargets.push({ kind: "point", x, y, radius: Math.max(7, series.pointSize + 4), value: p });
         if (series.pointSize <= 1) {
           ctx.fillRect(Math.round(x - 1), Math.round(y - 1), 2, 2);
           return;
@@ -1132,6 +1306,21 @@ function drawXYChart(canvas, seriesList = [], options = null) {
       });
     }
   });
+  ctx.restore();
+
+  // Keep the frame and axes above plotted data: values beyond a fixed range
+  // remain clipped to the plot area and cannot overlap ticks or labels.
+  ctx.strokeStyle = palette.plotBorder;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(leftPad, topPad, plotW, plotH);
+  ctx.strokeStyle = palette.axis;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(leftPad, topPad + plotH);
+  ctx.lineTo(leftPad + plotW, topPad + plotH);
+  ctx.moveTo(leftPad, topPad);
+  ctx.lineTo(leftPad, topPad + plotH);
+  ctx.stroke();
 
   ctx.strokeStyle = palette.tick;
   ctx.lineWidth = 1;
@@ -1262,11 +1451,35 @@ function drawXYChart(canvas, seriesList = [], options = null) {
     });
     ctx.textBaseline = "top";
   }
+
+  canvas.__dsgraphChartHitTest = (x, y) => {
+    if (x < leftPad || x > leftPad + plotW || y < topPad || y > topPad + plotH) {
+      return "";
+    }
+    for (const target of chartHitTargets.filter((item) => item.kind === "point")) {
+      if (Math.hypot(x - target.x, y - target.y) <= target.radius) {
+        return `(${formatNumberValue(target.value.x)}, ${formatNumberValue(target.value.y)})`;
+      }
+    }
+    let nearest = null;
+    chartHitTargets.filter((item) => item.kind === "line").forEach((target) => {
+      const dx = target.x2 - target.x1;
+      const dy = target.y2 - target.y1;
+      const lengthSq = dx * dx + dy * dy;
+      const ratio = lengthSq > 0 ? clamp(((x - target.x1) * dx + (y - target.y1) * dy) / lengthSq, 0, 1) : 0;
+      const distance = Math.hypot(x - (target.x1 + dx * ratio), y - (target.y1 + dy * ratio));
+      if (distance <= target.tolerance && (!nearest || distance < nearest.distance)) {
+        nearest = { distance, value: target.valueAt(ratio) };
+      }
+    });
+    return nearest ? `(${formatNumberValue(nearest.value.x)}, ${formatNumberValue(nearest.value.y)})` : "";
+  };
 }
 
 function drawBarPlot(canvas, seriesList = [], options = {}) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  canvas.__dsgraphChartHitTest = () => "";
   const palette = canvasThemePalette();
   const bars = seriesList.flatMap((series, index) => (series.points || []).map((point) => ({
     x: Number(point.x), y: Number(point.y), color: series.color || defaultChartSeriesColor(index),
@@ -1308,7 +1521,28 @@ function drawBarPlot(canvas, seriesList = [], options = {}) {
   ctx.strokeStyle = palette.axis; ctx.lineWidth = 1.2; ctx.strokeRect(left, top, plotW, plotH);
   const zeroY = sy(0); ctx.beginPath(); ctx.moveTo(left, zeroY); ctx.lineTo(left + plotW, zeroY); ctx.stroke();
   const width = Math.max(2, Math.min(plotW / Math.max(1, bars.length) * widthFactor, Math.abs(sx(uniqueX[0] + spacing * widthFactor) - sx(uniqueX[0]))));
-  bars.forEach((bar) => { const y = sy(bar.y); ctx.fillStyle = bar.color; ctx.fillRect(sx(bar.x) - width / 2, Math.min(y, zeroY), width, Math.abs(zeroY - y)); });
+  const chartHitTargets = [];
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(left, top, plotW, plotH);
+  ctx.clip();
+  bars.forEach((bar) => {
+    const y = sy(bar.y);
+    const left = sx(bar.x) - width / 2;
+    const top = Math.min(y, zeroY);
+    const height = Math.abs(zeroY - y);
+    ctx.fillStyle = bar.color;
+    ctx.fillRect(left, top, width, height);
+    chartHitTargets.push({ left, top, width, height, value: bar.y });
+  });
+  ctx.restore();
+  ctx.strokeStyle = palette.axis;
+  ctx.lineWidth = 1.2;
+  ctx.strokeRect(left, top, plotW, plotH);
+  ctx.beginPath();
+  ctx.moveTo(left, zeroY);
+  ctx.lineTo(left + plotW, zeroY);
+  ctx.stroke();
   ctx.fillStyle = palette.text; ctx.font = `${fontSize}px sans-serif`;
   const xLabels = new Map((Array.isArray(options.xTickLabels) ? options.xTickLabels : []).map((entry) => [Number(entry?.value), String(entry?.label ?? "")]).filter(([value, label]) => Number.isFinite(value) && label));
   if (options.showXTicks !== false) {
@@ -1331,6 +1565,44 @@ function drawBarPlot(canvas, seriesList = [], options = {}) {
     ctx.fillText(yAxisLabel, 0, 0);
     ctx.restore();
   }
+  canvas.__dsgraphChartHitTest = (x, y) => {
+    if (x < left || x > left + plotW || y < top || y > top + plotH) {
+      return "";
+    }
+    const target = chartHitTargets.find((bar) => x >= bar.left && x <= bar.left + bar.width && y >= bar.top && y <= bar.top + bar.height);
+    return target ? formatNumberValue(target.value) : "";
+  };
+}
+
+function installChartValueTooltip(canvas, canvasWrap) {
+  if (!canvas || !canvasWrap || canvas.__dsgraphChartTooltipInstalled) {
+    return;
+  }
+  canvas.__dsgraphChartTooltipInstalled = true;
+  const tooltip = document.createElement("div");
+  tooltip.className = "chart-value-tooltip";
+  tooltip.hidden = true;
+  canvasWrap.appendChild(tooltip);
+  const hide = () => {
+    tooltip.hidden = true;
+    canvas.style.cursor = "default";
+  };
+  canvas.addEventListener("pointermove", (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const text = canvas.__dsgraphChartHitTest?.((event.clientX - rect.left) * scaleX, (event.clientY - rect.top) * scaleY) || "";
+    if (!text) {
+      hide();
+      return;
+    }
+    tooltip.textContent = text;
+    tooltip.hidden = false;
+    tooltip.style.left = `${Math.min(canvasWrap.clientWidth - 8, Math.max(8, event.clientX - rect.left + 12))}px`;
+    tooltip.style.top = `${Math.max(4, event.clientY - rect.top - 8)}px`;
+    canvas.style.cursor = "crosshair";
+  });
+  canvas.addEventListener("pointerleave", hide);
 }
 
 function barPlotSeries(widget, nodeMap = buildNodeNameMap()) {
@@ -1729,6 +2001,9 @@ function widgetDefaultTitle(widget) {
   if (widget.type === "button") {
     return t("widget.buttonTitle", { id: widget.id });
   }
+  if (widget.type === "dpad") {
+    return t("widget.dpadTitle", { id: widget.id });
+  }
   if (widget.type === "text") {
     return t("widget.textTitle", { id: widget.id });
   }
@@ -1740,7 +2015,7 @@ function widgetDefaultTitle(widget) {
 
 function widgetTitleBindingLabel(widget) {
   const source = String(widget?.source ?? "").trim();
-  if (["slider", "select", "button", "text", "led", "matrix"].includes(widget?.type)) {
+  if (["slider", "select", "button", "dpad", "text", "led", "matrix"].includes(widget?.type)) {
     return source;
   }
   if (widget?.type === "table") {
@@ -2378,6 +2653,7 @@ function refreshChartWidgetRuntimeBody(root, widget, nodeMap = buildNodeNameMap(
   } else {
     drawXYChart(canvas, seriesList, widget);
   }
+  installChartValueTooltip(canvas, canvas.parentElement);
 }
 
 function refreshSliderWidgetRuntimeBody(root, widget) {
@@ -2422,7 +2698,25 @@ function refreshButtonWidgetRuntimeBody(root, widget) {
   toggleBtn.disabled = lockedForRun;
   toggleBtn.classList.toggle("is-on", Boolean(widget.value));
   toggleBtn.classList.toggle("is-off", !Boolean(widget.value));
+  toggleBtn.setAttribute("aria-pressed", String(Boolean(widget.value)));
   toggleBtn.textContent = widgetBinaryStateLabel(widget, Boolean(widget.value), "");
+}
+
+function refreshDpadWidgetRuntimeBody(root, widget) {
+  sanitizeDpadWidgetOptions(widget);
+  const body = root.querySelector(".value-widget-body");
+  const buttons = body?.querySelectorAll(".dpad-widget-button");
+  if (!body || !buttons?.length) {
+    renderWidgets();
+    return;
+  }
+  const lockedForRun = getNodeByName(widget.source)?.shape === "diamond" && isExecutionFrozen();
+  buttons.forEach((button) => {
+    const isActive = Number(button.dataset.value) === widget.value && widget.value !== 0;
+    button.disabled = lockedForRun;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
 }
 
 function refreshSelectWidgetRuntimeBody(root, widget) {
@@ -2500,6 +2794,8 @@ function refreshRuntimeWidgetContents(excludeWidgetId = null) {
       refreshSelectWidgetRuntimeBody(root, widget);
     } else if (widget.type === "button") {
       refreshButtonWidgetRuntimeBody(root, widget);
+    } else if (widget.type === "dpad") {
+      refreshDpadWidgetRuntimeBody(root, widget);
     } else if (widget.type === "text") {
       refreshTextWidgetRuntimeBody(root, widget, nodeMap);
     } else if (widget.type === "led") {
@@ -2582,7 +2878,7 @@ function renderWidgets() {
   };
 
   graph.widgets.forEach((widget) => {
-    if (widget.type !== "table" && widget.type !== "xychart" && widget.type !== "barplot" && widget.type !== "slider" && widget.type !== "matrix" && widget.type !== "button" && widget.type !== "led" && widget.type !== "select" && widget.type !== "text") {
+    if (widget.type !== "table" && widget.type !== "xychart" && widget.type !== "barplot" && widget.type !== "slider" && widget.type !== "matrix" && widget.type !== "button" && widget.type !== "dpad" && widget.type !== "led" && widget.type !== "select" && widget.type !== "text") {
       return;
     }
     if (typeof isDashboardItemVisible === "function" && !isDashboardItemVisible(widget)) {
@@ -2599,6 +2895,8 @@ function renderWidgets() {
       sanitizeXYChartOptions(widget);
     } else if (widget.type === "button") {
       sanitizeButtonWidgetOptions(widget);
+    } else if (widget.type === "dpad") {
+      sanitizeDpadWidgetOptions(widget);
     } else if (widget.type === "select") {
       sanitizeSelectWidgetOptions(widget);
     } else if (widget.type === "text") {
@@ -2823,6 +3121,7 @@ function renderWidgets() {
         drawXYChart(canvas, seriesList, widget);
       }
       canvasWrap.appendChild(canvas);
+      installChartValueTooltip(canvas, canvasWrap);
       body.appendChild(canvasWrap);
     } else if (widget.type === "slider") {
       const sliderWrap = document.createElement("div");
@@ -3009,6 +3308,7 @@ function renderWidgets() {
       const syncButtonDisplay = (commit = false) => {
         toggleBtn.classList.toggle("is-on", Boolean(widget.value));
         toggleBtn.classList.toggle("is-off", !Boolean(widget.value));
+        toggleBtn.setAttribute("aria-pressed", String(Boolean(widget.value)));
         toggleBtn.textContent = widgetBinaryStateLabel(widget, Boolean(widget.value), "");
         applyButtonWidgetValueToNode(widget);
         if (commit) {
@@ -3102,6 +3402,53 @@ function renderWidgets() {
 
       buttonWrap.appendChild(toggleBtn);
       body.appendChild(buttonWrap);
+    } else if (widget.type === "dpad") {
+      const pad = document.createElement("div");
+      pad.className = "dpad-widget";
+      const lockedForRun = getNodeByName(widget.source)?.shape === "diamond" && isExecutionFrozen();
+      const sync = (commit = false) => {
+        applyDpadWidgetValueToNode(widget);
+        pad.querySelectorAll(".dpad-widget-button").forEach((button) => {
+          const isActive = Number(button.dataset.value) === widget.value && widget.value !== 0;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-pressed", String(isActive));
+        });
+        if (commit) { refreshSidebar(); scheduleFileStatusRefresh(); }
+      };
+      const clear = () => { if (ui.sliderInteraction?.widgetId === widget.id) ui.sliderInteraction = null; };
+      [["up", "↑", 1], ["right", "→", 2], ["down", "↓", 3], ["left", "←", 4]].forEach(([direction, label, value]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `dpad-widget-button dpad-${direction}`;
+        button.dataset.value = String(value);
+        button.textContent = label;
+        button.disabled = lockedForRun;
+        button.setAttribute("aria-label", t(`widget.dpad.${direction}`));
+        const release = () => {
+          if (widget.buttonMode === "momentary" && widget.value !== 0) { widget.value = 0; sync(true); }
+          clear();
+        };
+        button.addEventListener("pointerdown", (evt) => {
+          if (lockedForRun || (typeof isTabletCanvasPanMode === "function" && isTabletCanvasPanMode())) return;
+          evt.stopPropagation();
+          ui.sliderInteraction = { widgetId: widget.id, mode: "dpad" };
+          if (!(ui.selected?.type === "widget" && ui.selected.id === widget.id)) selectWidget(widget.id);
+          if (widget.buttonMode === "momentary") { button.setPointerCapture?.(evt.pointerId); widget.value = value; sync(true); }
+        });
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("blur", release);
+        button.addEventListener("click", (evt) => {
+          evt.stopPropagation();
+          if (lockedForRun || widget.buttonMode === "momentary") return;
+          widget.value = widget.value === value ? 0 : value;
+          sync(true);
+          clear();
+        });
+        pad.appendChild(button);
+      });
+      sync();
+      body.appendChild(pad);
     } else if (widget.type === "text") {
       renderTextWidgetBody(body, widget);
     }
@@ -3397,6 +3744,14 @@ function openBackgroundContextMenu(evt) {
       action: () => {
         runWidgetAction(() => addButtonWidget({ x: p.x, y: p.y }));
         setStatusKey("status.widgetButtonCreated");
+      },
+    },
+    {
+      label: t("context.bg.newDpadWidget"),
+      icon: "✥",
+      action: () => {
+        runWidgetAction(() => addDpadWidget({ x: p.x, y: p.y }));
+        setStatusKey("status.widgetDpadCreated");
       },
     },
     {
@@ -4163,6 +4518,41 @@ function refreshWidgetConfigPanel(widget) {
     return wrap;
   };
 
+  const appendKeyBindingControl = (section, targetWidget, direction = null, label = null) => {
+    const row = document.createElement("div");
+    row.className = "widget-key-binding-row";
+    const name = document.createElement("span");
+    name.textContent = label || t("widget.keyBinding");
+    const binding = targetWidget.type === "button"
+      ? targetWidget.keyBinding
+      : targetWidget.keyBindings?.[direction];
+    row.appendChild(name);
+    if (binding) {
+      const key = document.createElement("kbd");
+      key.textContent = keyboardKeyLabel(binding);
+      key.title = binding;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "small-btn";
+      remove.textContent = t("widget.keyBindingRemove");
+      remove.addEventListener("click", () => runWidgetAction(() => clearWidgetKeyBinding(targetWidget, direction)));
+      row.append(key, remove);
+    } else {
+      const associate = document.createElement("button");
+      associate.type = "button";
+      associate.className = "small-btn";
+      associate.textContent = ui.widgetKeyBindingCapture?.widgetId === targetWidget.id && ui.widgetKeyBindingCapture?.direction === direction
+        ? t("widget.keyBindingCapturing")
+        : t("widget.keyBindingAssociate");
+      associate.addEventListener("click", () => {
+        ui.widgetKeyBindingCapture = { widgetId: targetWidget.id, direction };
+        refreshSidebar();
+      });
+      row.appendChild(associate);
+    }
+    section.appendChild(row);
+  };
+
   const mainSection = createWidgetSection(true);
 
   const titleRow = document.createElement("div");
@@ -4294,6 +4684,41 @@ function refreshWidgetConfigPanel(widget) {
     return;
   }
 
+  if (widget.type === "dpad") {
+    sanitizeDpadWidgetOptions(widget);
+    const section = createWidgetSection();
+    const sourceLabel = document.createElement("label");
+    sourceLabel.textContent = t("widget.buttonSourceLabel");
+    const sourceSelect = document.createElement("select");
+    const choices = ["", ...buttonBindableNodeNames(widget.id, widget.source)];
+    choices.forEach((name) => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name || t("widget.noneOption");
+      sourceSelect.appendChild(option);
+    });
+    sourceSelect.value = choices.includes(widget.source) ? widget.source : "";
+    sourceSelect.addEventListener("change", () => runAction(() => { widget.source = sourceSelect.value; sanitizeDpadWidgetOptions(widget); }));
+    section.append(sourceLabel, sourceSelect);
+    setConfigTooltip(sourceLabel, "tooltip.widget.inputSource");
+    setConfigTooltip(sourceSelect, "tooltip.widget.inputSource");
+    const modeLabel = document.createElement("label");
+    modeLabel.textContent = t("widget.buttonModeLabel");
+    const modeSelect = document.createElement("select");
+    [["toggle", "widget.buttonMode.toggle"], ["momentary", "widget.buttonMode.momentary"]].forEach(([value, key]) => {
+      const option = document.createElement("option"); option.value = value; option.textContent = t(key); modeSelect.appendChild(option);
+    });
+    modeSelect.value = widget.buttonMode;
+    modeSelect.addEventListener("change", () => runAction(() => { widget.buttonMode = modeSelect.value; widget.value = 0; sanitizeDpadWidgetOptions(widget); }));
+    section.append(modeLabel, modeSelect);
+    setConfigTooltip(modeSelect, "tooltip.widget.dpadMode");
+    appendKeyBindingControl(section, widget, "up", t("widget.dpad.up"));
+    appendKeyBindingControl(section, widget, "right", t("widget.dpad.right"));
+    appendKeyBindingControl(section, widget, "down", t("widget.dpad.down"));
+    appendKeyBindingControl(section, widget, "left", t("widget.dpad.left"));
+    return;
+  }
+
   if (widget.type === "button") {
     sanitizeButtonWidgetOptions(widget);
     const buttonSection = createWidgetSection();
@@ -4380,6 +4805,7 @@ function refreshWidgetConfigPanel(widget) {
     labelsRow.appendChild(createCompactField("widget.binaryFalseLabel", falseLabelInput));
     labelsRow.appendChild(createCompactField("widget.binaryTrueLabel", trueLabelInput));
     buttonSection.appendChild(labelsRow);
+    appendKeyBindingControl(buttonSection, widget);
     return;
   }
 
@@ -5629,6 +6055,7 @@ globalThis.Widgets = {
   addCanvasText,
   addLedWidget,
   addButtonWidget,
+  addDpadWidget,
   addSelectWidget,
   addTextWidget,
   addTableWidget,

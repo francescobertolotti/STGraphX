@@ -20,8 +20,9 @@ quantificate.
    funzionale diretta, `−` per una inversa, oppure `1` quando la relazione
    esiste ma è non monotona o il suo segno non è ancora specificato. Seleziona
    `0`, oppure lascia il selettore vuoto, per non creare alcuna freccia. Le
-   relazioni `+` e `−` sono create già monotone e mostrano il loro segno sopra
-   la freccia finché non viene inserita un'etichetta personalizzata. La diagonale
+  relazioni `+` e `−` sono create già monotone e mostrano il loro segno sopra
+  la freccia o accanto a essa se verticale; il segno può essere spostato e
+  ruotato senza perdere l'aggiornamento automatico. La diagonale
    non è modificabile perché il passaggio non introduce auto-collegamenti.
 3. **Variabili di stato.** Seleziona le variabili che dipendono anche dal loro
    valore precedente. Esse diventano nodi di stato; le altre diventano nodi

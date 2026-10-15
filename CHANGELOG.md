@@ -18,44 +18,65 @@ versione e data nel formato `## [x.y.z] - AAAA-MM-GG`.
 
 ### Added
 
-- I grafici X-Y e a barre consentono ora di aggiungere etichette testuali
-  opzionali agli assi X e Y; lo spazio del grafico si adatta per mantenerle
-  leggibili.
-- Ogni coppia X-Y può ora avere una `Visualized label` personalizzata per la
-  legenda; lasciandola vuota viene mantenuto il nome automatico `x -> y`.
-- Nelle Opzioni di visualizzazione è disponibile lo stile `Minimalista`, una
-  variante Minimalism & Swiss, affiancato da `Legacy` che conserva senza
-  modifiche l'interfaccia precedente. Lo stile Minimalista offre anche una
-  Modalità notturna OLED e adatta i grafici su canvas ai colori del tema.
+- Aggiunto `Strumenti > Analisi di sensibilità...`: consente di variare un solo
+  parametro o input alla volta su un intervallo campionato e mostrare il valore
+  finale di un output in tabella e in un grafico SVG, con esportazione CSV e
+  download dell'immagine vettoriale del grafico,
+  eseguendo copie temporanee del modello senza modificare il modello aperto.
 
+- Aggiunta la `Modalità sviluppo` nelle Opzioni di visualizzazione: abilita una
+  freccia per tornare al passo temporale precedente e conserva in RAM solo gli
+  ultimi cinque stati. Il ritorno in avanti riusa uno stato già calcolato senza
+  rivalutarlo; la cronologia non viene salvata nel modello e si elimina al
+  termine o al reset dell'esecuzione.
+
+- Aggiunte `odd(x)` ed `even(x)`, che restituiscono rispettivamente `1` per
+  gli interi dispari e pari, oppure `0` negli altri casi.
+- Aggiunta `powerLaw([alpha, xmin], x, mode)`, con campionamento quando `x`
+  manca e supporto per pdf, cdf e icdf.
+- Aggiunto il widget di input D-pad: vale `0` a riposo, `1` in alto, `2` a
+  destra, `3` in basso e `4` a sinistra, con comportamento alternato o attivo
+  solo mentre premuto.
+- Pulsanti e direzioni del D-pad possono ora associare un tasto della tastiera;
+  le associazioni sono univoche e una nuova assegnazione sostituisce la precedente.
+- Aggiunto `TECHNICAL DEPT.md` per registrare i problemi rimandati con data e
+  criterio di completamento.
+- Le proprietà degli archi includono ora una `Description` libera, salvata nel
+  modello insieme al collegamento.
+- Le etichette automatiche `+` e `−` degli archi funzionali sono ora spostabili
+  e ruotabili, mantengono il simbolo sincronizzato alla relazione e possono
+  essere nascoste con una nuova opzione di visualizzazione.
+- Passando su un punto o una linea del grafico x-y viene mostrata la coppia
+  `(x, y)` più vicina; passando su una barra viene mostrato il suo valore.
 
 ### Changed
 
-- Aggiornate al 2026-10-08 le date correnti della documentazione e il metadato
-  di release mostrato nell'applicazione e nel player incorporabile.
-- Lo stile grafico e la relativa Modalità notturna sono preferenze locali
-  dell'interfaccia: non vengono salvati nel file del modello e non cambiano
-  l'aspetto scelto da altri utenti.
-- L'interfaccia usa ora Geist come font principale. Il tema Minimalista usa
-  `#F7F8FA` per le superfici non separate e `#2563EB` per ogni stato attivo,
-  selezione, focus e slider, mantenendo il canvas e gli input bianchi.
-- Anche l'aspetto Legacy usa ora lo sfondo neutro `#F7F8FA` e il blu
-  `#2563EB` per gli indicatori di selezione condivisi, senza modificare
-  struttura o comportamento dell'editor.
+- Il Diagramma dei Loop Funzionali è stato spostato dal menu `Esegui` al menu
+  `Tools`, insieme agli altri strumenti di analisi.
+
+- I pulsanti standard mostrano ora rosso per il valore `0` e verde per il
+  valore `1` con sfumature ad alto contrasto; la direzione attiva del D-pad
+  usa un blu scuro con contorno visibile, anche durante la pressione.
+- Le posizioni delle etichette degli archi sono ora offset relativi al loro
+  arco: dopo uno spostamento seguono nodi e punti di controllo anziché restare
+  ancorate a coordinate assolute del canvas.
 
 ### Fixed
 
-- Nello stile Minimalista la preferenza del modello `Mostra griglia` viene
-  nuovamente rispettata; inoltre l'editor delle equazioni conserva il proprio
-  livello trasparente di sintassi, così il testo resta leggibile in entrambi i
-  temi chiari e scuri.
-- Nel popup di modifica del nodo, cambiare il tipo applica subito la
-  trasformazione strutturale: i campi specifici (come stato iniziale e
-  transizione) e la validazione si aggiornano immediatamente.
-- Con più nodi selezionati, la spunta Input è ora disponibile quando tutti i
-  nodi sono algebrici e privi di frecce entranti; se anche un solo nodo non è
-  idoneo, l'azione resta indisponibile per l'intera selezione.
+- La finestra dell'analisi di sensibilità ora fa scorrere l'intero contenuto,
+  inclusi tabella e grafico, evitando che il grafico venga compresso o tagliato.
 
+- Nelle Opzioni di visualizzazione le opzioni di esecuzione sono ora disposte
+  verticalmente, evitando che `Modalità sviluppo` faccia debordare il popup.
+
+- Il profilo istantaneo del grafico x-y visualizza ora anche una singola coppia
+  di valori scalari.
+- Le serie dei grafici x-y e le barre vengono ora ritagliate entro i limiti
+  fissati degli assi, con bordo e assi ridisegnati sopra ai dati.
+- I menu a tendina scorrono internamente quando l'altezza della finestra non
+  basta a visualizzarli interamente.
+- Il sottomenu dei modelli recenti resta apribile dal menu File anche con i
+  pannelli a tendina scorrevoli.
 
 ### Removed
 

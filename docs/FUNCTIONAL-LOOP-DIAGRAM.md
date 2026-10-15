@@ -6,7 +6,7 @@ Copyright (c) 2026 Francesco Bertolotti.
 
 # Functional Loop Diagram
 
-The **Functional Loop Diagram** is a qualitative, structural analysis of the directed graph already in the model. Open it with **Run > Run Functional Loop Diagram**. It needs no equations, quantitative data, or timed simulation, and does not change the graph: it only reads its nodes, edges, and functional relationship types.
+The **Functional Loop Diagram** is a qualitative, structural analysis of the directed graph already in the model. Open it with **Tools > Run Functional Loop Diagram**. It needs no equations, quantitative data, or timed simulation, and does not change the graph: it only reads its nodes, edges, and functional relationship types.
 
 ## Preparing the graph
 
@@ -19,7 +19,7 @@ Select an edge and choose its **Functional relationship type** in the Properties
 
 Every new edge defaults to `1`. It does not mean numeric `+1`; it denotes a functionally indeterminate relationship for sign analysis. Older models stay compatible: their edges without an explicit field default to `1`.
 
-For a `+` or `−` relationship, DSGraph automatically shows the sign above the edge when the **Label** field is empty. A custom label replaces that automatic sign, and its position, rotation, and background remain under the user's control.
+For a `+` or `−` relationship, DSGraph automatically shows the sign above the edge, or beside it for vertical links, when the **Label** field is empty. Its initial position adapts to the edge direction; the automatic sign can still be dragged and rotated like a custom label while its text remains synchronized with the relationship type. Its moved position is stored as an offset from the edge, so it follows moved nodes and control points. **View > View options** can hide all edge labels. Edge properties also include a free-form **Description**.
 
 ## Results
 

@@ -19,7 +19,8 @@ explicit, so they can be reviewed, corrected, and later quantified.
    for an inverse one, or `1` when a relationship exists but is non-monotonic
    or its sign is not yet specified. Select `0`, or leave the selector empty,
    to create no edge. `+` and `−` relationships are created as monotonic and
-   show their sign above the edge until a custom label is entered. The diagonal
+  show their sign above the edge, or beside a vertical edge; the sign can be
+  moved and rotated while keeping its automatic update. The diagonal
    cannot be edited because the wizard does not introduce self-links.
 3. **State variables.** Select variables whose value also depends on the
    system's previous state. They become state nodes; the remaining variables

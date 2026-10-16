@@ -2,7 +2,7 @@
 
 Questo file registra tutte le modifiche che hanno effetto su codice, comportamento, documentazione, distribuzione o strumenti di sviluppo rispetto alla versione originaria di Luca Mari nella versione del 16 settembre. 
 
-## Regola obbligatoria
+## Regola obbligatoria 
 
 Per ogni modifica effettuata nel repository, aggiornare nella stessa modifica la
 sezione `Unreleased` qui sotto. Inserire la voce nella categoria appropriata e
